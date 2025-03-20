@@ -109,14 +109,7 @@ const ServicesPage = () => {
               Find skilled experts for your construction projects
             </p>
           </div>
-          <div className="flex items-center gap-2">
-            <span className="text-sm text-gray-400">Sort by:</span>
-            <select className="bg-gray-800/50 border border-gray-700/50 rounded-lg text-white text-sm px-3 py-1.5">
-              <option>Rating: High to Low</option>
-              <option>Experience</option>
-              <option>Hourly Rate: Low to High</option>
-            </select>
-          </div>
+         
         </div>
 
         {/* Search and Filter */}
