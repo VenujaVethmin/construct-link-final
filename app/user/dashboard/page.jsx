@@ -185,7 +185,7 @@ export default function Dashboard() {
                 className="bg-gradient-to-r from-orange-500 to-orange-600 text-white px-6 py-2.5 rounded-lg
                           shadow-lg shadow-orange-500/30 hover:shadow-orange-500/40 transition-all duration-300"
               >
-                New Project +
+                New Project
               </motion.button>
             </div>
 
