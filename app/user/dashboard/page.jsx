@@ -11,6 +11,7 @@ import {
   UserGroupIcon,
   XMarkIcon,
 } from "@heroicons/react/24/outline";
+import Link from "next/link";
 
 // ... existing metrics, projects, activities constants ...
 const metrics = [
@@ -196,48 +197,52 @@ export default function Dashboard() {
                   whileHover={{ scale: 1.03 }}
                   className="bg-gray-800/50 backdrop-blur-xl rounded-xl border border-gray-700 p-6 hover:shadow-lg hover:shadow-orange-500/20"
                 >
-                  <div className="flex justify-between items-start mb-4">
-                    <h3 className="text-white font-semibold">{project.name}</h3>
-                    <span
-                      className={`px-2 py-1 rounded-full text-xs ${
-                        project.status === "In Progress"
-                          ? "bg-orange-500/20 text-orange-500"
-                          : project.status === "On Hold"
-                          ? "bg-yellow-500/20 text-yellow-500"
-                          : "bg-green-500/20 text-green-500"
-                      }`}
-                    >
-                      {project.status}
-                    </span>
-                  </div>
-
-                  <div className="mb-4">
-                    <div className="flex justify-between mb-2">
-                      <span className="text-gray-400 text-sm">Progress</span>
-                      <span className="text-white text-sm">
-                        {project.progress}%
+                  <Link href={`/user/project`}>
+                    <div className="flex justify-between items-start mb-4">
+                      <h3 className="text-white font-semibold">
+                        {project.name}
+                      </h3>
+                      <span
+                        className={`px-2 py-1 rounded-full text-xs ${
+                          project.status === "In Progress"
+                            ? "bg-orange-500/20 text-orange-500"
+                            : project.status === "On Hold"
+                            ? "bg-yellow-500/20 text-yellow-500"
+                            : "bg-green-500/20 text-green-500"
+                        }`}
+                      >
+                        {project.status}
                       </span>
                     </div>
-                    <div className="w-full bg-gray-700 rounded-full h-2">
-                      <motion.div
-                        initial={{ width: 0 }}
-                        animate={{ width: `${project.progress}%` }}
-                        transition={{ duration: 1, ease: "easeOut" }}
-                        className="bg-orange-500 rounded-full h-2"
-                      />
-                    </div>
-                  </div>
 
-                  <div className="flex justify-between text-sm text-gray-400">
-                    <div className="flex items-center">
-                      <ClockIcon className="h-4 w-4 mr-1" />
-                      {project.deadline}
+                    <div className="mb-4">
+                      <div className="flex justify-between mb-2">
+                        <span className="text-gray-400 text-sm">Progress</span>
+                        <span className="text-white text-sm">
+                          {project.progress}%
+                        </span>
+                      </div>
+                      <div className="w-full bg-gray-700 rounded-full h-2">
+                        <motion.div
+                          initial={{ width: 0 }}
+                          animate={{ width: `${project.progress}%` }}
+                          transition={{ duration: 1, ease: "easeOut" }}
+                          className="bg-orange-500 rounded-full h-2"
+                        />
+                      </div>
                     </div>
-                    <div className="flex items-center">
-                      <UserGroupIcon className="h-4 w-4 mr-1" />
-                      {project.team} members
+
+                    <div className="flex justify-between text-sm text-gray-400">
+                      <div className="flex items-center">
+                        <ClockIcon className="h-4 w-4 mr-1" />
+                        {project.deadline}
+                      </div>
+                      <div className="flex items-center">
+                        <UserGroupIcon className="h-4 w-4 mr-1" />
+                        {project.team} members
+                      </div>
                     </div>
-                  </div>
+                  </Link>
                 </motion.div>
               ))}
             </div>

@@ -13,6 +13,7 @@ import {
 } from "@heroicons/react/24/outline";
 import { motion, AnimatePresence } from "framer-motion";
 import Image from "next/image";
+import Link from "next/link";
 
 const banners = [
   {
@@ -328,72 +329,74 @@ const Marketplace = () => {
                 whileHover={{ y: -5 }}
                 className="bg-gray-800/40 backdrop-blur-sm border border-gray-700/50 rounded-xl overflow-hidden"
               >
-                <div className="relative aspect-video">
-                  <Image
-                    src={supplier.image}
-                    alt={supplier.name}
-                    fill
-                    className="object-cover"
-                  />
-                  <div className="absolute top-4 right-4 bg-blue-500 text-white px-2 py-1 rounded-full text-xs">
-                    {supplier.verifiedYears} Years Verified
-                  </div>
-                </div>
-                <div className="p-4">
-                  <div className="flex items-start justify-between mb-2">
-                    <div>
-                      <h3 className="text-lg font-semibold text-white">
-                        {supplier.name}
-                      </h3>
-                      <div className="flex items-center gap-1 text-gray-400 text-sm">
-                        <MapPinIcon className="h-4 w-4" />
-                        <span>{supplier.location}</span>
-                      </div>
-                    </div>
-                    <div className="flex items-center gap-1">
-                      <StarIcon className="h-5 w-5 text-yellow-400" />
-                      <span className="text-white">{supplier.rating}</span>
+                <Link href={`/marketplace/suppliers`}>
+                  <div className="relative aspect-video">
+                    <Image
+                      src={supplier.image}
+                      alt={supplier.name}
+                      fill
+                      className="object-cover"
+                    />
+                    <div className="absolute top-4 right-4 bg-blue-500 text-white px-2 py-1 rounded-full text-xs">
+                      {supplier.verifiedYears} Years Verified
                     </div>
                   </div>
-                  <div className="flex items-center gap-2 mb-4 text-sm text-gray-400">
-                    <BuildingOffice2Icon className="h-4 w-4" />
-                    <span>{supplier.specialties.join(", ")}</span>
-                  </div>
-
-                  {/* Featured Products */}
-                  <div className="grid grid-cols-2 gap-2 mb-4">
-                    {supplier.featured.map((product) => (
-                      <div
-                        key={product.id}
-                        className="bg-gray-700/30 rounded-lg p-2 hover:bg-gray-700/50 transition-colors"
-                      >
-                        <div className="relative aspect-square rounded-md overflow-hidden mb-2">
-                          <Image
-                            src={product.image}
-                            alt={product.name}
-                            fill
-                            className="object-cover"
-                          />
+                  <div className="p-4">
+                    <div className="flex items-start justify-between mb-2">
+                      <div>
+                        <h3 className="text-lg font-semibold text-white">
+                          {supplier.name}
+                        </h3>
+                        <div className="flex items-center gap-1 text-gray-400 text-sm">
+                          <MapPinIcon className="h-4 w-4" />
+                          <span>{supplier.location}</span>
                         </div>
-                        <p className="text-xs text-gray-300 truncate">
-                          {product.name}
-                        </p>
                       </div>
-                    ))}
-                  </div>
+                      <div className="flex items-center gap-1">
+                        <StarIcon className="h-5 w-5 text-yellow-400" />
+                        <span className="text-white">{supplier.rating}</span>
+                      </div>
+                    </div>
+                    <div className="flex items-center gap-2 mb-4 text-sm text-gray-400">
+                      <BuildingOffice2Icon className="h-4 w-4" />
+                      <span>{supplier.specialties.join(", ")}</span>
+                    </div>
 
-                  <div className="flex gap-2">
-                    <button className="flex-1 bg-orange-500 text-white py-2 rounded-lg hover:bg-orange-600 text-sm">
-                      View Products
-                    </button>
-                    <button className="p-2 rounded-lg bg-gray-700/30 hover:bg-gray-700/50 text-gray-400 hover:text-white">
-                      <PhoneIcon className="h-5 w-5" />
-                    </button>
-                    <button className="p-2 rounded-lg bg-gray-700/30 hover:bg-gray-700/50 text-gray-400 hover:text-white">
-                      <EnvelopeIcon className="h-5 w-5" />
-                    </button>
+                    {/* Featured Products */}
+                    <div className="grid grid-cols-2 gap-2 mb-4">
+                      {supplier.featured.map((product) => (
+                        <div
+                          key={product.id}
+                          className="bg-gray-700/30 rounded-lg p-2 hover:bg-gray-700/50 transition-colors"
+                        >
+                          <div className="relative aspect-square rounded-md overflow-hidden mb-2">
+                            <Image
+                              src={product.image}
+                              alt={product.name}
+                              fill
+                              className="object-cover"
+                            />
+                          </div>
+                          <p className="text-xs text-gray-300 truncate">
+                            {product.name}
+                          </p>
+                        </div>
+                      ))}
+                    </div>
+
+                    <div className="flex gap-2">
+                      <button className="flex-1 bg-orange-500 text-white py-2 rounded-lg hover:bg-orange-600 text-sm">
+                        View Products
+                      </button>
+                      <button className="p-2 rounded-lg bg-gray-700/30 hover:bg-gray-700/50 text-gray-400 hover:text-white">
+                        <PhoneIcon className="h-5 w-5" />
+                      </button>
+                      <button className="p-2 rounded-lg bg-gray-700/30 hover:bg-gray-700/50 text-gray-400 hover:text-white">
+                        <EnvelopeIcon className="h-5 w-5" />
+                      </button>
+                    </div>
                   </div>
-                </div>
+                </Link>
               </motion.div>
             ))}
           </div>
@@ -414,40 +417,42 @@ const Marketplace = () => {
                 whileHover={{ y: -5 }}
                 className="bg-gray-800/40 backdrop-blur-sm border border-gray-700/50 rounded-xl overflow-hidden"
               >
-                <div className="relative aspect-square">
-                  <Image
-                    src={product.image}
-                    alt={product.name}
-                    fill
-                    className="object-cover hover:scale-105 transition-transform duration-300"
-                  />
-                </div>
-                <div className="p-4">
-                  <span className="text-sm text-gray-400">
-                    {product.category}
-                  </span>
-                  <h3 className="font-semibold text-white mt-1 mb-2">
-                    {product.name}
-                  </h3>
-                  <div className="flex items-center gap-2 mb-2">
-                    <div className="flex items-center">
-                      <StarIcon className="h-4 w-4 text-yellow-400" />
-                      <span className="ml-1 text-sm text-white">
-                        {product.rating}
+                <Link href={`/marketplace/products`}>
+                  <div className="relative aspect-square">
+                    <Image
+                      src={product.image}
+                      alt={product.name}
+                      fill
+                      className="object-cover hover:scale-105 transition-transform duration-300"
+                    />
+                  </div>
+                  <div className="p-4">
+                    <span className="text-sm text-gray-400">
+                      {product.category}
+                    </span>
+                    <h3 className="font-semibold text-white mt-1 mb-2">
+                      {product.name}
+                    </h3>
+                    <div className="flex items-center gap-2 mb-2">
+                      <div className="flex items-center">
+                        <StarIcon className="h-4 w-4 text-yellow-400" />
+                        <span className="ml-1 text-sm text-white">
+                          {product.rating}
+                        </span>
+                      </div>
+                      <span className="text-sm text-gray-400">
+                        ({product.reviewCount})
                       </span>
                     </div>
-                    <span className="text-sm text-gray-400">
-                      ({product.reviewCount})
-                    </span>
+                    <div className="flex items-center justify-between text-sm">
+                      <span className="text-gray-300">{product.supplier}</span>
+                      <span className="text-gray-400">{product.location}</span>
+                    </div>
+                    <button className="w-full mt-4 bg-gray-700/30 text-white py-2 rounded-lg hover:bg-gray-700/50 transition-colors">
+                      Contact Supplier
+                    </button>
                   </div>
-                  <div className="flex items-center justify-between text-sm">
-                    <span className="text-gray-300">{product.supplier}</span>
-                    <span className="text-gray-400">{product.location}</span>
-                  </div>
-                  <button className="w-full mt-4 bg-gray-700/30 text-white py-2 rounded-lg hover:bg-gray-700/50 transition-colors">
-                    Contact Supplier
-                  </button>
-                </div>
+                </Link>
               </motion.div>
             ))}
           </div>

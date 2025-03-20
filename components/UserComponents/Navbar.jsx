@@ -31,12 +31,12 @@ const navLinks = [
     icon: <ChartBarIcon className="h-6 w-6" />,
   },
   {
-    href: "/user/marketplace",
+    href: "/marketplace",
     label: "Market",
     icon: <BuildingStorefrontIcon className="h-6 w-6" />,
   },
   {
-    href: "/user/talents",
+    href: "/talents",
     label: "Talents",
     icon: <UserGroupIcon className="h-6 w-6" />,
   },
