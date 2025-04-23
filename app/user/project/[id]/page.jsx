@@ -146,7 +146,7 @@ export default function ProjectDashboard() {
                 className="overflow-hidden"
               >
                 <div className="p-4 border-t border-gray-700">
-                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
+                  <div className="grid grid-cols-1 sm:grid-cols-1 gap-6">
                     {/* Project Description */}
                     <motion.div variants={itemVariants} className="space-y-3">
                       <h3 className="text-sm font-medium text-gray-400">
@@ -157,15 +157,7 @@ export default function ProjectDashboard() {
                       </p>
                     </motion.div>
 
-                    {/* Project Details Grid */}
-                    <motion.div variants={itemVariants} className="space-y-3">
-                      <h3 className="text-sm font-medium text-gray-400">
-                        Details
-                      </h3>
-                      <div className="grid grid-cols-2 gap-y-2 text-sm">
-                        {/* ... existing project details ... */}
-                      </div>
-                    </motion.div>
+                   
                   </div>
                 </div>
               </motion.div>

@@ -6,14 +6,20 @@ import {
   ArrowTrendingUpIcon,
   ChartBarIcon,
   ClipboardIcon,
-  ClockIcon,
+  MapPinIcon,
   FolderIcon,
   UserGroupIcon,
   XMarkIcon,
+  BuildingOffice2Icon,
 } from "@heroicons/react/24/outline";
 import Link from "next/link";
+import NewProjectModal from "../components/NewProjectModal";
+import axiosInstance from "@/lib/axiosInstance";
+import useSWR from "swr";
 
-// ... existing metrics, projects, activities constants ...
+const fetcher = (url) => axiosInstance.get(url).then((res) => res.data);
+
+
 const metrics = [
   {
     title: "Total Projects",
@@ -44,31 +50,31 @@ const metrics = [
 const projects = [
   {
     name: "City Center Mall",
-    progress: 75,
+    budget: "$2.5M",
     status: "In Progress",
-    deadline: "15 Dec",
-    team: 12,
+    location: "Downtown Area",
+    projectType: "Commercial",
   },
   {
     name: "Office Complex",
-    progress: 45,
+    budget: "$1.8M",
     status: "On Hold",
-    deadline: "20 Dec",
-    team: 8,
+    location: "Business District",
+    projectType: "Corporate",
   },
   {
     name: "Residential Tower",
-    progress: 90,
+    budget: "$3.2M",
     status: "Almost Done",
-    deadline: "10 Dec",
-    team: 15,
+    location: "Riverside",
+    projectType: "Residential",
   },
   {
     name: "Shopping Plaza",
-    progress: 30,
+    budget: "$1.5M",
     status: "In Progress",
-    deadline: "25 Dec",
-    team: 10,
+    location: "Suburban Area",
+    projectType: "Retail",
   },
 ];
 
@@ -91,29 +97,11 @@ const activities = [
 ];
 
 export default function Dashboard() {
+   const { data : projects, error, isLoading, mutate } = useSWR(
+    "/user/dashboard",
+    fetcher
+  );
   const [showModal, setShowModal] = useState(false);
-  const [formData, setFormData] = useState({
-    title: "",
-    description: "",
-    startDate: "",
-    endDate: "",
-    team: "",
-    budget: "",
-  });
-
-  const handleInputChange = (e) => {
-    const { name, value } = e.target;
-    setFormData((prev) => ({
-      ...prev,
-      [name]: value,
-    }));
-  };
-
-  const handleSubmit = (e) => {
-    e.preventDefault();
-    console.log(formData);
-    setShowModal(false);
-  };
 
   const containerVariants = {
     hidden: { opacity: 0 },
@@ -190,56 +178,56 @@ export default function Dashboard() {
             </div>
 
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
-              {projects.map((project, index) => (
+              {projects?.data?.map((project, index) => (
                 <motion.div
                   key={index}
                   variants={itemVariants}
                   whileHover={{ scale: 1.03 }}
                   className="bg-gray-800/50 backdrop-blur-xl rounded-xl border border-gray-700 p-6 hover:shadow-lg hover:shadow-orange-500/20"
                 >
-                  <Link href={`/user/project`}>
+                  <Link href={`/user/project/${project.id}`}>
                     <div className="flex justify-between items-start mb-4">
                       <h3 className="text-white font-semibold">
                         {project.name}
                       </h3>
                       <span
                         className={`px-2 py-1 rounded-full text-xs ${
-                          project.status === "In Progress"
+                          project.status === "In_PROGRESS"
                             ? "bg-orange-500/20 text-orange-500"
-                            : project.status === "On Hold"
+                            : project.status === "On_Hold"
                             ? "bg-yellow-500/20 text-yellow-500"
-                            : "bg-green-500/20 text-green-500"
+                            : project.status === "Almost_Done"
+                            ? "bg-emerald-500/20 text-emerald-500"
+                            : project.status === "Completed"
+                            ? "bg-blue-500/20 text-blue-500"
+                            : "bg-gray-500/20 text-gray-500"
                         }`}
                       >
-                        {project.status}
+                        {project.status.replace("_", " ")}
                       </span>
                     </div>
 
-                    <div className="mb-4">
-                      <div className="flex justify-between mb-2">
-                        <span className="text-gray-400 text-sm">Progress</span>
-                        <span className="text-white text-sm">
-                          {project.progress}%
-                        </span>
+                    <div className="space-y-4">
+                      <div className="grid grid-cols-2 gap-3">
+                        <div>
+                          <p className="text-xs text-gray-400">Budget</p>
+                          <p className="text-sm text-white font-medium mt-0.5">
+                            {project.budget}
+                          </p>
+                        </div>
+                        <div>
+                          <p className="text-xs text-gray-400">Type</p>
+                          <p className="text-sm text-white font-medium mt-0.5">
+                            {project.projectType}
+                          </p>
+                        </div>
                       </div>
-                      <div className="w-full bg-gray-700 rounded-full h-2">
-                        <motion.div
-                          initial={{ width: 0 }}
-                          animate={{ width: `${project.progress}%` }}
-                          transition={{ duration: 1, ease: "easeOut" }}
-                          className="bg-orange-500 rounded-full h-2"
-                        />
-                      </div>
-                    </div>
 
-                    <div className="flex justify-between text-sm text-gray-400">
-                      <div className="flex items-center">
-                        <ClockIcon className="h-4 w-4 mr-1" />
-                        {project.deadline}
-                      </div>
-                      <div className="flex items-center">
-                        <UserGroupIcon className="h-4 w-4 mr-1" />
-                        {project.team} members
+                      <div className="flex items-start gap-2 pt-2 border-t border-gray-700/50">
+                        <MapPinIcon className="w-4 h-4 text-gray-400 mt-0.5" />
+                        <span className="text-sm text-gray-400 overflow-hidden">
+                          {project.location}
+                        </span>
                       </div>
                     </div>
                   </Link>
@@ -286,138 +274,7 @@ export default function Dashboard() {
 
           {/* Modal */}
           <AnimatePresence>
-            {showModal && (
-              <motion.div
-                initial={{ opacity: 0 }}
-                animate={{ opacity: 1 }}
-                exit={{ opacity: 0 }}
-                className="fixed inset-0 z-50 bg-black/60 backdrop-blur-sm flex items-center justify-center p-4"
-              >
-                <motion.div
-                  initial={{ scale: 0.95, opacity: 0 }}
-                  animate={{ scale: 1, opacity: 1 }}
-                  exit={{ scale: 0.95, opacity: 0 }}
-                  className="bg-gradient-to-br from-gray-800 to-gray-900 rounded-2xl p-8 w-full max-w-md mx-4 shadow-xl border border-gray-700"
-                >
-                  <div className="flex justify-between items-center mb-6">
-                    <h3 className="text-2xl font-bold text-white">
-                      Create New Project
-                    </h3>
-                    <motion.button
-                      whileHover={{ scale: 1.1 }}
-                      whileTap={{ scale: 0.9 }}
-                      onClick={() => setShowModal(false)}
-                      className="text-gray-400 hover:text-white transition-colors"
-                    >
-                      <XMarkIcon className="h-6 w-6" />
-                    </motion.button>
-                  </div>
-
-                  <form onSubmit={handleSubmit} className="space-y-6">
-                    <div>
-                      <label className="block text-sm font-medium text-gray-300 mb-2">
-                        Project Title
-                      </label>
-                      <input
-                        type="text"
-                        name="title"
-                        value={formData.title}
-                        onChange={handleInputChange}
-                        className="w-full bg-gray-700/50 border border-gray-600 rounded-lg px-4 py-3 text-white 
-                                 focus:outline-none focus:border-orange-500 focus:ring-1 focus:ring-orange-500"
-                        placeholder="Enter project title"
-                      />
-                    </div>
-
-                    <div>
-                      <label className="block text-sm font-medium text-gray-300 mb-2">
-                        Description
-                      </label>
-                      <textarea
-                        name="description"
-                        value={formData.description}
-                        onChange={handleInputChange}
-                        rows="3"
-                        className="w-full bg-gray-700/50 border border-gray-600 rounded-lg px-4 py-3 text-white 
-                                 focus:outline-none focus:border-orange-500 focus:ring-1 focus:ring-orange-500"
-                        placeholder="Project description"
-                      />
-                    </div>
-
-                    <div className="grid grid-cols-2 gap-4">
-                      <div>
-                        <label className="block text-sm font-medium text-gray-300 mb-2">
-                          Team Size
-                        </label>
-                        <input
-                          type="number"
-                          name="team"
-                          value={formData.team}
-                          onChange={handleInputChange}
-                          className="w-full bg-gray-700/50 border border-gray-600 rounded-lg px-4 py-3 text-white 
-                                   focus:outline-none focus:border-orange-500 focus:ring-1 focus:ring-orange-500"
-                          placeholder="No. of members"
-                        />
-                      </div>
-                      <div>
-                        <label className="block text-sm font-medium text-gray-300 mb-2">
-                          Budget
-                        </label>
-                        <input
-                          type="text"
-                          name="budget"
-                          value={formData.budget}
-                          onChange={handleInputChange}
-                          className="w-full bg-gray-700/50 border border-gray-600 rounded-lg px-4 py-3 text-white 
-                                   focus:outline-none focus:border-orange-500 focus:ring-1 focus:ring-orange-500"
-                          placeholder="Enter budget"
-                        />
-                      </div>
-                    </div>
-
-                    <div className="grid grid-cols-2 gap-4">
-                      <div>
-                        <label className="block text-sm font-medium text-gray-300 mb-2">
-                          Start Date
-                        </label>
-                        <input
-                          type="date"
-                          name="startDate"
-                          value={formData.startDate}
-                          onChange={handleInputChange}
-                          className="w-full bg-gray-700/50 border border-gray-600 rounded-lg px-4 py-3 text-white 
-                                   focus:outline-none focus:border-orange-500 focus:ring-1 focus:ring-orange-500"
-                        />
-                      </div>
-                      <div>
-                        <label className="block text-sm font-medium text-gray-300 mb-2">
-                          End Date
-                        </label>
-                        <input
-                          type="date"
-                          name="endDate"
-                          value={formData.endDate}
-                          onChange={handleInputChange}
-                          className="w-full bg-gray-700/50 border border-gray-600 rounded-lg px-4 py-3 text-white 
-                                   focus:outline-none focus:border-orange-500 focus:ring-1 focus:ring-orange-500"
-                        />
-                      </div>
-                    </div>
-
-                    <motion.button
-                      whileHover={{ scale: 1.02 }}
-                      whileTap={{ scale: 0.98 }}
-                      type="submit"
-                      className="w-full bg-gradient-to-r from-orange-500 to-orange-600 text-white py-3 rounded-lg
-                               font-semibold shadow-lg shadow-orange-500/30 hover:shadow-orange-500/40 
-                               transition-all duration-300"
-                    >
-                      Create Project
-                    </motion.button>
-                  </form>
-                </motion.div>
-              </motion.div>
-            )}
+            {showModal && <NewProjectModal setShowModal={setShowModal} mutate={mutate} />}
           </AnimatePresence>
         </div>
       </div>
