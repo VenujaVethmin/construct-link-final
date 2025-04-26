@@ -107,26 +107,32 @@ const params = useParams()
   };
 
   const handleCreateTask = async (e) => {
-    e.preventDefault();
-    
-      const res = await axiosInstance.post(`/user/createTask/${params.id}`, {
-        ...newTask
-      });
-   
+  e.preventDefault();
+  try {
+    const res = await axiosInstance.post(`/user/createTask/${params.id}`, {
+      ...newTask,
+    });
+
     if (res.status === 200) {
       window.alert("Task created successfully!");
     }
+
     setIsAddingTask(false);
     resetNewTask();
-  };
+  } catch (err) {
+    console.error("Create Task Error:", err.response?.data?.error || err.message);
+    console.error(`Failed to create task: ${err.response?.data?.error || err.message}`);
+  }
+};
+
 
   const resetNewTask = () => {
     setNewTask({
       title: "",
-      status: "todo",
+      status: "TODO",
       assignee: "",
       dueDate: "",
-      priority: "medium",
+      priority: "MEDIUM",
       labels: [],
       description: "",
       comments: 0,
@@ -471,9 +477,9 @@ const params = useParams()
                         setNewTask({ ...newTask, status: e.target.value })
                       }
                     >
-                      <option value="todo">To Do</option>
-                      <option value="in-progress">In Progress</option>
-                      <option value="completed">Completed</option>
+                      <option value="TODO">To Do</option>
+                      <option value="IN_PROGRESS">In Progress</option>
+                      <option value="COMPLETED">Completed</option>
                     </select>
                     <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2 text-gray-400">
                       <svg
@@ -510,9 +516,9 @@ const params = useParams()
                         setNewTask({ ...newTask, priority: e.target.value })
                       }
                     >
-                      <option value="low">Low</option>
-                      <option value="medium">Medium</option>
-                      <option value="high">High</option>
+                      <option value="LOW">Low</option>
+                      <option value="MEDIUM">Medium</option>
+                      <option value="HIGH">High</option>
                     </select>
                     <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2 text-gray-400">
                       <svg
