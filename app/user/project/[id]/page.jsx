@@ -14,6 +14,7 @@ import {
   ChevronDownIcon,
 } from "@heroicons/react/24/outline";
 import { useState } from "react";
+import Materials from "@/components/UserComponents/Materials";
 
 export default function ProjectDashboard() {
   const [activeTab, setActiveTab] = useState("overview");
@@ -75,6 +76,7 @@ export default function ProjectDashboard() {
      { id: "tasks", icon: ClipboardDocumentListIcon, label: "Tasks" },
      { id: "team", icon: UserGroupIcon, label: "Team" },
      { id: "expenses", icon: BanknotesIcon, label: "Expenses" },
+     { id: "materials", icon: BanknotesIcon, label: "Materials" },
    ];
 
   const renderContent = () => {
@@ -83,6 +85,8 @@ export default function ProjectDashboard() {
         return <Overview />;
       case "tasks":
         return <Tasks />;
+      case "materials":
+        return <Materials />;
       case "team":
         return <Team />;
       case "expenses":
@@ -91,6 +95,7 @@ export default function ProjectDashboard() {
         return null;
     }
   };
+  
 
   return (
     <motion.div
