@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { useSearchParams } from "next/navigation";
+import { useParams } from "next/navigation";
 import Image from "next/image";
 import Link from "next/link";
 import { motion } from "framer-motion";
@@ -11,106 +11,34 @@ import {
   MinusIcon,
   PlusIcon,
   TruckIcon,
-  BuildingOfficeIcon,
-  MapPinIcon,
-  CheckCircleIcon,
   ClipboardDocumentListIcon,
   XMarkIcon,
+  CheckCircleIcon,
 } from "@heroicons/react/24/outline";
+import axiosInstance from "@/lib/axiosInstance";
+import useSWR from "swr";
+import { toast } from "sonner";
 
-// Sample data for the order page
-const products = [
-  {
-    id: 1,
-    name: "Premium Portland Cement",
-    category: "Building Materials",
-    image:
-      "https://images.unsplash.com/photo-1590937276191-ce8e88f2ff71?q=80&w=800",
-    supplier: {
-      name: "Global Construction Supply",
-      location: "New York, NY",
-      verified: true,
-      rating: 4.8,
-    },
-    specifications: ["Type I/II", "42.5 Grade", "50 KG Bag"],
-    minOrder: "100 Bags",
-    price: 950,
-    priceFormatted: "Rs. 950/bag",
-    stock: {
-      available: true,
-      quantity: 5000,
-      unit: "bags",
-    },
-  },
-  {
-    id: 2,
-    name: "Industrial Safety Helmet",
-    category: "Safety Equipment",
-    image:
-      "https://images.unsplash.com/photo-1562516155-e0c1ee44059b?q=80&w=800",
-    supplier: {
-      name: "Safety Pro Equipment",
-      location: "Chicago, IL",
-      verified: true,
-      rating: 4.9,
-    },
-    specifications: ["ANSI Certified", "Adjustable", "Impact Resistant"],
-    minOrder: "20 Units",
-    price: 1450,
-    priceFormatted: "Rs. 1,450/unit",
-    stock: {
-      available: true,
-      quantity: 350,
-      unit: "units",
-    },
-  },
-];
 
-// Sample user projects
-const userProjects = [
-  { id: "p1", name: "Office Tower Construction", location: "Mumbai Central" },
-  { id: "p2", name: "Residential Complex Phase 2", location: "Pune East" },
-  { id: "p3", name: "Highway Extension Project", location: "Nagpur" },
-  { id: "p4", name: "Bridge Renovation", location: "Delhi South" },
-];
-
-// Sample user addresses
-const userAddresses = [
-  {
-    id: 1,
-    name: "Main Office",
-    address: "123 Construction Avenue, Mumbai 400001",
-    type: "office",
-    isDefault: true,
-  },
-  {
-    id: 2,
-    name: "Site Office - Residential Project",
-    address: "456 Builder Road, Pune 411001",
-    type: "site",
-    isDefault: false,
-  },
-  {
-    id: 3,
-    name: "Warehouse",
-    address: "789 Storage Lane, Mumbai 400099",
-    type: "warehouse",
-    isDefault: false,
-  },
-];
+const fetcher = (url) => axiosInstance.get(url).then((res) => res.data);
 
 const OrderPage = () => {
-  const searchParams = useSearchParams();
-  const productId = searchParams.get("productId");
+  const params = useParams();
+  const productId = params.id;
+
+  const { data, error, isLoading, mutate } = useSWR(
+    productId ? `/marketplace/getProductByid/${productId}` : null,
+    fetcher
+  );
 
   const [quantity, setQuantity] = useState(0);
-  const [product, setProduct] = useState(null);
   const [selectedProject, setSelectedProject] = useState(null);
   const [selectedAddress, setSelectedAddress] = useState(null);
   const [isAddingNewAddress, setIsAddingNewAddress] = useState(false);
-  const [paymentMethod, setPaymentMethod] = useState("cod");
+  const [paymentMethod, setPaymentMethod] = useState("CASH");
   const [orderPlaced, setOrderPlaced] = useState(false);
   const [isAddressModalOpen, setIsAddressModalOpen] = useState(false);
+  const [orderNumber, setOrderNumber] = useState(null);
 
   const [formData, setFormData] = useState({
     addressName: "",
@@ -121,48 +49,53 @@ const OrderPage = () => {
   });
 
   useEffect(() => {
-    // Find the product based on URL parameter
-    const foundProduct = products.find(
-      (p) => p.id === parseInt(productId || "1")
-    );
-    if (foundProduct) {
-      setProduct(foundProduct);
-      // Set initial quantity based on minimum order
-      const minQty = parseInt(foundProduct.minOrder.match(/\d+/)[0]) || 1;
+    if (data?.data) {
+      const minQty = parseInt(data.data.minOrder) || 1;
       setQuantity(minQty);
+      const defaultAddress = data.address.find((addr) => addr.isDefault);
+      setSelectedAddress(defaultAddress || data.address[0] || null);
     }
+  }, [data]);
 
-    // Set default address if available
-    const defaultAddress = userAddresses.find((addr) => addr.isDefault);
-    if (defaultAddress) {
-      setSelectedAddress(defaultAddress);
-    }
-  }, [productId]);
+  if (isLoading) {
+    return (
+      <div className="min-h-screen bg-gray-900 flex items-center justify-center p-4">
+        <div className="text-white">Loading product details...</div>
+      </div>
+    );
+  }
+
+  if (error || !data) {
+    return (
+      <div className="min-h-screen bg-gray-900 flex items-center justify-center p-4">
+        <div className="text-red-400">Error loading product details</div>
+      </div>
+    );
+  }
 
   const handleQuantityChange = (change) => {
-    if (!product) return;
-
-    const minOrderNumber = parseInt(product.minOrder.match(/\d+/)[0]) || 1;
+    const minOrderNumber = parseInt(data.data.minOrder) || 1;
     let newQty = quantity + change;
 
-    if (newQty < minOrderNumber) newQty = minOrderNumber;
-    if (product.stock.available && newQty > product.stock.quantity) {
-      newQty = product.stock.quantity;
+    if (newQty < minOrderNumber) {
+      toast.error(`Minimum order quantity is ${minOrderNumber}`);
+      newQty = minOrderNumber;
+    }
+    if (newQty > data.data.stock) {
+      toast.error(`Maximum available stock is ${data.data.stock}`);
+      newQty = data.data.stock;
     }
 
     setQuantity(newQty);
   };
 
   const getSubtotal = () => {
-    if (!product) return 0;
-    return product.price * quantity;
+    return data.data.price * quantity;
   };
 
   const getShippingFee = () => {
-    // Simple calculation - could be more complex in real app
     const subtotal = getSubtotal();
-    if (subtotal > 10000) return 0; // Free shipping over 10000
-    return 500; // Standard shipping fee
+    return subtotal > 10000 ? 0 : 500;
   };
 
   const getTotalAmount = () => {
@@ -171,71 +104,81 @@ const OrderPage = () => {
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
-    setFormData({
-      ...formData,
+    setFormData((prev) => ({
+      ...prev,
       [name]: value,
-    });
+    }));
   };
 
-  const handleAddNewAddress = () => {
-    // Validate the form
-    if (!formData.addressName || !formData.fullAddress) {
-      // Show some validation error
+  const handleAddNewAddress = async () => {
+    if (
+      !formData.addressName ||
+      !formData.fullAddress ||
+      !formData.contactPerson
+    ) {
+      toast.error("Please fill all required fields");
       return;
     }
 
-    // In a real app, you would save this to the backend
-    const newAddress = {
-      id: userAddresses.length + 1,
-      name: formData.addressName,
-      address: formData.fullAddress,
-      type: formData.addressType,
-      isDefault: false,
-    };
+    try {
+      const response = await axiosInstance.post(
+        "/marketplace/addNewAddress",
+        formData
+      );
+      const newAddress = response.data;
 
-    // This is just for demo - in a real app you'd update the global state or backend
-    userAddresses.push(newAddress);
-    setSelectedAddress(newAddress);
-    setIsAddingNewAddress(false);
-    setIsAddressModalOpen(false);
+      mutate({
+        ...data,
+        address: [...data.address, newAddress],
+      });
+
+      setSelectedAddress(newAddress);
+      setIsAddingNewAddress(false);
+      setIsAddressModalOpen(false);
+      setFormData({
+        addressName: "",
+        fullAddress: "",
+        addressType: "site",
+        contactName: "",
+        contactNumber: "",
+      });
+      toast.success("Address added successfully");
+    } catch (error) {
+      toast.error("Failed to add address");
+    }
   };
 
-  const handlePlaceOrder = () => {
-    if (!product || !selectedAddress) return;
+  const handlePlaceOrder = async () => {
+    if (!selectedAddress) {
+      toast.error("Please select a delivery address");
+      return;
+    }
 
-    // In a real app, you would send this data to your backend
-    const orderData = {
-      productId: product.id,
-      quantity: quantity,
-      projectId: selectedProject?.id || null,
-      addressId: selectedAddress.id,
-      paymentMethod: paymentMethod,
-      amount: getTotalAmount(),
-    };
+    try {
+      const orderData = {
+        productId: data.data.id,
+        quantity,
+        projectId: selectedProject?.id || null,
+        addressId: selectedAddress.id,
+        paymentMethod,
+        amount: getTotalAmount(),
+      };
 
-    console.log("Placing order:", orderData);
-
-    // Simulate order success
-    setOrderPlaced(true);
-
-    // In a real app, you would redirect to a success page or show a success message
-    setTimeout(() => {
-      // Redirect to order history or confirmation page
-    }, 3000);
+      const response = await axiosInstance.post(
+        "/marketplace/placeOrder",
+        orderData
+      );
+      setOrderNumber(response.data.orderNumber);
+      setOrderPlaced(true);
+      toast.success("Order placed successfully!");
+    } catch (error) {
+      toast.error("Failed to place order");
+    }
   };
-
-  if (!product) {
-    return (
-      <div className="min-h-screen bg-gray-900 flex items-center justify-center p-4">
-        <div className="text-white">Loading product details...</div>
-      </div>
-    );
-  }
 
   return (
     <div className="min-h-screen bg-gray-900 p-4 sm:p-6">
-      <div className="max-w-4xl mx-auto">
-        {/* Navigation */}
+      <div className="max-w-7xl mx-auto">
         <div className="mb-6">
           <Link
             href="/marketplace/products"
@@ -247,407 +190,416 @@ const OrderPage = () => {
         </div>
 
         {!orderPlaced ? (
-          <>
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-              {/* Left column: Product summary */}
-              <div className="md:col-span-2 space-y-6">
-                <div className="bg-gray-800/40 backdrop-blur-sm border border-gray-700/50 rounded-xl p-4">
-                  <h1 className="text-xl font-semibold text-white mb-4">
-                    Order Details
-                  </h1>
-
-                  <div className="flex gap-4">
-                    <div className="relative h-24 w-24 flex-shrink-0 rounded-md overflow-hidden">
-                      <Image
-                        src={product.image}
-                        alt={product.name}
-                        fill
-                        className="object-cover"
-                      />
-                    </div>
-                    <div className="flex flex-col">
-                      <h2 className="text-white font-medium">{product.name}</h2>
-                      <p className="text-sm text-gray-400">
-                        Supplier: {product.supplier.name}
-                      </p>
-                      <div className="mt-1 flex flex-wrap gap-1">
-                        {product.specifications.map((spec, idx) => (
-                          <span
-                            key={idx}
-                            className="inline-block bg-gray-700/30 text-gray-300 rounded-full px-2 py-0.5 text-xs"
-                          >
-                            {spec}
-                          </span>
-                        ))}
-                      </div>
-                      <p className="mt-auto text-orange-400 font-medium">
-                        {product.priceFormatted}
-                      </p>
-                    </div>
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+            <div className="lg:col-span-2 space-y-6">
+              <div className="bg-gray-800/40 backdrop-blur-sm border border-gray-700/50 rounded-xl p-6">
+                <h1 className="text-xl font-semibold text-white mb-4">
+                  Order Details
+                </h1>
+                <div className="flex gap-4">
+                  <div className="relative h-24 w-24 flex-shrink-0 rounded-md overflow-hidden">
+                    <Image
+                      src={
+                        data.data.image ||
+                        "https://i0.wp.com/tinasbotanicals.com/wp-content/uploads/2025/01/No-Product-Image-Available.png?fit=800%2C800&ssl=1"
+                      }
+                      alt={data.data.name}
+                      fill
+                      className="object-cover"
+                    />
                   </div>
-
-                  <div className="mt-4 pt-4 border-t border-gray-700">
-                    <div className="flex items-center justify-between">
-                      <div>
-                        <p className="text-sm text-gray-300">Quantity</p>
-                        <p className="text-xs text-gray-500">
-                          Minimum: {product.minOrder}
-                        </p>
-                      </div>
-                      <div className="flex items-center bg-gray-700/50 border border-gray-600 rounded-lg">
-                        <button
-                          onClick={() => handleQuantityChange(-1)}
-                          className="px-3 py-1.5 text-gray-400 hover:text-white"
+                  <div className="flex flex-col flex-1">
+                    <h2 className="text-white font-medium">{data.data.name}</h2>
+                    <p className="text-sm text-gray-400">
+                      Category: {data.data.category}
+                    </p>
+                    <p className="text-sm text-gray-400">
+                      Supplier: {data.data.supplier.name}
+                    </p>
+                    <div className="mt-2 flex flex-wrap gap-2">
+                      {data?.data?.specifications?.map((spec, idx) => (
+                        <span
+                          key={idx}
+                          className="inline-block bg-gray-700/30 text-gray-300 rounded-full px-2 py-0.5 text-xs"
                         >
-                          <MinusIcon className="h-4 w-4" />
-                        </button>
-                        <span className="px-3 text-white font-medium">
-                          {quantity}
+                          {spec}
                         </span>
-                        <button
-                          onClick={() => handleQuantityChange(1)}
-                          className="px-3 py-1.5 text-gray-400 hover:text-white"
-                        >
-                          <PlusIcon className="h-4 w-4" />
-                        </button>
-                      </div>
+                      ))}
                     </div>
+                    <p className="mt-auto text-orange-400 font-medium">
+                      Rs. {data.data.price.toLocaleString()}
+                    </p>
                   </div>
                 </div>
-
-                {/* Project selection */}
-                <div className="bg-gray-800/40 backdrop-blur-sm border border-gray-700/50 rounded-xl p-4">
-                  <h2 className="text-lg font-medium text-white mb-3">
-                    Assign to Project{" "}
-                    <span className="text-gray-400">(Optional)</span>
-                  </h2>
-                  <p className="text-sm text-gray-400 mb-3">
-                    Adding this order to a project helps you track materials and
-                    expenses.
-                  </p>
-
-                  <div className="space-y-2 mb-2">
-                    {userProjects.map((project) => (
-                      <div
-                        key={project.id}
-                        onClick={() => setSelectedProject(project)}
-                        className={`cursor-pointer p-3 rounded-lg border ${
-                          selectedProject?.id === project.id
-                            ? "border-orange-500 bg-orange-500/10"
-                            : "border-gray-700 hover:border-gray-600"
-                        }`}
-                      >
-                        <div className="flex items-start">
-                          <div
-                            className={`h-4 w-4 mt-1 mr-3 rounded-full border flex-shrink-0 ${
-                              selectedProject?.id === project.id
-                                ? "border-orange-500 bg-orange-500"
-                                : "border-gray-600"
-                            }`}
-                          />
-                          <div>
-                            <h3 className="text-white font-medium">
-                              {project.name}
-                            </h3>
-                            <p className="text-sm text-gray-400">
-                              {project.location}
-                            </p>
-                          </div>
-                        </div>
-                      </div>
-                    ))}
-                  </div>
-
-                  <button className="text-sm text-blue-400 hover:text-blue-300 mt-2 flex items-center">
-                    <PlusCircleIcon className="h-4 w-4 mr-1" />
-                    Create New Project
-                  </button>
-                </div>
-
-                {/* Delivery address */}
-                <div className="bg-gray-800/40 backdrop-blur-sm border border-gray-700/50 rounded-xl p-4">
-                  <h2 className="text-lg font-medium text-white mb-3">
-                    Delivery Address
-                  </h2>
-
-                  {!isAddingNewAddress ? (
-                    <>
-                      <div className="space-y-2 mb-3">
-                        {userAddresses.map((address) => (
-                          <div
-                            key={address.id}
-                            onClick={() => setSelectedAddress(address)}
-                            className={`cursor-pointer p-3 rounded-lg border ${
-                              selectedAddress?.id === address.id
-                                ? "border-orange-500 bg-orange-500/10"
-                                : "border-gray-700 hover:border-gray-600"
-                            }`}
-                          >
-                            <div className="flex items-start">
-                              <div
-                                className={`h-4 w-4 mt-1 mr-3 rounded-full border flex-shrink-0 ${
-                                  selectedAddress?.id === address.id
-                                    ? "border-orange-500 bg-orange-500"
-                                    : "border-gray-600"
-                                }`}
-                              />
-                              <div>
-                                <div className="flex items-center">
-                                  <h3 className="text-white font-medium">
-                                    {address.name}
-                                  </h3>
-                                  {address.isDefault && (
-                                    <span className="ml-2 text-xs bg-gray-700 text-gray-300 px-2 py-0.5 rounded-full">
-                                      Default
-                                    </span>
-                                  )}
-                                </div>
-                                <p className="text-sm text-gray-400">
-                                  {address.address}
-                                </p>
-                              </div>
-                            </div>
-                          </div>
-                        ))}
-                      </div>
-
+                <div className="mt-6 pt-4 border-t border-gray-700">
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <p className="text-sm text-gray-300">Quantity</p>
+                      <p className="text-xs text-gray-500">
+                        Minimum: {data.data.minOrder || 1} | Stock:{" "}
+                        {data.data.stock}
+                      </p>
+                    </div>
+                    <div className="flex items-center bg-gray-700/50 border border-gray-600 rounded-lg">
                       <button
-                        onClick={() => setIsAddressModalOpen(true)}
-                        className="text-sm text-blue-400 hover:text-blue-300 flex items-center"
+                        onClick={() => handleQuantityChange(-1)}
+                        className="px-3 py-1.5 text-gray-400 hover:text-white"
+                        disabled={
+                          quantity <= (parseInt(data.data.minOrder) || 1)
+                        }
                       >
-                        <PlusCircleIcon className="h-4 w-4 mr-1" />
-                        Add New Address
+                        <MinusIcon className="h-4 w-4" />
                       </button>
-                    </>
-                  ) : (
-                    <div className="bg-gray-700/30 rounded-lg p-4">
-                      <h3 className="text-white font-medium mb-3">
-                        Add New Address
-                      </h3>
-                      <div className="space-y-3">
-                        <div>
-                          <label className="block text-gray-300 text-sm mb-1">
-                            Address Name
-                          </label>
-                          <input
-                            type="text"
-                            name="addressName"
-                            value={formData.addressName}
-                            onChange={handleInputChange}
-                            placeholder="e.g. Project Site, Office, Warehouse"
-                            className="w-full bg-gray-800 border border-gray-600 rounded-lg px-3 py-2 text-white text-sm"
-                          />
-                        </div>
-                        <div>
-                          <label className="block text-gray-300 text-sm mb-1">
-                            Full Address
-                          </label>
-                          <textarea
-                            name="fullAddress"
-                            value={formData.fullAddress}
-                            onChange={handleInputChange}
-                            placeholder="Street address, landmark, city, pin code"
-                            className="w-full bg-gray-800 border border-gray-600 rounded-lg px-3 py-2 text-white text-sm"
-                            rows={3}
-                          ></textarea>
-                        </div>
-                        <div>
-                          <label className="block text-gray-300 text-sm mb-1">
-                            Address Type
-                          </label>
-                          <select
-                            name="addressType"
-                            value={formData.addressType}
-                            onChange={handleInputChange}
-                            className="w-full bg-gray-800 border border-gray-600 rounded-lg px-3 py-2 text-white text-sm"
-                          >
-                            <option value="site">Project Site</option>
-                            <option value="office">Office</option>
-                            <option value="warehouse">Warehouse</option>
-                          </select>
-                        </div>
-
-                        <div className="flex gap-2 justify-end mt-2">
-                          <button
-                            onClick={() => setIsAddingNewAddress(false)}
-                            className="px-3 py-1.5 border border-gray-600 rounded-lg text-gray-300 text-sm"
-                          >
-                            Cancel
-                          </button>
-                          <button
-                            onClick={handleAddNewAddress}
-                            className="px-3 py-1.5 bg-orange-500 text-white rounded-lg text-sm"
-                          >
-                            Save Address
-                          </button>
-                        </div>
-                      </div>
-                    </div>
-                  )}
-                </div>
-
-                {/* Payment method */}
-                <div className="bg-gray-800/40 backdrop-blur-sm border border-gray-700/50 rounded-xl p-4">
-                  <h2 className="text-lg font-medium text-white mb-3">
-                    Payment Method
-                  </h2>
-
-                  <div className="space-y-2">
-                    <div
-                      onClick={() => setPaymentMethod("cod")}
-                      className={`cursor-pointer p-3 rounded-lg border ${
-                        paymentMethod === "cod"
-                          ? "border-orange-500 bg-orange-500/10"
-                          : "border-gray-700 hover:border-gray-600"
-                      }`}
-                    >
-                      <div className="flex items-center">
-                        <div
-                          className={`h-4 w-4 mr-3 rounded-full border ${
-                            paymentMethod === "cod"
-                              ? "border-orange-500 bg-orange-500"
-                              : "border-gray-600"
-                          }`}
-                        />
-                        <div>
-                          <h3 className="text-white font-medium">
-                            Cash on Delivery
-                          </h3>
-                          <p className="text-sm text-gray-400">
-                            Pay when your order is delivered
-                          </p>
-                        </div>
-                      </div>
-                    </div>
-
-                    <div
-                      onClick={() => setPaymentMethod("invoice")}
-                      className={`cursor-pointer p-3 rounded-lg border ${
-                        paymentMethod === "invoice"
-                          ? "border-orange-500 bg-orange-500/10"
-                          : "border-gray-700 hover:border-gray-600"
-                      }`}
-                    >
-                      <div className="flex items-center">
-                        <div
-                          className={`h-4 w-4 mr-3 rounded-full border ${
-                            paymentMethod === "invoice"
-                              ? "border-orange-500 bg-orange-500"
-                              : "border-gray-600"
-                          }`}
-                        />
-                        <div>
-                          <h3 className="text-white font-medium">
-                            Pay by Invoice (30 days)
-                          </h3>
-                          <p className="text-sm text-gray-400">
-                            For verified business accounts only
-                          </p>
-                        </div>
-                      </div>
+                      <span className="px-4 text-white font-medium">
+                        {quantity}
+                      </span>
+                      <button
+                        onClick={() => handleQuantityChange(1)}
+                        className="px-3 py-1.5 text-gray-400 hover:text-white"
+                        disabled={quantity >= data.data.stock}
+                      >
+                        <PlusIcon className="h-4 w-4" />
+                      </button>
                     </div>
                   </div>
                 </div>
               </div>
 
-              {/* Right column: Order summary */}
-              <div className="md:col-span-1">
-                <div className="bg-gray-800/40 backdrop-blur-sm border border-gray-700/50 rounded-xl p-4 sticky top-6">
-                  <h2 className="text-lg font-medium text-white mb-4">
-                    Order Summary
-                  </h2>
-
-                  <div className="space-y-3">
-                    <div className="flex justify-between text-sm">
-                      <span className="text-gray-300">Subtotal</span>
-                      <span className="text-white">
-                        Rs. {getSubtotal().toLocaleString()}
-                      </span>
-                    </div>
-                    <div className="flex justify-between text-sm">
-                      <span className="text-gray-300">Quantity</span>
-                      <span className="text-white">
-                        {quantity} {product.stock.unit}
-                      </span>
-                    </div>
-                    <div className="flex justify-between text-sm">
-                      <span className="text-gray-300">Shipping</span>
-                      <span className="text-white">
-                        {getShippingFee() === 0
-                          ? "Free"
-                          : `Rs. ${getShippingFee().toLocaleString()}`}
-                      </span>
-                    </div>
-                    <div className="pt-3 mt-3 border-t border-gray-700 flex justify-between">
-                      <span className="text-white font-medium">Total</span>
-                      <span className="text-orange-400 font-bold">
-                        Rs. {getTotalAmount().toLocaleString()}
-                      </span>
-                    </div>
-                  </div>
-
-                  <div className="mt-6 space-y-4">
-                    {selectedProject && (
-                      <div className="bg-blue-500/10 border border-blue-500/30 rounded-lg p-3 text-sm">
-                        <div className="flex items-start mb-1">
-                          <ClipboardDocumentListIcon className="h-5 w-5 text-blue-400 mr-2 flex-shrink-0" />
-                          <span className="text-blue-300 font-medium">
-                            Will be added to project:
-                          </span>
-                        </div>
-                        <p className="text-blue-200 pl-7">
-                          {selectedProject.name}
-                        </p>
-                      </div>
-                    )}
-
-                    {selectedAddress && (
-                      <div className="bg-gray-700/30 rounded-lg p-3 text-sm">
-                        <div className="flex">
-                          <TruckIcon className="h-5 w-5 text-gray-400 mr-2 flex-shrink-0" />
-                          <div>
-                            <p className="text-gray-300 font-medium">
-                              Delivering to:
-                            </p>
-                            <p className="text-gray-400 mt-1">
-                              {selectedAddress.name}
-                            </p>
-                            <p className="text-gray-500">
-                              {selectedAddress.address}
-                            </p>
-                          </div>
-                        </div>
-                      </div>
-                    )}
-
-                    <button
-                      onClick={handlePlaceOrder}
-                      disabled={!selectedAddress}
-                      className={`w-full py-3 rounded-lg text-white font-medium ${
-                        selectedAddress
-                          ? "bg-gradient-to-r from-orange-500 to-orange-600 hover:from-orange-600 hover:to-orange-700"
-                          : "bg-gray-700 cursor-not-allowed"
+              <div className="bg-gray-800/40 backdrop-blur-sm border border-gray-700/50 rounded-xl p-6">
+                <h2 className="text-lg font-medium text-white mb-3">
+                  Assign to Project{" "}
+                  <span className="text-gray-400">(Optional)</span>
+                </h2>
+                <div className="space-y-3">
+                  {data.projects.map((project, idx) => (
+                    <div
+                      key={idx}
+                      onClick={() => setSelectedProject(project)}
+                      className={`cursor-pointer p-3 rounded-lg border transition-all ${
+                        selectedProject?.name === project.name
+                          ? "border-orange-500 bg-orange-500/10"
+                          : "border-gray-700 hover:border-gray-600"
                       }`}
                     >
-                      Place Order
-                    </button>
+                      <div className="flex items-center">
+                        <div
+                          className={`h-4 w-4 mr-3 rounded-full border ${
+                            selectedProject?.name === project.name
+                              ? "border-orange-500 bg-orange-500"
+                              : "border-gray-600"
+                          }`}
+                        />
+                        <h3 className="text-white font-medium">
+                          {project.name}
+                        </h3>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+               
+              </div>
 
-                    <p className="text-xs text-gray-500 text-center">
-                      By placing this order, you agree to our{" "}
-                      <a href="#" className="text-blue-400 hover:underline">
-                        Terms and Conditions
-                      </a>
-                    </p>
+              <div className="bg-gray-800/40 backdrop-blur-sm border border-gray-700/50 rounded-xl p-6">
+                <h2 className="text-lg font-medium text-white mb-3">
+                  Delivery Address
+                </h2>
+                {!isAddingNewAddress ? (
+                  <>
+                    <div className="space-y-3 mb-4">
+                      {data.address.map((address) => (
+                        <div
+                          key={address.id}
+                          onClick={() => setSelectedAddress(address)}
+                          className={`cursor-pointer p-4 rounded-lg border transition-all ${
+                            selectedAddress?.id === address.id
+                              ? "border-orange-500 bg-orange-500/10"
+                              : "border-gray-700 hover:border-gray-600"
+                          }`}
+                        >
+                          <div className="flex items-start">
+                            <div
+                              className={`h-4 w-4 mt-1 mr-3 rounded-full border ${
+                                selectedAddress?.id === address.id
+                                  ? "border-orange-500 bg-orange-500"
+                                  : "border-gray-600"
+                              }`}
+                            />
+                            <div>
+                              <h3 className="text-white font-medium">
+                                {address.addressName}
+                              </h3>
+                              <p className="text-sm text-gray-400">
+                                {address.fullAddress}
+                              </p>
+                              <p className="text-sm text-gray-400">
+                                Contact: {address.contactName}
+                                {address.contactNumber
+                                  ? `, ${address.contactNumber}`
+                                  : ""}
+                              </p>
+                            </div>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                    <button
+                      onClick={() => {
+                        setIsAddingNewAddress(true);
+                        setIsAddressModalOpen(true);
+                      }}
+                      className="text-sm text-blue-400 hover:text-blue-300 flex items-center"
+                    >
+                      <PlusCircleIcon className="h-4 w-4 mr-1" />
+                      Add New Address
+                    </button>
+                  </>
+                ) : (
+                  <div className="bg-gray-700/30 rounded-lg p-4">
+                    <h3 className="text-white font-medium mb-3">
+                      Add New Address
+                    </h3>
+                    <div className="space-y-3">
+                      <div>
+                        <label className="block text-gray-300 text-sm mb-1">
+                          Address Name *
+                        </label>
+                        <input
+                          type="text"
+                          name="addressName"
+                          value={formData.addressName}
+                          onChange={handleInputChange}
+                          placeholder="e.g. Project Site, Office"
+                          className="w-full bg-gray-800 border border-gray-600 rounded-lg px-3 py-2 text-white text-sm"
+                        />
+                      </div>
+                      <div>
+                        <label className="block text-gray-300 text-sm mb-1">
+                          Contact Person *
+                        </label>
+                        <input
+                          type="text"
+                          name="contactPerson"
+                          value={formData.contactPerson}
+                          onChange={handleInputChange}
+                          placeholder="Name of contact person"
+                          className="w-full bg-gray-800 border border-gray-600 rounded-lg px-3 py-2 text-white text-sm"
+                        />
+                      </div>
+                      <div>
+                        <label className="block text-gray-300 text-sm mb-1">
+                          Contact Phone
+                        </label>
+                        <input
+                          type="tel"
+                          name="contactPhone"
+                          value={formData.contactPhone}
+                          onChange={handleInputChange}
+                          placeholder="Phone number"
+                          className="w-full bg-gray-800 border border-gray-600 rounded-lg px-3 py-2 text-white text-sm"
+                        />
+                      </div>
+                      <div>
+                        <label className="block text-gray-300 text-sm mb-1">
+                          Full Address *
+                        </label>
+                        <textarea
+                          name="fullAddress"
+                          value={formData.fullAddress}
+                          onChange={handleInputChange}
+                          placeholder="Street address, city, postal code"
+                          className="w-full bg-gray-800 border border-gray-600 rounded-lg px-3 py-2 text-white text-sm"
+                          rows={3}
+                        ></textarea>
+                      </div>
+                      <div>
+                        <label className="block text-gray-300 text-sm mb-1">
+                          Address Type
+                        </label>
+                        <select
+                          name="addressType"
+                          value={formData.addressType}
+                          onChange={handleInputChange}
+                          className="w-full bg-gray-800 border border-gray-600 rounded-lg px-3 py-2 text-white text-sm"
+                        >
+                          <option value="site">Project Site</option>
+                          <option value="office">Office</option>
+                          <option value="warehouse">Warehouse</option>
+                        </select>
+                      </div>
+                    </div>
+                    <div className="flex gap-2 justify-end mt-4">
+                      <button
+                        onClick={() => {
+                          setIsAddingNewAddress(false);
+                          setIsAddressModalOpen(false);
+                        }}
+                        className="px-3 py-1.5 border border-gray-600 rounded-lg text-gray-300 text-sm hover:bg-gray-700"
+                      >
+                        Cancel
+                      </button>
+                      <button
+                        onClick={handleAddNewAddress}
+                        className="px-3 py-1.5 bg-orange-500 text-white rounded-lg text-sm hover:bg-orange-600"
+                      >
+                        Save Address
+                      </button>
+                    </div>
+                  </div>
+                )}
+              </div>
+
+              <div className="bg-gray-800/40 backdrop-blur-sm border border-gray-700/50 rounded-xl p-6">
+                <h2 className="text-lg font-medium text-white mb-3">
+                  Payment Method
+                </h2>
+                <div className="space-y-3">
+                  <div
+                    onClick={() => setPaymentMethod("CASH")}
+                    className={`cursor-pointer p-4 rounded-lg border transition-all ${
+                      paymentMethod === "CASH"
+                        ? "border-orange-500 bg-orange-500/10"
+                        : "border-gray-700 hover:border-gray-600"
+                    }`}
+                  >
+                    <div className="flex items-center">
+                      <div
+                        className={`h-4 w-4 mr-3 rounded-full border ${
+                          paymentMethod === "CASH"
+                            ? "border-orange-500 bg-orange-500"
+                            : "border-gray-600"
+                        }`}
+                      />
+                      <div>
+                        <h3 className="text-white font-medium">
+                          Cash on Delivery
+                        </h3>
+                        <p className="text-sm text-gray-400">
+                          Pay upon delivery
+                        </p>
+                      </div>
+                    </div>
+                  </div>
+                  <div
+                    onClick={() => setPaymentMethod("CREDIT_CARD")}
+                    className={`cursor-pointer p-4 rounded-lg border transition-all ${
+                      paymentMethod === "CREDIT_CARD"
+                        ? "border-orange-500 bg-orange-500/10"
+                        : "border-gray-700 hover:border-gray-600"
+                    }`}
+                  >
+                    <div className="flex items-center">
+                      <div
+                        className={`h-4 w-4 mr-3 rounded-full border ${
+                          paymentMethod === "CREDIT_CARD"
+                            ? "border-orange-500 bg-orange-500"
+                            : "border-gray-600"
+                        }`}
+                      />
+                      <div>
+                        <h3 className="text-white font-medium">
+                          Credit Card
+                        </h3>
+                        <p className="text-sm text-gray-400">
+                          Visa / Master
+                        </p>
+                      </div>
+                    </div>
                   </div>
                 </div>
               </div>
             </div>
-          </>
+
+            <div className="lg:col-span-1">
+              <div className="bg-gray-800/40 backdrop-blur-sm border border-gray-700/50 rounded-xl p-6 sticky top-6">
+                <h2 className="text-lg font-medium text-white mb-4">
+                  Order Summary
+                </h2>
+                <div className="space-y-4">
+                  <div className="flex justify-between text-sm">
+                    <span className="text-gray-300">Subtotal</span>
+                    <span className="text-white">
+                      Rs. {getSubtotal().toLocaleString()}
+                    </span>
+                  </div>
+                  <div className="flex justify-between text-sm">
+                    <span className="text-gray-300">Quantity</span>
+                    <span className="text-white">
+                      {quantity} {data.data.unit || "units"}
+                    </span>
+                  </div>
+                  <div className="flex justify-between text-sm">
+                    <span className="text-gray-300">Shipping</span>
+                    <span className="text-white">
+                      {getShippingFee() === 0
+                        ? "Free"
+                        : `Rs. ${getShippingFee().toLocaleString()}`}
+                    </span>
+                  </div>
+                  <div className="pt-3 border-t border-gray-700 flex justify-between">
+                    <span className="text-white font-medium">Total</span>
+                    <span className="text-orange-400 font-bold">
+                      Rs. {getTotalAmount().toLocaleString()}
+                    </span>
+                  </div>
+                </div>
+                <div className="mt-6 space-y-4">
+                  {selectedProject && (
+                    <div className="bg-blue-500/10 border border-blue-500/30 rounded-lg p-3 text-sm">
+                      <div className="flex items-start">
+                        <ClipboardDocumentListIcon className="h-5 w-5 text-blue-400 mr-2" />
+                        <div>
+                          <p className="text-blue-300 font-medium">Project:</p>
+                          <p className="text-blue-200">
+                            {selectedProject.name}
+                          </p>
+                        </div>
+                      </div>
+                    </div>
+                  )}
+                  {selectedAddress && (
+                    <div className="bg-gray-700/30 rounded-lg p-3 text-sm">
+                      <div className="flex items-start">
+                        <TruckIcon className="h-5 w-5 text-gray-400 mr-2" />
+                        <div>
+                          <p className="text-gray-300 font-medium">
+                            Delivering to:
+                          </p>
+                          <p className="text-gray-400">
+                            {selectedAddress.addressName}
+                          </p>
+                          <p className="text-gray-500">
+                            {selectedAddress.fullAddress}
+                          </p>
+                        </div>
+                      </div>
+                    </div>
+                  )}
+                  <button
+                    onClick={handlePlaceOrder}
+                    disabled={!selectedAddress}
+                    className={`w-full py-3 rounded-lg text-white font-medium transition-all ${
+                      selectedAddress
+                        ? "bg-gradient-to-r from-orange-500 to-orange-600 hover:from-orange-600 hover:to-orange-700"
+                        : "bg-gray-700 cursor-not-allowed"
+                    }`}
+                  >
+                    Place Order
+                  </button>
+                  <p className="text-xs text-gray-500 text-center">
+                    By ordering, you agree to our{" "}
+                    <a href="#" className="text-blue-400 hover:underline">
+                      Terms & Conditions
+                    </a>
+                  </p>
+                </div>
+              </div>
+            </div>
+          </div>
         ) : (
           <motion.div
             initial={{ opacity: 0, scale: 0.95 }}
             animate={{ opacity: 1, scale: 1 }}
-            className="bg-gray-800/40 backdrop-blur-sm border border-gray-700/50 rounded-xl p-8 text-center"
+            className="bg-gray-800/40 backdrop-blur-sm border border-gray-700/50 rounded-xl p-8 text-center max-w-2xl mx-auto"
           >
             <div className="w-16 h-16 bg-green-500/20 rounded-full flex items-center justify-center mx-auto mb-4">
               <CheckCircleIcon className="h-10 w-10 text-green-500" />
@@ -655,32 +607,28 @@ const OrderPage = () => {
             <h1 className="text-2xl text-white font-medium mb-2">
               Order Placed Successfully!
             </h1>
-            <p className="text-gray-300 mb-6 max-w-lg mx-auto">
-              Your order has been received and will be processed shortly. A
-              confirmation with order details has been sent to your email.
+            <p className="text-gray-300 mb-6">
+              Your order has been received and is being processed. You'll
+              receive a confirmation email with details soon.
             </p>
-            <div className="bg-gray-700/30 rounded-lg p-4 max-w-md mx-auto mb-6">
+            <div className="bg-gray-700/30 rounded-lg p-4 mb-6">
               <div className="flex items-start mb-2">
-                <div className="mr-3">
-                  <p className="text-gray-400 text-sm">Order Number:</p>
-                </div>
-                <div className="text-white font-medium">
-                  ORD-{Math.floor(Math.random() * 1000000)}
-                </div>
+                <p className="text-gray-400 text-sm mr-2">Order Number:</p>
+                <p className="text-white font-medium">
+                  {orderNumber || `ORD-${Math.floor(Math.random() * 1000000)}`}
+                </p>
               </div>
               <div className="flex items-start mb-2">
-                <div className="mr-3">
-                  <p className="text-gray-400 text-sm">Amount:</p>
-                </div>
-                <div className="text-orange-400 font-medium">
+                <p className="text-gray-400 text-sm mr-2">Amount:</p>
+                <p className="text-orange-400 font-medium">
                   Rs. {getTotalAmount().toLocaleString()}
-                </div>
+                </p>
               </div>
               <div className="flex items-start">
-                <div className="mr-3">
-                  <p className="text-gray-400 text-sm">Estimated Delivery:</p>
-                </div>
-                <div className="text-white">3-5 Business Days</div>
+                <p className="text-gray-400 text-sm mr-2">
+                  Estimated Delivery:
+                </p>
+                <p className="text-white">3-5 Business Days</p>
               </div>
             </div>
             <div className="flex justify-center space-x-4">
@@ -701,79 +649,76 @@ const OrderPage = () => {
         )}
       </div>
 
-      {/* Add Address Modal */}
       {isAddressModalOpen && (
         <div className="fixed inset-0 bg-black/70 flex items-center justify-center p-4 z-50">
-          <div className="bg-gray-800 border border-gray-700 rounded-xl p-5 w-full max-w-lg">
+          <div className="bg-gray-800 border border-gray-700 rounded-xl p-6 w-full max-w-lg">
             <div className="flex justify-between items-center mb-4">
               <h3 className="text-lg font-medium text-white">
-                Add New Delivery Address
+                Add New Address
               </h3>
               <button
-                onClick={() => setIsAddressModalOpen(false)}
+                onClick={() => {
+                  setIsAddressModalOpen(false);
+                  setIsAddingNewAddress(false);
+                }}
                 className="text-gray-400 hover:text-white"
               >
                 <XMarkIcon className="h-5 w-5" />
               </button>
             </div>
-
             <div className="space-y-4">
               <div>
                 <label className="block text-gray-300 text-sm mb-1">
-                  Address Name
+                  Address Name *
                 </label>
                 <input
                   type="text"
                   name="addressName"
                   value={formData.addressName}
                   onChange={handleInputChange}
-                  placeholder="e.g. Project Site, Office, Warehouse"
+                  placeholder="e.g. Project Site, Office"
                   className="w-full bg-gray-700 border border-gray-600 rounded-lg px-3 py-2 text-white"
                 />
               </div>
-
               <div>
                 <label className="block text-gray-300 text-sm mb-1">
-                  Contact Person
+                  Contact Person *
                 </label>
                 <input
                   type="text"
                   name="contactPerson"
                   value={formData.contactPerson}
                   onChange={handleInputChange}
-                  placeholder="Name of person who will receive the delivery"
+                  placeholder="Name of contact person"
                   className="w-full bg-gray-700 border border-gray-600 rounded-lg px-3 py-2 text-white"
                 />
               </div>
-
               <div>
                 <label className="block text-gray-300 text-sm mb-1">
                   Contact Phone
                 </label>
                 <input
-                  type="text"
+                  type="tel"
                   name="contactPhone"
                   value={formData.contactPhone}
                   onChange={handleInputChange}
-                  placeholder="Phone number for delivery coordination"
+                  placeholder="Phone number"
                   className="w-full bg-gray-700 border border-gray-600 rounded-lg px-3 py-2 text-white"
                 />
               </div>
-
               <div>
                 <label className="block text-gray-300 text-sm mb-1">
-                  Full Address
+                  Full Address *
                 </label>
                 <textarea
                   name="fullAddress"
                   value={formData.fullAddress}
                   onChange={handleInputChange}
-                  placeholder="Street address, landmark, city, pin code"
+                  placeholder="Street address, city, postal code"
                   className="w-full bg-gray-700 border border-gray-600 rounded-lg px-3 py-2 text-white"
                   rows={3}
                 ></textarea>
               </div>
-
               <div>
                 <label className="block text-gray-300 text-sm mb-1">
                   Address Type
@@ -799,28 +744,26 @@ const OrderPage = () => {
                             : "bg-gray-700 text-gray-400"
                         }`}
                       >
-                        {type === "site"
-                          ? "Project Site"
-                          : type === "office"
-                          ? "Office"
-                          : "Warehouse"}
+                        {type.charAt(0).toUpperCase() + type.slice(1)}
                       </div>
                     </label>
                   ))}
                 </div>
               </div>
             </div>
-
             <div className="flex justify-end gap-3 mt-6">
               <button
-                onClick={() => setIsAddressModalOpen(false)}
-                className="px-4 py-2 border border-gray-600 text-gray-300 rounded-lg"
+                onClick={() => {
+                  setIsAddressModalOpen(false);
+                  setIsAddingNewAddress(false);
+                }}
+                className="px-4 py-2 border border-gray-600 text-gray-300 rounded-lg hover:bg-gray-700"
               >
                 Cancel
               </button>
               <button
                 onClick={handleAddNewAddress}
-                className="px-4 py-2 bg-orange-500 text-white rounded-lg"
+                className="px-4 py-2 bg-orange-500 text-white rounded-lg hover:bg-orange-600"
               >
                 Save Address
               </button>
