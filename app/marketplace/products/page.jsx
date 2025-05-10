@@ -23,7 +23,7 @@ import { StarIcon as StarIconSolid } from "@heroicons/react/24/solid";
 import { motion, AnimatePresence } from "framer-motion";
 import Image from "next/image";
 import Link from "next/link";
-import { useSearchParams, useRouter } from "next/navigation";
+import { useSearchParams ,useRouter } from "next/navigation";
 
 // Sample data - in a real app this would come from an API call based on search parameters
 const productResults = [
@@ -300,9 +300,13 @@ const specialtyOptions = [
 ];
 
 const SearchPage = () => {
-  const searchParams = useSearchParams();
+  const searchParams = useSearchParams()
+  // const search = searchParams.get("search");
+  
+
   const router = useRouter();
-  const query = searchParams.get("q") || "";
+  const query = searchParams.get("search") || "";
+  console.log(query)
 
   const [activeTab, setActiveTab] = useState("products");
   const [searchTerm, setSearchTerm] = useState(query);
@@ -320,7 +324,7 @@ const SearchPage = () => {
   // Handle new search
   const handleSearch = (e) => {
     e.preventDefault();
-    router.push(`/marketplace/search?q=${encodeURIComponent(searchTerm)}`);
+    router.push(`/marketplace/products?search=${encodeURIComponent(searchTerm)}`);
   };
 
   // Update search term when URL query changes
