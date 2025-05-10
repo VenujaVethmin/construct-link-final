@@ -1,0 +1,229 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
+generator client {
+  provider = "prisma-client-js"
+
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id       String  @id @default(cuid())
+  name     String?
+  email    String  @unique
+  password String?
+  image    String?
+  role     Role    @default(CLIENT)
+  projects Project[]
+  products Product[]
+  projectMembers ProjectMember[]
+  stores   Store[]
+  addresses Address[]
+  orders    Order[]
+}
+
+model Address {
+  id        String   @id @default(cuid())
+  userId    String
+  addressName  String?
+  fullAddress String?
+  contactName String?
+  contactNumber String?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  user      User     @relation(fields: [userId], references: [id])
+}
+
+enum Role {
+  CLIENT
+  PROFFESIONAL
+  SUPPLIER
+  ADMIN
+}
+
+
+model Project {
+  id          String   @id @default(cuid())
+  name        String
+  description String
+  location    String?
+  projectType  String?
+  budget      Float?
+  startDate   DateTime?
+  endDate     DateTime?
+  status      Status   @default(In_PROGRESS)
+  ownerId    String
+  owner      User     @relation(fields: [ownerId], references: [id])
+  projectMembers ProjectMember[]
+  orders     Order[]
+  createdAt DateTime @default(now())
+
+
+  tasks     Task[]
+
+}
+
+
+enum Status {
+ In_PROGRESS
+ On_Hold
+ Almost_Done
+ Completed
+
+}
+
+model ProjectMember {
+  id        String   @id @default(cuid())
+  projectId String
+  userId    String
+  role      Role
+  accessLevel AccessLevel @default(READ)
+  project   Project  @relation(fields: [projectId], references: [id])
+  user      User     @relation(fields: [userId], references: [id])
+  tasks     Task[]
+}
+
+enum AccessLevel {
+  READ
+  WRITE
+  ADMIN
+}
+
+enum TaskStatus {
+  TODO
+  IN_PROGRESS
+  COMPLETED
+}
+
+enum Priority {
+  LOW
+  MEDIUM
+  HIGH
+}
+
+
+model Task{
+  id        String   @id @default(cuid())
+  title      String
+  description String?
+  status    TaskStatus @default(TODO)
+  priority  Priority @default(MEDIUM)
+  dueDate   DateTime?
+  labels   Json?
+  isWatching Boolean @default(false)
+  projectId String
+  project   Project @relation(fields: [projectId], references: [id])
+  assignedToId String?
+  assignedTo ProjectMember? @relation(fields: [assignedToId], references: [id])
+  createdAt DateTime @default(now())
+}
+
+
+
+
+
+// model Product {
+//   id        String   @id @default(cuid())
+//   name      String
+//   description String?
+//   price     Float
+//   unit      String?
+//   image     String? @default("https://i0.wp.com/tinasbotanicals.com/wp-content/uploads/2025/01/No-Product-Image-Available.png?fit=800%2C800&ssl=1")
+//   stock     Int?
+//   minStock  Int?
+//   minOrder  Int?
+//   category  String?
+//   specifications Json?
+//   supplierId String
+//   supplier  User     @relation(fields: [supplierId], references: [id])
+//   orders    Order[]
+  
+//   createdAt DateTime @default(now())
+//   updatedAt DateTime @updatedAt
+// }
+
+model Product {
+  id             String   @id @default(cuid())
+  name           String
+  description    String?
+  price          Float
+  pricePerUnit   Float?
+  unit           String?  @default("unit")
+  images         Json?    // Array of image URLs
+ 
+  stock          Int?
+  minStock       Int?     // For low stock alerts
+  minOrder       Int?     // Minimum order quantity
+ 
+  estimatedDelivery String?
+  category       String?
+  features       Json?    // Array of product features
+  specifications Json?    // Product specifications
+  applications   Json?    // Array of product applications
+  certifications Json?    // Array of certifications
+  faqs           Json?    // Frequently asked questions
+  rating         Float?   @default(0)
+  reviewCount    Int?     @default(0)
+  reviews        Json?    // Array of reviews
+  status         String?  @default("active")
+  supplierId     String
+  supplier       User     @relation(fields: [supplierId], references: [id])
+  orders         Order[]
+  
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+}
+
+enum OrderStatus {
+  PENDING
+  PROCESSING
+  CONFIRMED
+  
+  SHIPPED
+  DELIVERED
+  CANCELLED
+}
+
+enum PaymentMethod {
+  CASH
+  CREDIT_CARD
+  
+}
+
+
+
+model Order {
+  id        String   @id @default(cuid())
+  productId String
+  product   Product  @relation(fields: [productId], references: [id])
+  deliveryAddress String?
+  deliveryDate DateTime?
+  quantity  Int
+  totalPrice Float
+  userId    String
+  user      User     @relation(fields: [userId], references: [id])
+  projectId String?
+  project   Project? @relation(fields: [projectId], references: [id])
+  status    OrderStatus @default(PENDING)
+  paymentMethod PaymentMethod @default(CASH)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model Store{
+  id        String   @id @default(cuid())
+  name      String
+  description String?
+  location  String?
+  ownerId   String
+  owner     User     @relation(fields: [ownerId], references: [id])
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
