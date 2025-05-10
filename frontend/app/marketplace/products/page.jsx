@@ -25,111 +25,15 @@ import Image from "next/image";
 import Link from "next/link";
 import { useSearchParams ,useRouter } from "next/navigation";
 
+
+import axiosInstance from "@/lib/axiosInstance";
+import useSWR from "swr";
+
+const fetcher = (url) => axiosInstance.get(url).then((res) => res.data);
+
+
 // Sample data - in a real app this would come from an API call based on search parameters
-const productResults = [
-  {
-    id: 1,
-    name: "Premium Steel Rebar Bundle",
-    category: "Structural Materials",
-    image:
-      "https://images.unsplash.com/photo-1616401784845-180882ba9ba8?q=80&w=2070&auto=format&fit=crop",
-    rating: 4.9,
-    reviewCount: 142,
-    supplier: "MetalWorks Inc.",
-    location: "Detroit, MI",
-    price: "$1,200.00",
-    pricePerUnit: "$4.00/unit",
-    availability: "In Stock",
-    featured: true,
-    description:
-      "High-quality steel rebar for reinforced concrete structures. ASTM A615 Grade 60.",
-  },
-  {
-    id: 2,
-    name: "High-Efficiency HVAC System",
-    category: "Mechanical Equipment",
-    image:
-      "https://images.unsplash.com/photo-1531973486364-5fa64260d75b?q=80&w=2069&auto=format&fit=crop",
-    rating: 4.8,
-    reviewCount: 97,
-    supplier: "Cool Systems Co.",
-    location: "Dallas, TX",
-    price: "$4,500.00",
-    pricePerUnit: "$4,500.00/unit",
-    availability: "Ships in 2 weeks",
-    featured: true,
-    description:
-      "Energy-efficient HVAC system with smart controls. SEER rating 21.",
-  },
-  {
-    id: 3,
-    name: "Smart Home Integration Kit",
-    category: "Electrical",
-    image:
-      "https://images.unsplash.com/photo-1558002038-1055907df827?q=80&w=1974&auto=format&fit=crop",
-    rating: 4.7,
-    reviewCount: 78,
-    supplier: "Modern Electrical Supply",
-    location: "San Francisco, CA",
-    price: "$650.00",
-    pricePerUnit: "$650.00/kit",
-    availability: "In Stock",
-    featured: true,
-    description:
-      "Complete smart home integration system with wireless connectivity for new constructions.",
-  },
-  {
-    id: 4,
-    name: "Eco-Friendly Insulation Panels",
-    category: "Insulation",
-    image:
-      "https://images.unsplash.com/photo-1501952515248-2235f7f0ae78?q=80&w=1933&auto=format&fit=crop",
-    rating: 4.9,
-    reviewCount: 65,
-    supplier: "GreenBuild Materials",
-    location: "Toronto, Canada",
-    price: "$180.00",
-    pricePerUnit: "$18.00/sq ft",
-    availability: "In Stock",
-    featured: false,
-    description:
-      "Eco-friendly insulation made from recycled materials with high R-value.",
-  },
-  {
-    id: 5,
-    name: "Solar Panel Roofing System",
-    category: "Renewable Energy",
-    image:
-      "https://images.unsplash.com/photo-1509391366360-2e959784a276?q=80&w=2072&auto=format&fit=crop",
-    rating: 4.8,
-    reviewCount: 87,
-    supplier: "SunTech Solutions",
-    location: "Phoenix, AZ",
-    price: "$5,200.00",
-    pricePerUnit: "$260.00/panel",
-    availability: "Ships in 3 days",
-    featured: true,
-    description:
-      "Integrated solar panel system for residential roofing with battery storage option.",
-  },
-  {
-    id: 6,
-    name: "Load-Bearing Concrete Mix",
-    category: "Building Materials",
-    image:
-      "https://images.unsplash.com/photo-1607251032678-8de17ce826b1?q=80&w=1974&auto=format&fit=crop",
-    rating: 4.6,
-    reviewCount: 124,
-    supplier: "Industrial Concrete Corp.",
-    location: "Denver, CO",
-    price: "$240.00",
-    pricePerUnit: "$12.00/bag",
-    availability: "In Stock",
-    featured: false,
-    description:
-      "High-strength concrete mix for load-bearing applications, 5000 PSI.",
-  },
-];
+
 
 const supplierResults = [
   {
@@ -302,10 +206,18 @@ const specialtyOptions = [
 const SearchPage = () => {
   const searchParams = useSearchParams()
   // const search = searchParams.get("search");
+  const query = searchParams.get("search") || "";
+
+  const {
+    data: productResults,
+    error,
+    isLoading,
+    mutate,
+  } = useSWR(`/marketplace/searchMarket?search=${query}`, fetcher);
   
 
   const router = useRouter();
-  const query = searchParams.get("search") || "";
+
   console.log(query)
 
   const [activeTab, setActiveTab] = useState("products");
@@ -338,18 +250,7 @@ const SearchPage = () => {
   };
 
   // Get filtered and sorted results
-  const getFilteredProducts = () => {
-    // In a real app, this would be replaced with a proper filtering logic
-    // This is just a simplified example
-    return productResults.filter(
-      (product) =>
-        (filters.category === "All Categories" ||
-          product.category === filters.category) &&
-        (filters.availability === "Any Availability" ||
-          product.availability === filters.availability) &&
-        (filters.rating === 0 || product.rating >= filters.rating)
-    );
-  };
+
 
   const getFilteredSuppliers = () => {
     // Simplified example filter
@@ -401,7 +302,7 @@ const SearchPage = () => {
           </h1>
           <p className="text-gray-400">
             {activeTab === "products"
-              ? `${getFilteredProducts().length} products found`
+              ? `${productResults?.length} products found`
               : `${getFilteredSuppliers().length} suppliers found`}
           </p>
         </div>
@@ -721,7 +622,7 @@ const SearchPage = () => {
               transition={{ duration: 0.3 }}
             >
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                {getFilteredProducts().map((product, index) => (
+                {productResults?.map((product, index) => (
                   <motion.div
                     key={`product-${product.id}`}
                     initial={{ opacity: 0, y: 20 }}
@@ -733,7 +634,7 @@ const SearchPage = () => {
                     <Link href={`/marketplace/products/${product.id}`}>
                       <div className="relative aspect-square">
                         <Image
-                          src={product.image}
+                          src={product.image || "https://i0.wp.com/tinasbotanicals.com/wp-content/uploads/2025/01/No-Product-Image-Available.png?fit=800%2C800&ssl=1"}
                           alt={product.name}
                           fill
                           className="object-cover transition-transform duration-700 hover:scale-105"
@@ -768,32 +669,30 @@ const SearchPage = () => {
                         <div className="flex items-center gap-2 mb-3">
                           <div className="flex items-center gap-1 text-sm text-gray-400">
                             <BuildingOffice2Icon className="h-4 w-4" />
-                            <span>{product.supplier}</span>
+                            <span>{product.supplier.name}</span>
                           </div>
                           <div className="w-1 h-1 rounded-full bg-gray-600"></div>
                           <div className="flex items-center gap-1 text-sm text-gray-400">
                             <MapPinIcon className="h-4 w-4" />
-                            <span>{product.location}</span>
+                            <span>{product.spllier?.store.location}</span>
                           </div>
                         </div>
 
                         <div className="flex justify-between items-center mb-4">
                           <div className="flex flex-col">
                             <span className="text-white font-bold">
-                              {product.price}
+                             Rs {product.price} / {product.unit}
                             </span>
-                            <span className="text-gray-400 text-xs">
-                              {product.pricePerUnit}
-                            </span>
+                            
                           </div>
                           <span
                             className={`text-sm px-2 py-1 rounded-full ${
-                              product.availability === "In Stock"
+                              product.stock > 0
                                 ? "bg-green-500/20 text-green-400"
                                 : "bg-orange-500/20 text-orange-400"
                             }`}
                           >
-                            {product.availability}
+                          available  {product.stock}
                           </span>
                         </div>
 
@@ -811,7 +710,7 @@ const SearchPage = () => {
                 ))}
               </div>
 
-              {getFilteredProducts().length === 0 && (
+              {productResults?.length === 0 && (
                 <div className="bg-gray-800/50 rounded-xl p-10 text-center">
                   <h3 className="text-xl font-medium text-white mb-2">
                     No products found

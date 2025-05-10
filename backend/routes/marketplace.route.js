@@ -1,5 +1,5 @@
 import { Router } from "express";
-import { addNewAddress, getProductByid, getProducts, placeOrder } from "../controllers/marketplace.controller.js";
+import { addNewAddress, getProductByid, getProducts, placeOrder, searchMarket } from "../controllers/marketplace.controller.js";
 
 
 const marketPlaceRoute = Router();
@@ -7,8 +7,11 @@ const marketPlaceRoute = Router();
 
 marketPlaceRoute.get("/getProducts", getProducts );
 marketPlaceRoute.get("/getProductByid/:id", getProductByid);
+marketPlaceRoute.get("/searchMarket", searchMarket);
 marketPlaceRoute.post("/placeOrder", placeOrder);
 marketPlaceRoute.post("/addNewAddress", addNewAddress);
+
+
 
 
 

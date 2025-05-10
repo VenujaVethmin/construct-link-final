@@ -163,3 +163,39 @@ export const placeOrder = async (req, res) => {
   }
 
 }
+
+export const searchMarket = async (req, res) => {
+  try {
+    const searchTerm = req.query.search || ""; // default to empty string if not provided
+
+    const data = await prisma.product.findMany({
+      where: {
+        OR: [
+          { name: { contains: searchTerm, mode: "insensitive" } },
+          { description: { contains: searchTerm, mode: "insensitive" } },
+        ],
+      },
+      include: {
+        supplier: {
+          select: {
+            name: true,
+            stores: {
+              select: {
+                location: true,
+                name: true,
+              },
+            },
+          },
+        },
+      },
+    });
+
+
+    
+
+    res.status(200).json(data);
+  } catch (error) {
+    console.error("Error searching market:", error);
+    res.status(500).json({ error: "Internal server error" });
+  }
+};

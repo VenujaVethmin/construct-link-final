@@ -155,7 +155,7 @@ const ProductDetail = () => {
           <div>
             <div className="relative h-[400px] sm:h-[500px] rounded-xl overflow-hidden mb-4 group">
               <Image
-                src={productData?.data.images[selectedImage] || "https://i0.wp.com/tinasbotanicals.com/wp-content/uploads/2025/01/No-Product-Image-Available.png?fit=800%2C800&ssl=1"}
+                src={productData?.data.images[selectedImage] || "/noimage.webp"}
                 alt={productData?.data.images[selectedImage] || "image"}
                 fill
                 className="object-cover"
@@ -285,10 +285,10 @@ const ProductDetail = () => {
                 </div>
 
                 <div className="flex flex-col sm:flex-row gap-3">
-                  <button className="flex-1 bg-blue-600 hover:bg-blue-700 text-white py-3 px-6 rounded-lg font-medium transition-colors flex items-center justify-center gap-2">
+                  <Link href={`/marketplace/order/${productData?.data?.id}`} className="flex-1 bg-blue-600 hover:bg-blue-700 text-white py-3 px-6 rounded-lg font-medium transition-colors flex items-center justify-center gap-2">
                     <CurrencyDollarIcon className="h-5 w-5" />
                     Request Quote
-                  </button>
+                  </Link>
                   <button
                     onClick={() => setIsFavorite(!isFavorite)}
                     className="p-3 rounded-lg border border-gray-700 hover:bg-gray-800 transition-colors"

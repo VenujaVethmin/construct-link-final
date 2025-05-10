@@ -314,7 +314,7 @@ const unitTypes = [
 const Marketplace = () => {
   const [searchTerm, setSearchTerm] = useState("");
   const [currentBanner, setCurrentBanner] = useState(0);
-  const [isAddModal, setIsAddModal] = useState(false);
+
   const [imagePreview, setImagePreview] = useState(null);
   const fileInputRef = useRef(null);
   const [activeProductCategory, setActiveProductCategory] = useState("All");
@@ -373,23 +373,7 @@ const Marketplace = () => {
     });
   };
 
-  const handleAddProduct = () => {
-    // Handle form submission
-    console.log("Product added:", addForm);
-    setIsAddModal(false);
-    // Reset form
-    setAddForm({
-      name: "",
-      category: categoryOptions[0],
-      image: "",
-      price: "",
-      unit: unitTypes[0],
-      stock: "",
-      minStock: "",
-      specifications: [],
-    });
-    setImagePreview(null);
-  };
+
 
   return (
     <div className="min-h-screen bg-gray-900">
@@ -459,13 +443,13 @@ const Marketplace = () => {
                   />
                   <MagnifyingGlassIcon className="absolute left-3 top-1/2 transform -translate-y-1/2 h-5 w-5 text-gray-400" />
                 </div>
-                <button
-                  onClick={() => setIsAddModal(true)}
+                <Link href={`/marketplace/products?search=${searchTerm}`}
+                  
                   className="px-6 py-3 bg-orange-500 text-white rounded-lg font-medium hover:bg-orange-600 transition-colors flex items-center gap-2"
                 >
-                  <PlusIcon className="h-5 w-5" />
-                  Add Product
-                </button>
+                  
+                 Search
+                </Link>
               </motion.div>
 
               <motion.div
@@ -1088,296 +1072,7 @@ const Marketplace = () => {
         </div>
       </main>
 
-      {/* Add Product Modal */}
-      <AnimatePresence>
-        {isAddModal && (
-          <div className="fixed inset-0 bg-black/70 backdrop-blur-sm flex items-center justify-center z-50 p-4 overflow-y-auto">
-            <motion.div
-              initial={{ opacity: 0, scale: 0.95 }}
-              animate={{ opacity: 1, scale: 1 }}
-              exit={{ opacity: 0, scale: 0.95 }}
-              transition={{ duration: 0.3 }}
-              className="bg-gray-800 rounded-xl w-full max-w-md p-6 my-8"
-            >
-              <div className="flex justify-between items-center mb-4">
-                <h3 className="text-lg font-medium text-white">
-                  Add New Product
-                </h3>
-                <button
-                  onClick={() => setIsAddModal(false)}
-                  className="p-1 hover:bg-gray-700 rounded-full transition-colors"
-                >
-                  <XMarkIcon className="h-5 w-5 text-gray-400" />
-                </button>
-              </div>
-
-              <div className="space-y-4 max-h-[70vh] overflow-y-auto pr-2">
-                <div>
-                  <label className="block text-sm text-gray-400 mb-1">
-                    Product Name *
-                  </label>
-                  <input
-                    type="text"
-                    value={addForm.name}
-                    onChange={(e) =>
-                      setAddForm({ ...addForm, name: e.target.value })
-                    }
-                    className="w-full bg-gray-700/50 border border-gray-600 rounded-lg px-3 py-2 text-white"
-                    required
-                  />
-                </div>
-
-                <div>
-                  <label className="block text-sm text-gray-400 mb-1">
-                    Category *
-                  </label>
-                  <select
-                    value={addForm.category}
-                    onChange={(e) =>
-                      setAddForm({ ...addForm, category: e.target.value })
-                    }
-                    className="w-full bg-gray-700/50 border border-gray-600 rounded-lg px-3 py-2 text-white appearance-none"
-                    style={{
-                      backgroundImage:
-                        'url(\'data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="white" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M19 9l-7 7-7-7" /></svg>\')',
-                      backgroundRepeat: "no-repeat",
-                      backgroundPosition: "right 1rem center",
-                      backgroundSize: "1rem",
-                    }}
-                    required
-                  >
-                    {categoryOptions.map((category) => (
-                      <option
-                        key={`category-option-${category}`}
-                        value={category}
-                      >
-                        {category}
-                      </option>
-                    ))}
-                  </select>
-                </div>
-
-                <div>
-                  <label className="block text-sm text-gray-400 mb-1">
-                    Product Image
-                  </label>
-
-                  <div className="mt-1 flex items-center space-x-4">
-                    <div
-                      onClick={() => fileInputRef.current.click()}
-                      className="flex flex-col items-center justify-center w-32 h-32 bg-gray-700/50 border-2 border-dashed border-gray-600 rounded-lg hover:bg-gray-700/80 cursor-pointer transition-colors"
-                    >
-                      {imagePreview ? (
-                        <div className="relative w-full h-full">
-                          <Image
-                            src={imagePreview}
-                            alt="Product preview"
-                            fill
-                            className="object-cover rounded-lg"
-                          />
-                        </div>
-                      ) : (
-                        <>
-                          <PhotoIcon className="h-10 w-10 text-gray-400" />
-                          <span className="mt-2 text-xs text-gray-400">
-                            Click to upload
-                          </span>
-                        </>
-                      )}
-                    </div>
-
-                    <div className="flex-1">
-                      <input
-                        type="text"
-                        value={addForm.image}
-                        onChange={(e) =>
-                          setAddForm({ ...addForm, image: e.target.value })
-                        }
-                        placeholder="Or enter image URL"
-                        className="w-full bg-gray-700/50 border border-gray-600 rounded-lg px-3 py-2 text-white text-sm"
-                      />
-                      <p className="text-xs text-gray-400 mt-1">
-                        Upload an image or provide an URL
-                      </p>
-                    </div>
-
-                    <input
-                      ref={fileInputRef}
-                      type="file"
-                      accept="image/*"
-                      className="hidden"
-                      onChange={handleImageSelect}
-                    />
-                  </div>
-                </div>
-
-                <div className="grid grid-cols-2 gap-4">
-                  <div>
-                    <label className="block text-sm text-gray-400 mb-1">
-                      Price *
-                    </label>
-                    <input
-                      type="number"
-                      min="0"
-                      value={addForm.price}
-                      onChange={(e) =>
-                        setAddForm({
-                          ...addForm,
-                          price: Math.max(0, Number(e.target.value)),
-                        })
-                      }
-                      className="w-full bg-gray-700/50 border border-gray-600 rounded-lg px-3 py-2 text-white"
-                      required
-                    />
-                  </div>
-                  <div>
-                    <label className="block text-sm text-gray-400 mb-1">
-                      Unit Type *
-                    </label>
-                    <select
-                      value={addForm.unit}
-                      onChange={(e) =>
-                        setAddForm({ ...addForm, unit: e.target.value })
-                      }
-                      className="w-full bg-gray-700/50 border border-gray-600 rounded-lg px-3 py-2 text-white appearance-none"
-                      style={{
-                        backgroundImage:
-                          'url(\'data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="white" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M19 9l-7 7-7-7" /></svg>\')',
-                        backgroundRepeat: "no-repeat",
-                        backgroundPosition: "right 1rem center",
-                        backgroundSize: "1rem",
-                      }}
-                      required
-                    >
-                      {unitTypes.map((unit) => (
-                        <option key={`unit-${unit}`} value={unit}>
-                          {unit}
-                        </option>
-                      ))}
-                    </select>
-                  </div>
-                </div>
-
-                <div className="grid grid-cols-2 gap-4">
-                  <div>
-                    <label className="block text-sm text-gray-400 mb-1">
-                      Initial Stock *
-                    </label>
-                    <input
-                      type="number"
-                      min="0"
-                      value={addForm.stock}
-                      onChange={(e) =>
-                        setAddForm({
-                          ...addForm,
-                          stock: Math.max(0, Number(e.target.value)),
-                        })
-                      }
-                      className="w-full bg-gray-700/50 border border-gray-600 rounded-lg px-3 py-2 text-white"
-                      required
-                    />
-                  </div>
-                  <div>
-                    <label className="block text-sm text-gray-400 mb-1">
-                      Minimum Stock Level *
-                    </label>
-                    <input
-                      type="number"
-                      min="0"
-                      value={addForm.minStock}
-                      onChange={(e) =>
-                        setAddForm({
-                          ...addForm,
-                          minStock: Math.max(0, Number(e.target.value)),
-                        })
-                      }
-                      className="w-full bg-gray-700/50 border border-gray-600 rounded-lg px-3 py-2 text-white"
-                      required
-                    />
-                  </div>
-                </div>
-
-                <div>
-                  <label className="block text-sm text-gray-400 mb-1">
-                    Specifications
-                  </label>
-                  <div className="flex gap-2 mb-2">
-                    <input
-                      id="spec-input"
-                      type="text"
-                      placeholder="Add specification and press Enter"
-                      className="flex-1 bg-gray-700/50 border border-gray-600 rounded-lg px-3 py-2 text-white"
-                      onKeyDown={(e) => {
-                        if (e.key === "Enter") {
-                          e.preventDefault();
-                          handleSpecInput(e.target.value);
-                        }
-                      }}
-                    />
-                    <button
-                      onClick={() =>
-                        handleSpecInput(
-                          document.getElementById("spec-input").value
-                        )
-                      }
-                      className="px-3 py-2 bg-blue-500/20 text-blue-400 hover:bg-blue-500/30 rounded-lg transition-colors"
-                    >
-                      Add
-                    </button>
-                  </div>
-
-                  {addForm.specifications.length > 0 && (
-                    <div className="flex flex-wrap gap-2 mt-2">
-                      {addForm.specifications.map((spec, index) => (
-                        <span
-                          key={`spec-${index}`}
-                          className="inline-flex items-center px-2 py-1 rounded-full text-sm bg-gray-700 text-gray-300"
-                        >
-                          {spec}
-                          <button
-                            onClick={() => removeSpec(index)}
-                            className="ml-1 text-gray-400 hover:text-gray-200"
-                          >
-                            <XMarkIcon className="h-4 w-4" />
-                          </button>
-                        </span>
-                      ))}
-                    </div>
-                  )}
-                </div>
-
-                <div className="flex gap-3 justify-end mt-6">
-                  <button
-                    onClick={() => setIsAddModal(false)}
-                    className="px-4 py-2 bg-gray-700 text-gray-300 rounded-lg hover:bg-gray-600 transition-colors"
-                  >
-                    Cancel
-                  </button>
-                  <button
-                    onClick={handleAddProduct}
-                    disabled={
-                      !addForm.name ||
-                      !addForm.price ||
-                      !addForm.stock ||
-                      !addForm.minStock
-                    }
-                    className={`px-4 py-2 rounded-lg ${
-                      !addForm.name ||
-                      !addForm.price ||
-                      !addForm.stock ||
-                      !addForm.minStock
-                        ? "bg-gray-600 text-gray-400 cursor-not-allowed"
-                        : "bg-orange-500 text-white hover:bg-orange-600 transition-colors"
-                    }`}
-                  >
-                    Add Product
-                  </button>
-                </div>
-              </div>
-            </motion.div>
-          </div>
-        )}
-      </AnimatePresence>
+     
     </div>
   );
 };

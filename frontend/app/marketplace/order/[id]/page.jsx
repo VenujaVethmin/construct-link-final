@@ -181,7 +181,7 @@ const OrderPage = () => {
       <div className="max-w-7xl mx-auto">
         <div className="mb-6">
           <Link
-            href="/marketplace/products"
+            href={`/marketplace/products/${productId}`}
             className="inline-flex items-center text-gray-400 hover:text-orange-500 transition-colors"
           >
             <ChevronLeftIcon className="h-5 w-5 mr-1" />
