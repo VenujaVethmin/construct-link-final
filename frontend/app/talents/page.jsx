@@ -288,77 +288,7 @@ const TalentsPage = () => {
               </motion.div>
             </div>
             
-            <motion.div
-              initial={{ opacity: 0, scale: 0.9 }}
-              animate={{ opacity: 1, scale: 1 }}
-              transition={{ duration: 0.7, delay: 0.4 }}
-              className="hidden md:block relative h-[380px] w-[380px] lg:h-[440px] lg:w-[440px] bg-gradient-to-br from-orange-500/20 to-blue-500/10 rounded-2xl overflow-hidden"
-            >
-              <div className="absolute inset-1 bg-gray-800/90 backdrop-blur-sm rounded-2xl overflow-hidden">
-                <div className="absolute top-0 right-0 w-48 h-48 bg-orange-500/20 blur-3xl rounded-full -mr-20 -mt-20"></div>
-                <div className="absolute bottom-0 left-0 w-40 h-40 bg-blue-500/20 blur-3xl rounded-full -ml-20 -mb-20"></div>
-                
-                <div className="p-6 h-full flex flex-col">
-                  <div className="flex justify-between items-center mb-6">
-                    <div className="bg-gray-700/50 px-3 py-1 rounded-full">
-                      <span className="text-green-400 text-xs font-medium">12 Available Now</span>
-                    </div>
-                    <div className="bg-gray-700/50 px-3 py-1 rounded-full">
-                      <span className="text-orange-400 text-xs font-medium">Premium Network</span>
-                    </div>
-                  </div>
-                  
-                  <div className="flex-1 overflow-hidden relative">
-                    <div className="absolute inset-0 grid grid-cols-2 gap-4 overflow-y-auto p-1 hide-scrollbar">
-                      {[...featuredProfessionals, ...serviceProviders].slice(0, 6).map((pro, index) => (
-                        <div 
-                          key={pro.id}
-                          className="bg-gray-800/70 border border-gray-700/50 rounded-lg p-3 flex flex-col hover:border-orange-500/30 transition-colors cursor-pointer"
-                          style={{
-                            animationDelay: `${index * 0.2}s`,
-                            animation: 'fadeInUp 0.5s ease-out forwards',
-                            opacity: 0,
-                            transform: 'translateY(20px)'
-                          }}
-                        >
-                          <div className="flex items-center gap-2 mb-2">
-                            <div className="relative h-8 w-8 rounded-full overflow-hidden">
-                              <Image 
-                                src={pro.image}
-                                alt={pro.name}
-                                fill
-                                className="object-cover"
-                              />
-                            </div>
-                            <div className="overflow-hidden">
-                              <h4 className="text-white text-sm font-medium truncate">{pro.name}</h4>
-                              <p className="text-orange-400 text-xs truncate">{pro.title}</p>
-                            </div>
-                          </div>
-                          <div className="flex justify-between items-center text-xs">
-                            <div className="flex items-center gap-1">
-                              <StarIconSolid className="h-3 w-3 text-yellow-400" />
-                              <span className="text-gray-300">{pro.rating}</span>
-                            </div>
-                            <span className="text-gray-300 font-medium">{pro.hourlyRate}/hr</span>
-                          </div>
-                        </div>
-                      ))}
-                    </div>
-                  </div>
-                  
-                  <div className="mt-4 pt-4 border-t border-gray-700/30">
-                    <Link
-                      href="/talents/search"
-                      className="flex items-center justify-center gap-2 text-orange-400 hover:text-orange-300 transition-colors text-sm font-medium"
-                    >
-                      View all professionals
-                      <ChevronRightIcon className="h-4 w-4" />
-                    </Link>
-                  </div>
-                </div>
-              </div>
-            </motion.div>
+            
           </div>
         </div>
       </div>
@@ -578,17 +508,17 @@ const TalentsPage = () => {
                     className="bg-gray-800/40 backdrop-blur-sm border border-gray-700/50 rounded-xl p-5 cursor-pointer"
                   >
                     <Link href={`/talents/search?category=${encodeURIComponent(category)}`} className="block h-full">
-                      <div className="h-10 w-10 bg-orange-500/20 rounded-lg flex items-center justify-center mb-3">
-                        <span className="text-orange-400 font-bold">{category.charAt(0)}</span>
-                      </div>
-                      <h3 className="text-white font-medium mb-2">{category}</h3>
-                      <div className="flex justify-between items-end mt-4">
-                        <p className="text-gray-400 text-sm">
-                          {Math.floor(Math.random() * 200) + 50}+ experts
-                        </p>
-                        <ArrowRightIcon className="h-4 w-4 text-orange-500" />
-                      </div>
-                    </Link>
+      <div className="h-10 w-10 bg-orange-500/20 rounded-lg flex items-center justify-center mb-3">
+        <span className="text-orange-400 font-bold">{category.charAt(0)}</span>
+      </div>
+      <h3 className="text-white font-medium mb-2">{category}</h3>
+      <div className="flex justify-between items-end mt-4">
+        <p className="text-gray-400 text-sm">
+          {/* {expertCount !== null ? `${expertCount}+ experts` : `...`} */}
+        </p>
+        <ArrowRightIcon className="h-4 w-4 text-orange-500" />
+      </div>
+    </Link>
                   </motion.div>
                 ))}
               </div>

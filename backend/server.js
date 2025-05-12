@@ -140,7 +140,7 @@ app.get("/api/me", ensureJWTAuth, async (req, res) => {
   }
 });
 
-app.use("/api/user" ,ensureJWTAuth ,userRoute);
+app.use("/api/user"  ,userRoute);
 
 app.use("/api/supplier", supplierRoute);
 

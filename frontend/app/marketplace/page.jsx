@@ -28,6 +28,12 @@ import { motion, AnimatePresence } from "framer-motion";
 import Image from "next/image";
 import Link from "next/link";
 
+import axiosInstance from "@/lib/axiosInstance";
+import useSWR from "swr";
+
+const fetcher = (url) => axiosInstance.get(url).then((res) => res.data);
+
+
 // Sample data
 const banners = [
   {
@@ -312,6 +318,14 @@ const unitTypes = [
 ];
 
 const Marketplace = () => {
+
+  const {
+    data,
+    error,
+    isLoading,
+    mutate,
+  } = useSWR("/marketplace/marketplace", fetcher);
+
   const [searchTerm, setSearchTerm] = useState("");
   const [currentBanner, setCurrentBanner] = useState(0);
 
@@ -443,12 +457,11 @@ const Marketplace = () => {
                   />
                   <MagnifyingGlassIcon className="absolute left-3 top-1/2 transform -translate-y-1/2 h-5 w-5 text-gray-400" />
                 </div>
-                <Link href={`/marketplace/products?search=${searchTerm}`}
-                  
+                <Link
+                  href={`/marketplace/products?search=${searchTerm}`}
                   className="px-6 py-3 bg-orange-500 text-white rounded-lg font-medium hover:bg-orange-600 transition-colors flex items-center gap-2"
                 >
-                  
-                 Search
+                  Search
                 </Link>
               </motion.div>
 
@@ -478,8 +491,6 @@ const Marketplace = () => {
                 </div>
               </motion.div>
             </div>
-
-           
           </div>
         </div>
       </div>
@@ -611,13 +622,13 @@ const Marketplace = () => {
                 materials across all categories
               </p>
             </div>
-            <Link
+            {/* <Link
               href="/marketplace/categories"
               className="text-orange-400 hover:text-orange-300 flex items-center mt-4 md:mt-0 text-sm font-medium"
             >
               View all categories
               <ChevronRightIcon className="h-5 w-5 ml-1" />
-            </Link>
+            </Link> */}
           </div>
 
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
@@ -683,7 +694,7 @@ const Marketplace = () => {
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {topSuppliers.map((supplier, index) => (
+            {data?.suppliers.map((supplier, index) => (
               <motion.div
                 key={`supplier-${supplier.id}`}
                 initial={{ opacity: 0, y: 20 }}
@@ -696,14 +707,14 @@ const Marketplace = () => {
                 <Link href={`/marketplace/suppliers/${supplier.id}`}>
                   <div className="relative aspect-video">
                     <Image
-                      src={supplier.image}
+                      src={supplier.image || "/noimage.webp"}
                       alt={supplier.name}
                       fill
                       className="object-cover"
                     />
                     <div className="absolute inset-0 bg-gradient-to-t from-gray-900 via-gray-900/40 to-transparent"></div>
                     <div className="absolute top-4 right-4 bg-blue-500 text-white px-3 py-1 rounded-full text-xs font-medium">
-                      {supplier.verifiedYears} Years Verified
+                      {/* {supplier.verifiedYears} Years Verified */}
                     </div>
                     <div className="absolute bottom-4 left-4">
                       <h3 className="text-xl font-semibold text-white mb-1">
@@ -711,35 +722,17 @@ const Marketplace = () => {
                       </h3>
                       <div className="flex items-center gap-1 text-gray-300 text-sm">
                         <MapPinIcon className="h-4 w-4" />
-                        <span>{supplier.location}</span>
+                        <span>{supplier?.store?.location}</span>
                       </div>
                     </div>
                   </div>
 
                   <div className="p-5">
                     <div className="flex items-center justify-between mb-4">
-                      <div className="flex items-center gap-1">
-                        <StarIconSolid className="h-5 w-5 text-yellow-400" />
-                        <span className="text-white font-medium">
-                          {supplier.rating}
-                        </span>
-                        <span className="text-gray-400 text-sm">rating</span>
-                      </div>
                       <div className="flex items-center gap-2 text-sm text-gray-400">
                         <BuildingOffice2Icon className="h-4 w-4" />
                         <span>Specializes in</span>
                       </div>
-                    </div>
-
-                    <div className="flex flex-wrap gap-2 mb-4">
-                      {supplier.specialties.map((specialty, i) => (
-                        <span
-                          key={`specialty-${supplier.id}-${i}`}
-                          className="px-3 py-1 rounded-full bg-gray-700/50 text-gray-300 text-xs"
-                        >
-                          {specialty}
-                        </span>
-                      ))}
                     </div>
 
                     <div className="border-t border-gray-700/30 pt-4 mb-4">
@@ -747,7 +740,7 @@ const Marketplace = () => {
                         Featured Products
                       </h4>
                       <div className="grid grid-cols-2 gap-3">
-                        {supplier.featured.map((product) => (
+                        {supplier?.featured?.map((product) => (
                           <div
                             key={`featured-${product.id}`}
                             className="bg-gray-700/30 rounded-lg p-2 hover:bg-gray-700/50 transition-colors"
@@ -799,23 +792,6 @@ const Marketplace = () => {
               </p>
             </div>
             <div className="flex items-center gap-4 mt-4 md:mt-0">
-              <div className="flex flex-wrap gap-2">
-                {["All", "Building", "Electrical", "Plumbing", "Tools"].map(
-                  (category) => (
-                    <button
-                      key={`filter-${category}`}
-                      onClick={() => setActiveProductCategory(category)}
-                      className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
-                        activeProductCategory === category
-                          ? "bg-orange-500 text-white"
-                          : "bg-gray-700/30 text-gray-300 hover:bg-gray-700/60"
-                      }`}
-                    >
-                      {category}
-                    </button>
-                  )
-                )}
-              </div>
               <Link
                 href="/marketplace/products"
                 className="text-orange-400 hover:text-orange-300 flex items-center text-sm font-medium"
@@ -827,7 +803,7 @@ const Marketplace = () => {
           </div>
 
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-            {featuredProducts.map((product, index) => (
+            {data?.products.map((product, index) => (
               <motion.div
                 key={`product-${product.id}`}
                 initial={{ opacity: 0, y: 20 }}
@@ -840,7 +816,11 @@ const Marketplace = () => {
                 <Link href={`/marketplace/products/${product.id}`}>
                   <div className="relative aspect-square">
                     <Image
-                      src={product.image}
+                      src={
+                        product.images && product.images.length > 0
+                          ? product.images[0]
+                          : "/noimage.webp"
+                      }
                       alt={product.name}
                       fill
                       className="object-cover transition-transform duration-700 hover:scale-105"
@@ -881,128 +861,20 @@ const Marketplace = () => {
                     <div className="flex justify-between items-center mb-4">
                       <div className="flex flex-col">
                         <span className="text-white font-bold">
-                          {product.price}
+                          Rs. {product.price}
                         </span>
                         <span className="text-gray-400 text-xs">
-                          {product.pricePerUnit}
+                          /{product.unit}
                         </span>
                       </div>
                       <span
                         className={`text-sm px-2 py-1 rounded-full ${
-                          product.availability === "In Stock"
+                          product.stock > 0
                             ? "bg-green-500/20 text-green-400"
                             : "bg-orange-500/20 text-orange-400"
                         }`}
                       >
-                        {product.availability}
-                      </span>
-                    </div>
-
-                    <div className="flex gap-2">
-                      <button className="flex-1 bg-orange-500 text-white py-2 rounded-lg hover:bg-orange-600 text-sm font-medium transition-colors">
-                        View Details
-                      </button>
-                      <button className="p-2 rounded-lg bg-gray-700/30 hover:bg-gray-700/50 text-gray-400 hover:text-white transition-colors">
-                        <CurrencyDollarIcon className="h-5 w-5" />
-                      </button>
-                    </div>
-                  </div>
-                </Link>
-              </motion.div>
-            ))}
-          </div>
-        </section>
-
-        {/* Trending Products Section */}
-        <section className="mb-16">
-          <div className="flex flex-col md:flex-row md:items-end justify-between mb-10">
-            <div>
-              <h2 className="text-3xl font-bold text-white mb-3">
-                Trending Materials
-              </h2>
-              <p className="text-gray-400 max-w-2xl">
-                Discover the most popular construction materials contractors are
-                using right now
-              </p>
-            </div>
-            <Link
-              href="/marketplace/trending"
-              className="text-orange-400 hover:text-orange-300 flex items-center mt-4 md:mt-0 text-sm font-medium"
-            >
-              View all trending
-              <ChevronRightIcon className="h-5 w-5 ml-1" />
-            </Link>
-          </div>
-
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-            {trendingProducts.map((product, index) => (
-              <motion.div
-                key={`trending-${product.id}`}
-                initial={{ opacity: 0, y: 20 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                viewport={{ once: true }}
-                transition={{ duration: 0.5, delay: index * 0.1 }}
-                whileHover={{ y: -6 }}
-                className="bg-gradient-to-br from-gray-800/90 to-gray-900/90 backdrop-blur-sm border border-gray-700/50 rounded-xl overflow-hidden flex flex-col"
-              >
-                <Link href={`/marketplace/products/${product.id}`}>
-                  <div className="relative aspect-square">
-                    <Image
-                      src={product.image}
-                      alt={product.name}
-                      fill
-                      className="object-cover transition-transform duration-700 hover:scale-105"
-                    />
-                    {product.featured && (
-                      <div className="absolute top-3 right-3 bg-orange-500 text-white text-xs px-2 py-1 rounded-full font-medium">
-                        Hot Item
-                      </div>
-                    )}
-                  </div>
-
-                  <div className="p-5 flex-grow">
-                    <div className="flex justify-between items-start mb-2">
-                      <span className="text-sm text-orange-400">
-                        {product.category}
-                      </span>
-                      <div className="flex items-center gap-1">
-                        <StarIconSolid className="h-4 w-4 text-yellow-400" />
-                        <span className="text-white text-sm">
-                          {product.rating}
-                        </span>
-                      </div>
-                    </div>
-                    <h3 className="font-semibold text-white text-lg mb-2">
-                      {product.name}
-                    </h3>
-                    <div className="flex items-center gap-2 mb-3">
-                      <div className="text-gray-400 text-sm">
-                        {product.reviewCount} reviews
-                      </div>
-                      <div className="w-1 h-1 rounded-full bg-gray-600"></div>
-                      <div className="flex items-center gap-1 text-sm text-gray-400">
-                        <MapPinIcon className="h-4 w-4" />
-                        <span>{product.location}</span>
-                      </div>
-                    </div>
-
-                    <div className="flex justify-between items-center mb-4">
-                      <div className="flex flex-col">
-                        <span className="text-white font-bold">
-                          {product.price}
-                        </span>
-                        <span className="text-gray-400 text-xs">
-                          {product.pricePerUnit}
-                        </span>
-                      </div>
-                      <span
-                        className={`text-sm px-2 py-1 rounded-full ${
-                          product.availability === "In Stock"
-                            ? "bg-green-500/20 text-green-400"
-                            : "bg-orange-500/20 text-orange-400"
-                        }`}
-                      >
-                        {product.availability}
+                        {product.stock}
                       </span>
                     </div>
 
@@ -1071,8 +943,6 @@ const Marketplace = () => {
           </div>
         </div>
       </main>
-
-     
     </div>
   );
 };

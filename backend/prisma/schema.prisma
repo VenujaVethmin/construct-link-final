@@ -27,6 +27,33 @@ model User {
   stores   Store[]
   addresses Address[]
   orders    Order[]
+  talentProfile TalentProfile?
+}
+
+
+model TalentProfile {
+  id                String    @id @default(cuid())
+  userId            String    @unique
+  user              User      @relation(fields: [userId], references: [id])
+  title             String?
+  specialization    String?
+  hourlyRate        Float?
+  
+  yearsExperience   Int       @default(0)
+  completedProjects Int       @default(0)
+  about             String?   @db.Text
+  skills            Json?     // Array of skills
+  languages         Json?     // Array of languages
+  education         Json?     // Array of education objects
+  experience        Json?     // Array of experience objects
+  portfolio         Json?     // Array of portfolio items
+  certifications    Json?     // Array of certification names
+  rating            Float?    @default(0)
+  reviewCount       Int       @default(0)
+  coverImage        String?
+  
+  createdAt         DateTime  @default(now())
+  updatedAt         DateTime  @updatedAt
 }
 
 model Address {
@@ -220,6 +247,7 @@ model Order {
 model Store{
   id        String   @id @default(cuid())
   name      String
+  image     String?
   description String?
   location  String?
   ownerId   String

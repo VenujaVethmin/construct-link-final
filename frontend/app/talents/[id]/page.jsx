@@ -1,30 +1,29 @@
 "use client";
 
-import { useState } from "react";
 import {
-  StarIcon,
-  MapPinIcon,
   BriefcaseIcon,
+  BuildingOfficeIcon,
+  ChatBubbleLeftRightIcon,
   CheckBadgeIcon,
-  ClockIcon,
-  ChatBubbleLeftIcon,
-  DocumentTextIcon,
-  CurrencyDollarIcon,
-  BuildingOffice2Icon,
-  CalendarIcon,
-  PhoneIcon,
-  EnvelopeIcon,
+  ChevronRightIcon,
+  ClipboardDocumentCheckIcon,
+  MapPinIcon
 } from "@heroicons/react/24/outline";
-import { motion } from "framer-motion";
+import { StarIcon as StarIconSolid } from "@heroicons/react/24/solid";
 import Image from "next/image";
+import Link from "next/link";
+import { useParams, useRouter } from "next/navigation";
+import { useEffect, useState } from "react";
 
-// Mock provider data
-const provider = {
-  id: 1,
+// Mock talent data - replace with actual API call in production
+const talentData = {
+  id: "1",
   name: "John Smith",
   title: "Civil Engineer",
-  image: "https://images.unsplash.com/photo-1584043720379-b56cd9199c94?q=80&w=400",
-  coverImage: "https://images.unsplash.com/photo-1477959858617-67f85cf4f1df?q=80&w=1200",
+  image:
+    "https://images.unsplash.com/photo-1584043720379-b56cd9199c94?q=80&w=400",
+  coverImage:
+    "https://images.unsplash.com/photo-1516937941344-00b4e0337589?q=80&w=1887&auto=format",
   rating: 4.9,
   reviewCount: 127,
   location: "New York, NY",
@@ -32,364 +31,628 @@ const provider = {
   availability: "Available Now",
   verified: true,
   yearsExperience: 8,
-  skills: ["Structural Design", "Project Management", "AutoCAD", "Construction Planning", "Site Supervision"],
+  skills: [
+    "Structural Design",
+    "Project Management",
+    "AutoCAD",
+    "Concrete Design",
+    "Steel Construction",
+    "Cost Estimation",
+  ],
   languages: ["English", "Spanish"],
   completedProjects: 143,
   specialization: "Commercial Construction",
   certifications: ["PE Licensed", "PMP Certified"],
-  about: "Civil Engineer with 8+ years of experience in structural design and project management. Specialized in commercial construction projects with a focus on sustainable building practices.",
-  portfolio: [
+  education: [
     {
-      id: 1,
-      title: "City Center Complex",
-      image: "https://images.unsplash.com/photo-1486406146926-c627a92ad1ab?q=80&w=600",
-      description: "Lead structural engineer for 30-story commercial building",
+      degree: "Master of Engineering",
+      institution: "Cornell University",
+      year: "2015",
     },
     {
-      id: 2,
-      title: "Riverside Development",
-      image: "https://images.unsplash.com/photo-1504307651254-35680f356dfd?q=80&w=600",
-      description: "Project manager for waterfront residential complex",
+      degree: "Bachelor of Civil Engineering",
+      institution: "University of Michigan",
+      year: "2012",
+    },
+  ],
+  about:
+    "I am a licensed civil engineer with over 8 years of experience in structural design and project management. I specialize in commercial construction projects with expertise in concrete and steel structures. My approach focuses on sustainable design practices and cost-effective solutions that exceed client expectations.",
+  experience: [
+    {
+      position: "Senior Structural Engineer",
+      company: "BuildTech Solutions",
+      period: "2018 - Present",
+      description:
+        "Lead structural engineer for commercial high-rise projects exceeding $50M in value.",
+    },
+    {
+      position: "Project Engineer",
+      company: "Global Construction Partners",
+      period: "2015 - 2018",
+      description:
+        "Managed structural integrity for mid-size commercial and residential developments.",
+    },
+  ],
+  portfolio: [
+    {
+      title: "Downtown Office Complex",
+      image:
+        "https://images.unsplash.com/photo-1486406146926-c627a92ad1ab?q=80&w=500",
+      description:
+        "12-story steel frame office building with sustainable design elements.",
+    },
+    {
+      title: "Waterfront Residential Tower",
+      image:
+        "https://images.unsplash.com/photo-1487958449943-2429e8be8625?q=80&w=500",
+      description:
+        "Luxury 24-story residential building with innovative structural solutions.",
+    },
+    {
+      title: "University Research Facility",
+      image:
+        "https://images.unsplash.com/photo-1567359781514-3b964e2b04d6?q=80&w=500",
+      description:
+        "State-of-the-art research facility with complex foundation requirements.",
     },
   ],
   reviews: [
     {
-      id: 1,
-      name: "David Chen",
+      name: "Sarah Johnson",
+      role: "Project Director",
       rating: 5,
-      date: "2 months ago",
-      comment: "Excellent work on our commercial project. Very professional and knowledgeable.",
-      image: "https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?q=80&w=100",
+      text: "John delivered exceptional structural designs that optimized our project budget without compromising quality. His communication was clear and consistent throughout the project.",
     },
-    // Add more reviews...
+    {
+      name: "Michael Chen",
+      role: "Development Manager",
+      rating: 5,
+      text: "Excellent work on our complex high-rise project. John's expertise in structural engineering saved us significant costs while maintaining the highest standards.",
+    },
   ],
-  contact: {
-    phone: "+1 234 567 890",
-    email: "john.smith@example.com",
-  },
 };
 
-// Mock project data
-const projects = [
-  { id: 1, title: "Downtown Office Building" },
-  { id: 2, title: "Residential Complex" },
-  { id: 3, title: "Shopping Mall Renovation" },
+// Mock projects list
+const projectsList = [
+  {
+    id: "proj1",
+    name: "Downtown Renovation",
+    description: "Commercial building renovation in downtown area",
+    status: "In_PROGRESS",
+    budget: 1250000,
+    location: "New York, NY",
+  },
+  {
+    id: "proj2",
+    name: "Waterfront Residential Complex",
+    description: "New residential development with 120 units",
+    status: "On_Hold",
+    budget: 8750000,
+    location: "Boston, MA",
+  },
+  {
+    id: "proj3",
+    name: "Community Center Expansion",
+    description: "Adding new facilities to existing community center",
+    status: "Almost_Done",
+    budget: 950000,
+    location: "Chicago, IL",
+  },
 ];
 
-const ProviderProfile = () => {
-  const [activeTab, setActiveTab] = useState("overview");
-  const [showHireModal, setShowHireModal] = useState(false);
-  const [selectedProject, setSelectedProject] = useState("");
+const TalentProfilePage = () => {
+  const params = useParams();
+  const router = useRouter();
+  const [talent, setTalent] = useState(talentData);
+  const [activeTab, setActiveTab] = useState("about");
+  const [projects, setProjects] = useState(projectsList);
+  const [showConfirmation, setShowConfirmation] = useState(false);
+  const [selectedProject, setSelectedProject] = useState(null);
+  const [isLoading, setIsLoading] = useState(false);
+
+  // This would be replaced with an actual API call in production
+  useEffect(() => {
+    // Fetch talent data and projects
+    // Example: fetchTalentData(params.id).then(data => setTalent(data))
+  }, [params.id]);
+
+  const handleSendRequest = (project) => {
+    setSelectedProject(project);
+    setShowConfirmation(true);
+  };
+
+  const confirmSendRequest = async () => {
+    if (!selectedProject) return;
+
+    setIsLoading(true);
+    try {
+      // This would be an actual API call in production
+      // Example: await sendJoinRequest({ talentId: talent.id, projectId: selectedProject.id })
+
+      // Simulate API call
+      await new Promise((resolve) => setTimeout(resolve, 1000));
+
+      // Show success message
+      setShowConfirmation(false);
+      setIsLoading(false);
+
+      // You could add a toast notification here
+      alert(`Request sent to join ${selectedProject.name}`);
+    } catch (error) {
+      console.error("Error sending request:", error);
+      setIsLoading(false);
+    }
+  };
 
   return (
     <div className="min-h-screen bg-gray-900">
-      {/* Cover Image */}
-      <div className="relative h-64 lg:h-80">
+      {/* Profile Header/Banner */}
+      <div className="relative h-64 sm:h-80">
         <Image
-          src={provider.coverImage}
-          alt="Cover"
+          src={talent.coverImage}
+          alt="Cover image"
           fill
           className="object-cover"
-          priority
         />
-        <div className="absolute inset-0 bg-gradient-to-b from-black/60 via-black/30 to-transparent" />
+        <div className="absolute inset-0 bg-gradient-to-b from-gray-900/30 to-gray-900/80"></div>
       </div>
 
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 -mt-32">
-        <div className="relative z-10 bg-gray-800/40 backdrop-blur-sm border border-gray-700/50 rounded-xl p-6 mb-6">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 -mt-32 relative z-10">
+        <div className="bg-gray-800 rounded-xl border border-gray-700/50 shadow-xl overflow-hidden">
           {/* Profile Header */}
-          <div className="flex flex-col md:flex-row gap-6 items-start">
-            <div className="relative h-32 w-32 rounded-xl overflow-hidden border-4 border-gray-800">
-              <Image
-                src={provider.image}
-                alt={provider.name}
-                fill
-                className="object-cover"
-              />
+          <div className="p-6 sm:p-8 border-b border-gray-700/50">
+            <div className="flex flex-col md:flex-row gap-6 items-start">
+              {/* Profile Image */}
+              <div className="w-32 h-32 rounded-xl border-4 border-gray-800 overflow-hidden flex-shrink-0 shadow-lg">
+                <Image
+                  src={talent.image}
+                  alt={talent.name}
+                  width={128}
+                  height={128}
+                  className="object-cover w-full h-full"
+                />
+              </div>
+
+              {/* Basic Info */}
+              <div className="flex-grow">
+                <div className="flex flex-wrap items-start justify-between gap-4">
+                  <div>
+                    <div className="flex items-center gap-2 mb-1">
+                      <h1 className="text-2xl font-bold text-white">
+                        {talent.name}
+                      </h1>
+                      {talent.verified && (
+                        <CheckBadgeIcon className="h-6 w-6 text-blue-400" />
+                      )}
+                    </div>
+                    <p className="text-orange-400 text-lg mb-2">
+                      {talent.title}
+                    </p>
+
+                    <div className="flex flex-wrap items-center gap-x-4 gap-y-2 text-sm">
+                      <div className="flex items-center gap-1">
+                        <StarIconSolid className="h-5 w-5 text-yellow-400" />
+                        <span className="text-white font-medium">
+                          {talent.rating}
+                        </span>
+                        <span className="text-gray-400">
+                          ({talent.reviewCount} reviews)
+                        </span>
+                      </div>
+                      <div className="flex items-center gap-1 text-gray-300">
+                        <MapPinIcon className="h-5 w-5" />
+                        <span>{talent.location}</span>
+                      </div>
+                      <div className="flex items-center gap-1 text-gray-300">
+                        <BriefcaseIcon className="h-5 w-5" />
+                        <span>{talent.yearsExperience} years experience</span>
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Rate & Availability */}
+                  <div className="bg-gray-700/50 rounded-lg p-4 text-center">
+                    <p className="text-gray-300 text-sm mb-1">Hourly Rate</p>
+                    <p className="text-white text-2xl font-bold mb-1">
+                      {talent.hourlyRate}
+                    </p>
+                    <p
+                      className={`text-sm ${
+                        talent.availability.includes("Available")
+                          ? "text-green-400"
+                          : "text-yellow-400"
+                      }`}
+                    >
+                      {talent.availability}
+                    </p>
+                  </div>
+                </div>
+
+                {/* Quick Stats */}
+                <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4 mt-6">
+                  <div className="bg-gray-700/30 rounded-lg p-3 text-center">
+                    <p className="text-gray-300 text-xs mb-1">
+                      Projects Completed
+                    </p>
+                    <p className="text-white text-xl font-bold">
+                      {talent.completedProjects}
+                    </p>
+                  </div>
+                  <div className="bg-gray-700/30 rounded-lg p-3 text-center">
+                    <p className="text-gray-300 text-xs mb-1">Specialization</p>
+                    <p className="text-white text-md font-medium">
+                      {talent.specialization}
+                    </p>
+                  </div>
+                  <div className="bg-gray-700/30 rounded-lg p-3 text-center">
+                    <p className="text-gray-300 text-xs mb-1">Languages</p>
+                    <p className="text-white text-md font-medium">
+                      {talent.languages.join(", ")}
+                    </p>
+                  </div>
+                  <div className="bg-gray-700/30 rounded-lg p-3 text-center">
+                    <p className="text-gray-300 text-xs mb-1">Certifications</p>
+                    <p className="text-white text-md font-medium">
+                      {talent.certifications.length}
+                    </p>
+                  </div>
+                </div>
+              </div>
             </div>
 
-            <div className="flex-1">
-              <div className="flex items-center gap-3 mb-2">
-                <h1 className="text-2xl font-bold text-white">{provider.name}</h1>
-                {provider.verified && (
-                  <span className="bg-blue-500/20 text-blue-400 px-2 py-0.5 rounded-full text-sm flex items-center gap-1">
-                    <CheckBadgeIcon className="h-4 w-4" />
-                    Verified
-                  </span>
-                )}
-              </div>
-              
-              <p className="text-orange-500 text-lg mb-3">{provider.title}</p>
-              
-              <div className="flex flex-wrap items-center gap-4 text-sm">
-                <div className="flex items-center gap-1">
-                  <StarIcon className="h-5 w-5 text-yellow-400" />
-                  <span className="text-white font-medium">{provider.rating}</span>
-                  <span className="text-gray-400">({provider.reviewCount} reviews)</span>
-                </div>
-                <div className="flex items-center gap-1 text-gray-400">
-                  <MapPinIcon className="h-5 w-5" />
-                  <span>{provider.location}</span>
-                </div>
-                <div className="flex items-center gap-1 text-gray-400">
-                  <BriefcaseIcon className="h-5 w-5" />
-                  <span>{provider.yearsExperience} years experience</span>
-                </div>
-                <div className="flex items-center gap-1 text-white font-medium">
-                  <CurrencyDollarIcon className="h-5 w-5" />
-                  <span>{provider.hourlyRate}/hr</span>
-                </div>
-              </div>
-            </div>
-
-            <div className="flex gap-3 md:self-start">
-              <button 
-                onClick={() => setShowHireModal(true)}
-                className="bg-orange-500 text-white px-6 py-2.5 rounded-lg hover:bg-orange-600 font-medium"
+            {/* Action Buttons */}
+            <div className="flex flex-wrap gap-3 mt-8 justify-end">
+              <button className="px-4 py-2 border border-gray-600 rounded-lg text-gray-300 hover:bg-gray-700 transition-colors flex items-center gap-2">
+                <ChatBubbleLeftRightIcon className="h-5 w-5" />
+                Message
+              </button>
+              <button
+                className="px-6 py-2 bg-orange-500 hover:bg-orange-600 text-white rounded-lg transition-colors"
+                onClick={() => setShowConfirmation(true)}
               >
-                Request to Join Your Project
-              </button>
-              <button className="bg-gray-700/50 text-white px-4 py-2.5 rounded-lg hover:bg-gray-700/70">
-                <ChatBubbleLeftIcon className="h-5 w-5" />
+                Invite to Project
               </button>
             </div>
           </div>
 
-          {/* Contact Info */}
-          <div className="mt-4 flex gap-4 text-sm text-gray-400">
-            <div className="flex items-center gap-2">
-              <PhoneIcon className="h-5 w-5" />
-              <span>{provider.contact.phone}</span>
-            </div>
-            <div className="flex items-center gap-2">
-              <EnvelopeIcon className="h-5 w-5" />
-              <span>{provider.contact.email}</span>
-            </div>
-          </div>
-
-          {/* Tabs */}
-          <div className="mt-8 border-b border-gray-700">
-            <div className="flex gap-6">
-              {["overview", "portfolio", "reviews"].map((tab) => (
+          {/* Profile Tabs and Content */}
+          <div>
+            {/* Tabs */}
+            <div className="flex overflow-x-auto border-b border-gray-700/50">
+              {["about", "experience", "projects", "reviews"].map((tab) => (
                 <button
                   key={tab}
-                  onClick={() => setActiveTab(tab)}
-                  className={`px-4 py-2 text-sm font-medium capitalize ${
+                  className={`px-6 py-4 font-medium text-sm whitespace-nowrap transition-colors ${
                     activeTab === tab
-                      ? "text-orange-500 border-b-2 border-orange-500"
+                      ? "text-orange-400 border-b-2 border-orange-400"
                       : "text-gray-400 hover:text-white"
                   }`}
+                  onClick={() => setActiveTab(tab)}
                 >
-                  {tab}
+                  {tab.charAt(0).toUpperCase() + tab.slice(1)}
                 </button>
               ))}
             </div>
-          </div>
 
-          {/* Tab Content */}
-          <div className="mt-6">
-            {activeTab === "overview" && (
-              <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-                <div className="lg:col-span-2 space-y-6">
-                  {/* About */}
-                  <div>
-                    <h2 className="text-lg font-medium text-white mb-3">About</h2>
-                    <p className="text-gray-300 text-sm leading-relaxed">{provider.about}</p>
-                  </div>
+            {/* Tab Content */}
+            <div className="p-6 sm:p-8">
+              {/* About Tab */}
+              {activeTab === "about" && (
+                <div>
+                  <h2 className="text-xl font-bold text-white mb-4">About</h2>
+                  <p className="text-gray-300 mb-8">{talent.about}</p>
 
-                  {/* Skills */}
-                  <div>
-                    <h2 className="text-lg font-medium text-white mb-3">Skills</h2>
-                    <div className="flex flex-wrap gap-2">
-                      {provider.skills.map((skill, index) => (
-                        <span
-                          key={index}
-                          className="px-3 py-1.5 rounded-full bg-gray-700/50 text-gray-300 text-sm"
-                        >
-                          {skill}
-                        </span>
-                      ))}
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+                    {/* Skills */}
+                    <div>
+                      <h3 className="text-lg font-medium text-white mb-4">
+                        Skills
+                      </h3>
+                      <div className="flex flex-wrap gap-2">
+                        {talent.skills.map((skill, index) => (
+                          <span
+                            key={index}
+                            className="px-3 py-1 bg-gray-700/40 text-gray-300 rounded-full text-sm"
+                          >
+                            {skill}
+                          </span>
+                        ))}
+                      </div>
+                    </div>
+
+                    {/* Education */}
+                    <div>
+                      <h3 className="text-lg font-medium text-white mb-4">
+                        Education
+                      </h3>
+                      <div className="space-y-4">
+                        {talent.education.map((edu, index) => (
+                          <div
+                            key={index}
+                            className="border-l-2 border-gray-700 pl-4"
+                          >
+                            <h4 className="text-white font-medium">
+                              {edu.degree}
+                            </h4>
+                            <p className="text-gray-400">{edu.institution}</p>
+                            <p className="text-gray-500 text-sm">{edu.year}</p>
+                          </div>
+                        ))}
+                      </div>
                     </div>
                   </div>
 
                   {/* Certifications */}
-                  <div>
-                    <h2 className="text-lg font-medium text-white mb-3">Certifications</h2>
-                    <div className="flex flex-wrap gap-2">
-                      {provider.certifications.map((cert, index) => (
-                        <span
+                  <div className="mt-8">
+                    <h3 className="text-lg font-medium text-white mb-4">
+                      Certifications
+                    </h3>
+                    <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
+                      {talent.certifications.map((cert, index) => (
+                        <div
                           key={index}
-                          className="px-3 py-1.5 rounded-full bg-blue-500/20 text-blue-400 text-sm"
+                          className="bg-gray-700/30 border border-gray-700/50 rounded-lg p-4 flex items-center gap-3"
                         >
-                          {cert}
-                        </span>
+                          <div className="w-10 h-10 rounded-full bg-orange-500/20 flex items-center justify-center flex-shrink-0">
+                            <ClipboardDocumentCheckIcon className="h-5 w-5 text-orange-400" />
+                          </div>
+                          <span className="text-white">{cert}</span>
+                        </div>
                       ))}
                     </div>
                   </div>
                 </div>
+              )}
 
-                {/* Quick Info */}
-                <div className="space-y-4">
-                  <div className="bg-gray-800/40 backdrop-blur-sm border border-gray-700/50 rounded-lg p-4">
-                    <h3 className="text-white font-medium mb-3">Quick Info</h3>
-                    <div className="space-y-3 text-sm">
-                      <div className="flex items-center justify-between">
-                        <div className="flex items-center gap-2 text-gray-400">
-                          <BuildingOffice2Icon className="h-5 w-5" />
-                          <span>Completed Projects</span>
+              {/* Experience Tab */}
+              {activeTab === "experience" && (
+                <div>
+                  <h2 className="text-xl font-bold text-white mb-6">
+                    Work Experience
+                  </h2>
+                  <div className="space-y-8">
+                    {talent.experience.map((exp, index) => (
+                      <div
+                        key={index}
+                        className="border-l-2 border-gray-700 pl-6 relative"
+                      >
+                        <div className="absolute w-4 h-4 bg-orange-500 rounded-full -left-[9px] top-0"></div>
+                        <h3 className="text-lg font-medium text-white">
+                          {exp.position}
+                        </h3>
+                        <div className="flex items-center gap-2 mb-2">
+                          <BuildingOfficeIcon className="h-4 w-4 text-gray-400" />
+                          <span className="text-orange-400">{exp.company}</span>
+                          <span className="text-gray-500">• {exp.period}</span>
                         </div>
-                        <span className="text-white">{provider.completedProjects}</span>
+                        <p className="text-gray-300">{exp.description}</p>
                       </div>
-                      <div className="flex items-center justify-between">
-                        <div className="flex items-center gap-2 text-gray-400">
-                          <CalendarIcon className="h-5 w-5" />
-                          <span>Availability</span>
-                        </div>
-                        <span className="text-green-400">{provider.availability}</span>
-                      </div>
-                      <div className="flex items-center justify-between">
-                        <div className="flex items-center gap-2 text-gray-400">
-                          <DocumentTextIcon className="h-5 w-5" />
-                          <span>Languages</span>
-                        </div>
-                        <span className="text-white">{provider.languages.join(", ")}</span>
-                      </div>
-                    </div>
+                    ))}
                   </div>
                 </div>
-              </div>
-            )}
+              )}
 
-            {activeTab === "portfolio" && (
-              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-                {provider.portfolio.map((item) => (
-                  <div
-                    key={item.id}
-                    className="bg-gray-800/40 backdrop-blur-sm border border-gray-700/50 rounded-lg overflow-hidden"
-                  >
-                    <div className="relative aspect-video">
-                      <Image
-                        src={item.image}
-                        alt={item.title}
-                        fill
-                        className="object-cover"
-                      />
-                    </div>
-                    <div className="p-4">
-                      <h3 className="text-white font-medium mb-1">{item.title}</h3>
-                      <p className="text-gray-400 text-sm">{item.description}</p>
-                    </div>
-                  </div>
-                ))}
-              </div>
-            )}
-
-            {activeTab === "reviews" && (
-              <div className="space-y-4">
-                {provider.reviews.map((review) => (
-                  <div
-                    key={review.id}
-                    className="bg-gray-800/40 backdrop-blur-sm border border-gray-700/50 rounded-lg p-4"
-                  >
-                    <div className="flex items-start gap-4">
-                      <div className="relative h-10 w-10 rounded-full overflow-hidden">
-                        <Image
-                          src={review.image}
-                          alt={review.name}
-                          fill
-                          className="object-cover"
-                        />
-                      </div>
-                      <div className="flex-1">
-                        <div className="flex items-center justify-between">
-                          <h3 className="text-white font-medium">{review.name}</h3>
-                          <span className="text-gray-400 text-sm">{review.date}</span>
+              {/* Portfolio Tab */}
+              {activeTab === "portfolio" && (
+                <div>
+                  <h2 className="text-xl font-bold text-white mb-6">
+                    Project Portfolio
+                  </h2>
+                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                    {talent.portfolio.map((project, index) => (
+                      <div
+                        key={index}
+                        className="bg-gray-800 border border-gray-700/50 rounded-lg overflow-hidden group"
+                      >
+                        <div className="relative h-48">
+                          <Image
+                            src={project.image}
+                            alt={project.title}
+                            fill
+                            className="object-cover transition-transform duration-500 group-hover:scale-110"
+                          />
                         </div>
-                        <div className="flex items-center gap-1 mt-1">
-                          {[...Array(review.rating)].map((_, i) => (
-                            <StarIcon key={i} className="h-4 w-4 text-yellow-400" />
-                          ))}
+                        <div className="p-4">
+                          <h3 className="text-white font-medium mb-2">
+                            {project.title}
+                          </h3>
+                          <p className="text-gray-400 text-sm">
+                            {project.description}
+                          </p>
                         </div>
-                        <p className="text-gray-300 text-sm mt-2">{review.comment}</p>
                       </div>
-                    </div>
-                  </div>
-                ))}
-              </div>
-            )}
-          </div>
-        </div>
-
-        {/* Related Professionals */}
-        <div className="mb-8">
-          <h2 className="text-xl font-bold text-white mb-4">Similar Professionals</h2>
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-            {relatedProfessionals.map((related) => (
-              <motion.div
-                key={related.id}
-                whileHover={{ y: -4 }}
-                className="bg-gray-800/40 backdrop-blur-sm border border-gray-700/50 rounded-lg p-4"
-              >
-                <div className="flex items-start gap-4">
-                  <div className="relative h-16 w-16 rounded-full overflow-hidden">
-                    <Image
-                      src={related.image}
-                      alt={related.name}
-                      fill
-                      className="object-cover"
-                    />
-                  </div>
-                  <div>
-                    <h3 className="text-white font-medium">{related.name}</h3>
-                    <p className="text-orange-500 text-sm">{related.title}</p>
-                    <div className="flex items-center gap-2 mt-1 text-sm">
-                      <StarIcon className="h-4 w-4 text-yellow-400" />
-                      <span className="text-white">{related.rating}</span>
-                      <span className="text-gray-400">•</span>
-                      <span className="text-gray-400">{related.location}</span>
-                    </div>
+                    ))}
                   </div>
                 </div>
-              </motion.div>
-            ))}
+              )}
+
+              {/* Projects Tab - Show projects they can join */}
+              {activeTab === "projects" && (
+                <div>
+                  <div className="flex justify-between items-center mb-6">
+                    <h2 className="text-xl font-bold text-white">
+                      Available Projects
+                    </h2>
+                    <Link
+                      href="/projects"
+                      className="text-orange-400 hover:text-orange-300 text-sm flex items-center gap-1"
+                    >
+                      View all projects
+                      <ChevronRightIcon className="h-4 w-4" />
+                    </Link>
+                  </div>
+
+                  <div className="space-y-4">
+                    {projects.map((project) => (
+                      <div
+                        key={project.id}
+                        className="bg-gray-800/50 border border-gray-700/50 rounded-lg p-5 hover:bg-gray-800 transition-colors"
+                      >
+                        <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
+                          <div>
+                            <h3 className="text-white font-medium mb-1">
+                              {project.name}
+                            </h3>
+                            <p className="text-gray-400 text-sm mb-2">
+                              {project.description}
+                            </p>
+
+                            <div className="flex flex-wrap gap-x-4 gap-y-2 text-sm">
+                              <div className="flex items-center gap-1 text-gray-400">
+                                <MapPinIcon className="h-4 w-4" />
+                                <span>{project.location}</span>
+                              </div>
+
+                              <div className="flex items-center gap-1 text-gray-400">
+                                <span
+                                  className={`w-2 h-2 rounded-full ${
+                                    project.status === "In_PROGRESS"
+                                      ? "bg-blue-500"
+                                      : project.status === "On_Hold"
+                                      ? "bg-yellow-500"
+                                      : project.status === "Almost_Done"
+                                      ? "bg-green-300"
+                                      : "bg-green-500"
+                                  }`}
+                                ></span>
+                                <span>{project.status.replace("_", " ")}</span>
+                              </div>
+
+                              <div className="flex items-center gap-1 text-gray-400">
+                                <span className="font-medium text-white">
+                                  ${project.budget.toLocaleString()}
+                                </span>
+                                <span>budget</span>
+                              </div>
+                            </div>
+                          </div>
+
+                          <button
+                            onClick={() => handleSendRequest(project)}
+                            className="px-5 py-2 bg-orange-500 hover:bg-orange-600 text-white rounded-lg transition-colors whitespace-nowrap"
+                          >
+                            Request to Join
+                          </button>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
+
+              {/* Reviews Tab */}
+              {activeTab === "reviews" && (
+                <div>
+                  <div className="flex items-center justify-between mb-6">
+                    <h2 className="text-xl font-bold text-white">
+                      Client Reviews
+                    </h2>
+                    <div className="flex items-center gap-2">
+                      <StarIconSolid className="h-5 w-5 text-yellow-400" />
+                      <span className="text-white font-medium">
+                        {talent.rating}
+                      </span>
+                      <span className="text-gray-400">
+                        ({talent.reviewCount} reviews)
+                      </span>
+                    </div>
+                  </div>
+
+                  <div className="space-y-6">
+                    {talent.reviews.map((review, index) => (
+                      <div
+                        key={index}
+                        className="bg-gray-800/50 border border-gray-700/50 rounded-lg p-5"
+                      >
+                        <div className="flex items-center justify-between mb-3">
+                          <div>
+                            <h3 className="text-white font-medium">
+                              {review.name}
+                            </h3>
+                            <p className="text-gray-400 text-sm">
+                              {review.role}
+                            </p>
+                          </div>
+                          <div className="flex">
+                            {[...Array(5)].map((_, i) => (
+                              <StarIconSolid
+                                key={i}
+                                className={`h-4 w-4 ${
+                                  i < review.rating
+                                    ? "text-yellow-400"
+                                    : "text-gray-600"
+                                }`}
+                              />
+                            ))}
+                          </div>
+                        </div>
+                        <p className="text-gray-300">{review.text}</p>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
+            </div>
           </div>
         </div>
       </div>
 
-      {/* Hire Modal */}
-      {showHireModal && (
-        <div className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center p-4">
-          <div className="bg-gray-800 rounded-xl max-w-md w-full p-6">
-            <h2 className="text-xl font-bold text-white mb-4">Request to Join Your Project</h2>
-            <div className="space-y-4">
-              <div>
-                <label className="block text-sm font-medium text-gray-400 mb-1">
-                  Select Project
-                </label>
-                <select
-                  value={selectedProject}
-                  onChange={(e) => setSelectedProject(e.target.value)}
-                  className="w-full px-3 py-2 bg-gray-700/50 border border-gray-600 rounded-lg text-white"
-                >
-                  <option value="">Select a project</option>
-                  {projects.map((project) => (
-                    <option key={project.id} value={project.id}>
-                      {project.title}
-                    </option>
-                  ))}
-                </select>
-              </div>
-              <div className="flex gap-3 mt-6">
-                <button
-                  onClick={() => setShowHireModal(false)}
-                  className="flex-1 bg-gray-700 text-white py-2 rounded-lg hover:bg-gray-600"
-                >
-                  Cancel
-                </button>
-                <button className="flex-1 bg-orange-500 text-white py-2 rounded-lg hover:bg-orange-600">
-                  Send Request
-                </button>
-              </div>
+      {/* Confirmation Dialog */}
+      {showConfirmation && (
+        <div className="fixed inset-0 bg-gray-900/80 flex items-center justify-center z-50 p-4">
+          <div className="bg-gray-800 border border-gray-700 rounded-xl max-w-md w-full p-6 shadow-2xl">
+            <h3 className="text-xl font-bold text-white mb-4">
+              {selectedProject
+                ? `Join ${selectedProject.name}`
+                : "Invite to Project"}
+            </h3>
+            <p className="text-gray-300 mb-6">
+              {selectedProject
+                ? `Are you sure you want to send a request to join "${selectedProject.name}"?`
+                : `Are you sure you want to invite ${talent.name} to your project?`}
+            </p>
+
+            <div className="flex justify-end gap-3">
+              <button
+                onClick={() => setShowConfirmation(false)}
+                className="px-4 py-2 border border-gray-600 rounded-lg text-gray-300 hover:bg-gray-700 transition-colors"
+                disabled={isLoading}
+              >
+                Cancel
+              </button>
+              <button
+                onClick={confirmSendRequest}
+                className="px-6 py-2 bg-orange-500 hover:bg-orange-600 text-white rounded-lg transition-colors flex items-center gap-2"
+                disabled={isLoading}
+              >
+                {isLoading ? (
+                  <>
+                    <svg
+                      className="animate-spin h-5 w-5 text-white"
+                      xmlns="http://www.w3.org/2000/svg"
+                      fill="none"
+                      viewBox="0 0 24 24"
+                    >
+                      <circle
+                        className="opacity-25"
+                        cx="12"
+                        cy="12"
+                        r="10"
+                        stroke="currentColor"
+                        strokeWidth="4"
+                      ></circle>
+                      <path
+                        className="opacity-75"
+                        fill="currentColor"
+                        d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
+                      ></path>
+                    </svg>
+                    Processing...
+                  </>
+                ) : (
+                  "Confirm"
+                )}
+              </button>
             </div>
           </div>
         </div>
@@ -398,4 +661,4 @@ const ProviderProfile = () => {
   );
 };
 
-export default ProviderProfile;
+export default TalentProfilePage;

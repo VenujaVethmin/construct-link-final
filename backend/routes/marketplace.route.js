@@ -1,9 +1,12 @@
 import { Router } from "express";
-import { addNewAddress, getProductByid, getProducts, placeOrder, searchMarket } from "../controllers/marketplace.controller.js";
+import { addNewAddress, getProductByid, getProducts, marketplace, placeOrder, searchMarket } from "../controllers/marketplace.controller.js";
 
 
 const marketPlaceRoute = Router();
 
+
+
+marketPlaceRoute.get("/marketplace", marketplace);
 
 marketPlaceRoute.get("/getProducts", getProducts );
 marketPlaceRoute.get("/getProductByid/:id", getProductByid);

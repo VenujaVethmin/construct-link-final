@@ -634,11 +634,16 @@ const SearchPage = () => {
                     <Link href={`/marketplace/products/${product.id}`}>
                       <div className="relative aspect-square">
                         <Image
-                          src={product.image || "https://i0.wp.com/tinasbotanicals.com/wp-content/uploads/2025/01/No-Product-Image-Available.png?fit=800%2C800&ssl=1"}
-                          alt={product.name}
+                          src={
+                            product.images && product.images.length > 0
+                              ? product.images[0]
+                              : "https://i0.wp.com/tinasbotanicals.com/wp-content/uploads/2025/01/No-Product-Image-Available.png?fit=800%2C800&ssl=1"
+                          }
+                          alt={product.name || "Product image"}
                           fill
                           className="object-cover transition-transform duration-700 hover:scale-105"
                         />
+
                         {product.featured && (
                           <div className="absolute top-3 right-3 bg-orange-500 text-white text-xs px-2 py-1 rounded-full font-medium">
                             Featured
@@ -681,9 +686,8 @@ const SearchPage = () => {
                         <div className="flex justify-between items-center mb-4">
                           <div className="flex flex-col">
                             <span className="text-white font-bold">
-                             Rs {product.price} / {product.unit}
+                              Rs {product.price} / {product.unit}
                             </span>
-                            
                           </div>
                           <span
                             className={`text-sm px-2 py-1 rounded-full ${
@@ -692,7 +696,7 @@ const SearchPage = () => {
                                 : "bg-orange-500/20 text-orange-400"
                             }`}
                           >
-                          available  {product.stock}
+                            available {product.stock}
                           </span>
                         </div>
 

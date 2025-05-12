@@ -1,4 +1,5 @@
 import { PrismaClient } from "@prisma/client";
+import e from "express";
 
 const prisma = new PrismaClient();
 
@@ -26,19 +27,14 @@ export const getProducts = async (req, res) => {
   }
 };
 
-
-
-
 export const getProductByid = async (req, res) => {
   try {
-
     const { id } = req.params;
 
-  
     const data = await prisma.product.findUnique({
-        where :{
-            id : id
-        },
+      where: {
+        id: id,
+      },
 
       include: {
         supplier: {
@@ -56,44 +52,37 @@ export const getProductByid = async (req, res) => {
       },
     });
 
-
-   const projects = await prisma.project.findMany({
-     where: {
-       OR: [
-         { ownerId: "cmaeag0xr0000f97gptu6absi" },
-         { projectMembers: { some: { userId: "cmaeag0xr0000f97gptu6absi" } } },
-       ],
-     },
-     select: {
-       name: true,
+    const projects = await prisma.project.findMany({
+      where: {
+        OR: [
+          { ownerId: "cmaeag0xr0000f97gptu6absi" },
+          { projectMembers: { some: { userId: "cmaeag0xr0000f97gptu6absi" } } },
+        ],
+      },
+      select: {
+        name: true,
         id: true,
         location: true,
-       
-     },
-   });
+      },
+    });
 
-   const address = await prisma.address.findMany({
-     where: {
-       userId: "cmaeag0xr0000f97gptu6absi",
-     },
-     select : {
-      id : true,
-      addressName : true,
-      fullAddress : true,
-     }
-   });
+    const address = await prisma.address.findMany({
+      where: {
+        userId: "cmaeag0xr0000f97gptu6absi",
+      },
+      select: {
+        id: true,
+        addressName: true,
+        fullAddress: true,
+      },
+    });
 
-
-
-
-
-    res.status(201).json({data , projects , address});
+    res.status(201).json({ data, projects, address });
   } catch (error) {
     console.error("Error updating product:", error);
     res.status(500).json({ error: "Internal server error" });
   }
 };
-
 
 export const addNewAddress = async (req, res) => {
   try {
@@ -109,8 +98,6 @@ export const addNewAddress = async (req, res) => {
       },
     });
 
-    
-
     return res.status(201).json(data);
   } catch (error) {
     console.error("Error updating product:", error);
@@ -118,14 +105,10 @@ export const addNewAddress = async (req, res) => {
   }
 };
 
-
-
 export const placeOrder = async (req, res) => {
-
   try {
     const { productId, projectId, deliveryAddress, paymentMethod, quantity } =
       req.body;
-
 
     const product = await prisma.product.findUnique({
       where: {
@@ -136,10 +119,8 @@ export const placeOrder = async (req, res) => {
     if (!product) {
       return res.status(404).json({ error: "Product not found" });
     }
-    
 
     const price = product.price * quantity;
-
 
     const data = await prisma.order.create({
       data: {
@@ -147,11 +128,9 @@ export const placeOrder = async (req, res) => {
         productId: productId,
         projectId: projectId,
         deliveryAddress: deliveryAddress,
-        paymentMethod : paymentMethod,
+        paymentMethod: paymentMethod,
         quantity: quantity,
         totalPrice: price,
-
-
       },
     });
 
@@ -159,10 +138,8 @@ export const placeOrder = async (req, res) => {
   } catch (error) {
     console.error("Error updating product:", error);
     res.status(500).json({ error: "Internal server error" });
-    
   }
-
-}
+};
 
 export const searchMarket = async (req, res) => {
   try {
@@ -190,12 +167,46 @@ export const searchMarket = async (req, res) => {
       },
     });
 
-
-    
-
     res.status(200).json(data);
   } catch (error) {
     console.error("Error searching market:", error);
     res.status(500).json({ error: "Internal server error" });
+  }
+};
+
+export const marketplace = async (req, res) => {
+  try {
+    const products = await prisma.product.findMany({
+      take: 4,
+      orderBy: {
+        createdAt: "desc",
+      },
+      
+    });
+
+    const suppliers = await prisma.user.findMany({
+      where: {
+        role: "SUPPLIER",
+      },
+      take: 4,
+      include: {
+        stores: {
+          select: {
+            location: true,
+            name: true,
+            image: true,
+          },
+        },
+        products: {
+          take : 4
+        }, // includes all product fields
+      },
+    });
+
+
+   return res.status(200).json({ products, suppliers });
+  } catch (error) {
+    console.error("Error searching market:", error);
+    res.status(500).json({ error: error.message });
   }
 };
