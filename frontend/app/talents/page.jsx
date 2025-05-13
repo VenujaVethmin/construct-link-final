@@ -1,30 +1,28 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import axiosInstance from "@/lib/axiosInstance";
 import {
-  MagnifyingGlassIcon,
-  StarIcon,
-  MapPinIcon,
-  BriefcaseIcon,
-  CheckBadgeIcon,
-  ClockIcon,
-  FunnelIcon,
-  ChatBubbleBottomCenterTextIcon,
-  UserGroupIcon,
-  SparklesIcon,
-  AcademicCapIcon,
-  BuildingOfficeIcon,
-  ChevronRightIcon,
-  ArrowRightIcon,
-  ShieldCheckIcon,
   AcademicCapIcon as AcademicCapSolid,
+  ArrowRightIcon,
+  BriefcaseIcon,
   BriefcaseIcon as BriefcaseSolid,
+  ChatBubbleBottomCenterTextIcon,
+  CheckBadgeIcon,
+  ChevronRightIcon,
   ClipboardDocumentCheckIcon,
+  ClockIcon,
+  MagnifyingGlassIcon,
+  MapPinIcon,
+  ShieldCheckIcon
 } from "@heroicons/react/24/outline";
 import { StarIcon as StarIconSolid } from "@heroicons/react/24/solid";
-import { motion, AnimatePresence } from "framer-motion";
+import { AnimatePresence, motion } from "framer-motion";
 import Image from "next/image";
 import Link from "next/link";
+import { useEffect, useState } from "react";
+import useSWR from "swr";
+
+const fetcher = (url) => axiosInstance.get(url).then((res) => res.data);
 
 const featuredProfessionals = [
   {
@@ -183,6 +181,14 @@ const categories = [
 ];
 
 const TalentsPage = () => {
+
+  const {
+    data,
+    error,
+    isLoading,
+    mutate,
+  } = useSWR("/talents/talents", fetcher);
+
   const [searchTerm, setSearchTerm] = useState("");
   const [activeTestimonial, setActiveTestimonial] = useState(0);
 
@@ -208,7 +214,7 @@ const TalentsPage = () => {
           />
           <div className="absolute inset-0 bg-gradient-to-r from-gray-900/95 via-gray-900/80 to-gray-900/60"></div>
         </div>
-        
+
         {/* Content */}
         <div className="relative h-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="h-full flex flex-col md:flex-row items-center justify-between gap-8">
@@ -219,29 +225,32 @@ const TalentsPage = () => {
                 transition={{ duration: 0.6 }}
                 className="inline-block bg-orange-500/20 backdrop-blur-sm px-4 py-1 rounded-full mb-4"
               >
-                <span className="text-orange-300 text-sm font-medium">Premium Construction Talent Network</span>
+                <span className="text-orange-300 text-sm font-medium">
+                  Premium Construction Talent Network
+                </span>
               </motion.div>
-              
+
               <motion.h1
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.6, delay: 0.1 }}
                 className="text-4xl md:text-5xl lg:text-6xl font-bold text-white leading-tight mb-6"
               >
-                Elite Construction <br/>
+                Elite Construction <br />
                 <span className="text-orange-500">Professionals</span>
               </motion.h1>
-              
+
               <motion.p
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.6, delay: 0.2 }}
                 className="text-lg text-gray-300 mb-8"
               >
-                Connect with industry-leading engineers, architects, and specialized 
-                construction experts to elevate your projects to new heights.
+                Connect with industry-leading engineers, architects, and
+                specialized construction experts to elevate your projects to new
+                heights.
               </motion.p>
-              
+
               <motion.div
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
@@ -262,7 +271,7 @@ const TalentsPage = () => {
                   Find Experts
                 </button>
               </motion.div>
-              
+
               <motion.div
                 initial={{ opacity: 0 }}
                 animate={{ opacity: 1 }}
@@ -271,9 +280,14 @@ const TalentsPage = () => {
               >
                 <div className="flex -space-x-3">
                   {[1, 2, 3, 4].map((i) => (
-                    <div key={i} className="w-8 h-8 rounded-full border-2 border-gray-900 overflow-hidden">
-                      <Image 
-                        src={`https://randomuser.me/api/portraits/${i % 2 === 0 ? 'women' : 'men'}/${10 + i}.jpg`}
+                    <div
+                      key={i}
+                      className="w-8 h-8 rounded-full border-2 border-gray-900 overflow-hidden"
+                    >
+                      <Image
+                        src={`https://randomuser.me/api/portraits/${
+                          i % 2 === 0 ? "women" : "men"
+                        }/${10 + i}.jpg`}
                         alt="User"
                         width={32}
                         height={32}
@@ -283,16 +297,15 @@ const TalentsPage = () => {
                   ))}
                 </div>
                 <div className="text-sm text-gray-300">
-                  <span className="text-white font-medium">1,200+</span> clients hired talent this week
+                  <span className="text-white font-medium">1,200+</span> clients
+                  hired talent this week
                 </div>
               </motion.div>
             </div>
-            
-            
           </div>
         </div>
       </div>
-      
+
       {/* Premium Credentials Bar */}
       <div className="bg-gradient-to-r from-gray-800 to-gray-900 border-y border-gray-700/30">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-5">
@@ -300,35 +313,51 @@ const TalentsPage = () => {
             <div className="flex items-center gap-3">
               <ShieldCheckIcon className="h-6 w-6 text-orange-400" />
               <div>
-                <h4 className="text-white text-sm font-medium">Verified Professionals</h4>
-                <p className="text-gray-400 text-xs">100% identity & credential verified</p>
+                <h4 className="text-white text-sm font-medium">
+                  Verified Professionals
+                </h4>
+                <p className="text-gray-400 text-xs">
+                  100% identity & credential verified
+                </p>
               </div>
             </div>
             <div className="flex items-center gap-3">
               <AcademicCapSolid className="h-6 w-6 text-orange-400" />
               <div>
-                <h4 className="text-white text-sm font-medium">Elite Expertise</h4>
-                <p className="text-gray-400 text-xs">Top 10% industry specialists</p>
+                <h4 className="text-white text-sm font-medium">
+                  Elite Expertise
+                </h4>
+                <p className="text-gray-400 text-xs">
+                  Top 10% industry specialists
+                </p>
               </div>
             </div>
             <div className="flex items-center gap-3">
               <BriefcaseSolid className="h-6 w-6 text-orange-400" />
               <div>
-                <h4 className="text-white text-sm font-medium">Enterprise Ready</h4>
-                <p className="text-gray-400 text-xs">Supporting large-scale projects</p>
+                <h4 className="text-white text-sm font-medium">
+                  Enterprise Ready
+                </h4>
+                <p className="text-gray-400 text-xs">
+                  Supporting large-scale projects
+                </p>
               </div>
             </div>
             <div className="flex items-center gap-3">
               <ClipboardDocumentCheckIcon className="h-6 w-6 text-orange-400" />
               <div>
-                <h4 className="text-white text-sm font-medium">Satisfaction Guarantee</h4>
-                <p className="text-gray-400 text-xs">98% client satisfaction rate</p>
+                <h4 className="text-white text-sm font-medium">
+                  Satisfaction Guarantee
+                </h4>
+                <p className="text-gray-400 text-xs">
+                  98% client satisfaction rate
+                </p>
               </div>
             </div>
           </div>
         </div>
       </div>
-      
+
       {/* Featured Professionals Section */}
       <div className="py-20">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -338,7 +367,8 @@ const TalentsPage = () => {
                 Elite Construction Professionals
               </h2>
               <p className="text-gray-400 max-w-2xl">
-                Discover our handpicked selection of industry-leading experts ready to transform your projects
+                Discover our handpicked selection of industry-leading experts
+                ready to transform your projects
               </p>
             </div>
             <Link
@@ -349,9 +379,9 @@ const TalentsPage = () => {
               <ChevronRightIcon className="h-5 w-5 ml-1" />
             </Link>
           </div>
-          
+
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-            {featuredProfessionals.map((professional, index) => (
+            {data?.map((professional, index) => (
               <motion.div
                 key={professional.id}
                 initial={{ opacity: 0, y: 20 }}
@@ -363,19 +393,19 @@ const TalentsPage = () => {
               >
                 <div className="relative h-48">
                   <Image
-                    src={professional.image}
+                    src={professional.image || "/noimage.webp"}
                     alt={professional.name}
                     fill
                     className="object-cover transition-transform duration-700 group-hover:scale-105"
                   />
                   <div className="absolute top-0 left-0 w-full h-full bg-gradient-to-t from-gray-900 via-gray-900/40 to-transparent"></div>
-                  
+
                   {professional.featured && (
                     <div className="absolute top-3 right-3 bg-orange-500 text-white text-xs px-2 py-1 rounded-full">
                       Featured
                     </div>
                   )}
-                  
+
                   <div className="absolute bottom-0 left-0 w-full p-4">
                     <div className="flex items-center gap-2">
                       <h3 className="text-white font-medium truncate">
@@ -385,41 +415,45 @@ const TalentsPage = () => {
                         <CheckBadgeIcon className="h-5 w-5 text-blue-400 flex-shrink-0" />
                       )}
                     </div>
-                    <p className="text-orange-400 text-sm truncate">{professional.title}</p>
+                    <p className="text-orange-400 text-sm truncate">
+                      {professional.talentProfile.title}
+                    </p>
                   </div>
                 </div>
-                
+
                 <div className="p-4 flex-grow">
                   <div className="flex items-center justify-between mb-3">
                     <div className="flex items-center gap-1">
                       <StarIconSolid className="h-4 w-4 text-yellow-400" />
                       <span className="text-white">{professional.rating}</span>
-                      <span className="text-gray-400">({professional.reviewCount})</span>
+                      <span className="text-gray-400">
+                        ({professional.talentProfile.reviewCount})
+                      </span>
                     </div>
                     <div className="flex items-center gap-1 text-gray-400 text-sm">
                       <MapPinIcon className="h-4 w-4" />
-                      <span>{professional.location}</span>
+                      <span>{professional.talentProfile.location}</span>
                     </div>
                   </div>
-                  
+
                   <div className="mb-3">
                     <div className="flex items-center justify-between text-sm mb-1">
                       <div className="flex items-center gap-1 text-gray-400">
                         <BriefcaseIcon className="h-4 w-4" />
-                        <span>{professional.yearsExperience} years</span>
+                        <span>{professional.talentProfile.yearsExperience} years</span>
                       </div>
                       <span className="text-white font-medium">
-                        {professional.hourlyRate}/hr
+                       Rs. {professional.talentProfile.hourlyRate}/hr
                       </span>
                     </div>
                     <div className="flex items-center gap-1 text-gray-400 text-sm">
                       <ClockIcon className="h-4 w-4" />
-                      <span>{professional.availability}</span>
+                      <span>{professional.talentProfile.availability}</span>
                     </div>
                   </div>
-                  
+
                   <div className="flex flex-wrap gap-1 mb-4">
-                    {professional.skills.slice(0, 3).map((skill, index) => (
+                    {professional.talentProfile.skills?.slice(0, 3).map((skill, index) => (
                       <span
                         key={index}
                         className="px-2 py-0.5 rounded-full bg-gray-700/50 text-gray-300 text-xs"
@@ -429,7 +463,7 @@ const TalentsPage = () => {
                     ))}
                   </div>
                 </div>
-                
+
                 <div className="p-4 pt-0">
                   <Link
                     href={`/talents/${professional.id}`}
@@ -443,7 +477,7 @@ const TalentsPage = () => {
           </div>
         </div>
       </div>
-      
+
       {/* Expertise Showcase */}
       <div className="py-16 bg-gradient-to-b from-gray-900 via-gray-800/80 to-gray-900">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -460,31 +494,44 @@ const TalentsPage = () => {
                   Specialized Expertise
                 </h2>
                 <p className="text-gray-300 mb-6">
-                  Our platform connects you with industry specialists across all construction disciplines, from structural engineering to interior design.
+                  Our platform connects you with industry specialists across all
+                  construction disciplines, from structural engineering to
+                  interior design.
                 </p>
                 <div className="bg-gradient-to-br from-orange-500/20 to-orange-500/5 p-5 rounded-xl backdrop-blur-sm border border-orange-500/10">
-                  <h3 className="text-xl font-medium text-white mb-3">Why Choose Our Experts?</h3>
+                  <h3 className="text-xl font-medium text-white mb-3">
+                    Why Choose Our Experts?
+                  </h3>
                   <ul className="space-y-3">
                     <li className="flex items-start gap-2">
                       <div className="mt-1 h-4 w-4 rounded-full bg-orange-500 flex-shrink-0"></div>
-                      <p className="text-gray-300 text-sm">Rigorously vetted professionals with verified credentials</p>
+                      <p className="text-gray-300 text-sm">
+                        Rigorously vetted professionals with verified
+                        credentials
+                      </p>
                     </li>
                     <li className="flex items-start gap-2">
                       <div className="mt-1 h-4 w-4 rounded-full bg-orange-500 flex-shrink-0"></div>
-                      <p className="text-gray-300 text-sm">Specialized in complex, high-value construction projects</p>
+                      <p className="text-gray-300 text-sm">
+                        Specialized in complex, high-value construction projects
+                      </p>
                     </li>
                     <li className="flex items-start gap-2">
                       <div className="mt-1 h-4 w-4 rounded-full bg-orange-500 flex-shrink-0"></div>
-                      <p className="text-gray-300 text-sm">Proven track records with extensive portfolio examples</p>
+                      <p className="text-gray-300 text-sm">
+                        Proven track records with extensive portfolio examples
+                      </p>
                     </li>
                     <li className="flex items-start gap-2">
                       <div className="mt-1 h-4 w-4 rounded-full bg-orange-500 flex-shrink-0"></div>
-                      <p className="text-gray-300 text-sm">Advanced technical skills and industry certifications</p>
+                      <p className="text-gray-300 text-sm">
+                        Advanced technical skills and industry certifications
+                      </p>
                     </li>
                   </ul>
                 </div>
                 <div className="mt-8">
-                  <Link 
+                  <Link
                     href="/talents/search"
                     className="inline-flex items-center gap-2 text-orange-400 hover:text-orange-300 font-medium transition-colors text-sm"
                   >
@@ -494,7 +541,7 @@ const TalentsPage = () => {
                 </div>
               </motion.div>
             </div>
-            
+
             <div className="lg:col-span-8">
               <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
                 {categories.map((category, index) => (
@@ -504,21 +551,33 @@ const TalentsPage = () => {
                     whileInView={{ opacity: 1, y: 0 }}
                     viewport={{ once: true }}
                     transition={{ duration: 0.4, delay: index * 0.05 }}
-                    whileHover={{ y: -5, backgroundColor: 'rgba(255, 255, 255, 0.05)' }}
+                    whileHover={{
+                      y: -5,
+                      backgroundColor: "rgba(255, 255, 255, 0.05)",
+                    }}
                     className="bg-gray-800/40 backdrop-blur-sm border border-gray-700/50 rounded-xl p-5 cursor-pointer"
                   >
-                    <Link href={`/talents/search?category=${encodeURIComponent(category)}`} className="block h-full">
-      <div className="h-10 w-10 bg-orange-500/20 rounded-lg flex items-center justify-center mb-3">
-        <span className="text-orange-400 font-bold">{category.charAt(0)}</span>
-      </div>
-      <h3 className="text-white font-medium mb-2">{category}</h3>
-      <div className="flex justify-between items-end mt-4">
-        <p className="text-gray-400 text-sm">
-          {/* {expertCount !== null ? `${expertCount}+ experts` : `...`} */}
-        </p>
-        <ArrowRightIcon className="h-4 w-4 text-orange-500" />
-      </div>
-    </Link>
+                    <Link
+                      href={`/talents/search?category=${encodeURIComponent(
+                        category
+                      )}`}
+                      className="block h-full"
+                    >
+                      <div className="h-10 w-10 bg-orange-500/20 rounded-lg flex items-center justify-center mb-3">
+                        <span className="text-orange-400 font-bold">
+                          {category.charAt(0)}
+                        </span>
+                      </div>
+                      <h3 className="text-white font-medium mb-2">
+                        {category}
+                      </h3>
+                      <div className="flex justify-between items-end mt-4">
+                        <p className="text-gray-400 text-sm">
+                          {/* {expertCount !== null ? `${expertCount}+ experts` : `...`} */}
+                        </p>
+                        <ArrowRightIcon className="h-4 w-4 text-orange-500" />
+                      </div>
+                    </Link>
                   </motion.div>
                 ))}
               </div>
@@ -526,7 +585,7 @@ const TalentsPage = () => {
           </div>
         </div>
       </div>
-      
+
       {/* Testimonials + How it Works */}
       <div className="py-20">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -540,7 +599,7 @@ const TalentsPage = () => {
               <h2 className="text-3xl font-bold text-white mb-8">
                 What Our Clients Say
               </h2>
-              
+
               <div className="relative h-[280px]">
                 {testimonials.map((testimonial, index) => (
                   <AnimatePresence key={testimonial.id}>
@@ -559,7 +618,9 @@ const TalentsPage = () => {
                                 <StarIconSolid
                                   key={i}
                                   className={`h-5 w-5 ${
-                                    i < testimonial.rating ? "text-yellow-400" : "text-gray-600"
+                                    i < testimonial.rating
+                                      ? "text-yellow-400"
+                                      : "text-gray-600"
                                   }`}
                                 />
                               ))}
@@ -571,7 +632,7 @@ const TalentsPage = () => {
                               </p>
                             </blockquote>
                           </div>
-                          
+
                           <div className="mt-auto flex items-center gap-4">
                             <div className="relative h-14 w-14 rounded-full overflow-hidden">
                               <Image
@@ -595,21 +656,23 @@ const TalentsPage = () => {
                     )}
                   </AnimatePresence>
                 ))}
-                
+
                 <div className="absolute bottom-4 left-4 flex space-x-2">
                   {testimonials.map((_, index) => (
                     <button
                       key={index}
                       onClick={() => setActiveTestimonial(index)}
                       className={`h-2 w-8 rounded-full transition-colors ${
-                        activeTestimonial === index ? "bg-orange-500" : "bg-gray-700"
+                        activeTestimonial === index
+                          ? "bg-orange-500"
+                          : "bg-gray-700"
                       }`}
                     />
                   ))}
                 </div>
               </div>
             </div>
-            
+
             {/* How it Works */}
             <div className="lg:col-span-5">
               <div className="flex items-center gap-2 mb-6">
@@ -619,29 +682,33 @@ const TalentsPage = () => {
               <h2 className="text-3xl font-bold text-white mb-8">
                 How It Works
               </h2>
-              
+
               <div className="space-y-6">
                 {[
                   {
                     step: "01",
                     title: "Define your needs",
-                    description: "Specify your project requirements and the expertise you're looking for."
+                    description:
+                      "Specify your project requirements and the expertise you're looking for.",
                   },
                   {
                     step: "02",
                     title: "Browse elite professionals",
-                    description: "Review detailed profiles, portfolios, and client reviews of our verified experts."
+                    description:
+                      "Review detailed profiles, portfolios, and client reviews of our verified experts.",
                   },
                   {
                     step: "03",
                     title: "Connect and collaborate",
-                    description: "Engage directly with chosen professionals to discuss your project details."
+                    description:
+                      "Engage directly with chosen professionals to discuss your project details.",
                   },
                   {
                     step: "04",
                     title: "Secure top talent",
-                    description: "Hire your selected expert and manage the entire project through our platform."
-                  }
+                    description:
+                      "Hire your selected expert and manage the entire project through our platform.",
+                  },
                 ].map((item, index) => (
                   <motion.div
                     key={index}
@@ -651,17 +718,23 @@ const TalentsPage = () => {
                     transition={{ duration: 0.4, delay: index * 0.1 }}
                     className="flex gap-4"
                   >
-                    <div className="text-2xl font-bold text-orange-500">{item.step}</div>
+                    <div className="text-2xl font-bold text-orange-500">
+                      {item.step}
+                    </div>
                     <div>
-                      <h3 className="text-white font-medium mb-1">{item.title}</h3>
-                      <p className="text-gray-400 text-sm">{item.description}</p>
+                      <h3 className="text-white font-medium mb-1">
+                        {item.title}
+                      </h3>
+                      <p className="text-gray-400 text-sm">
+                        {item.description}
+                      </p>
                     </div>
                   </motion.div>
                 ))}
               </div>
-              
+
               <div className="mt-8">
-                <Link 
+                <Link
                   href="/talents/search"
                   className="inline-block px-6 py-3 bg-gradient-to-r from-orange-500 to-orange-600 hover:from-orange-600 hover:to-orange-700 text-white rounded-lg font-medium transition-colors"
                 >
@@ -672,16 +745,16 @@ const TalentsPage = () => {
           </div>
         </div>
       </div>
-      
+
       {/* CTA Banner */}
       <div className="py-16">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="relative overflow-hidden rounded-2xl bg-gradient-to-r from-gray-800 to-gray-900 border border-gray-700/50">
             <div className="absolute top-0 right-0 w-64 h-64 bg-orange-500/10 blur-3xl rounded-full -mr-32 -mt-32"></div>
             <div className="absolute bottom-0 left-0 w-64 h-64 bg-blue-500/10 blur-3xl rounded-full -ml-32 -mb-32"></div>
-            
+
             <div className="relative py-12 px-6 md:py-16 md:px-12 text-center max-w-3xl mx-auto">
-              <motion.h2 
+              <motion.h2
                 initial={{ opacity: 0, y: 20 }}
                 whileInView={{ opacity: 1, y: 0 }}
                 viewport={{ once: true }}
@@ -690,18 +763,19 @@ const TalentsPage = () => {
               >
                 Ready to elevate your construction project?
               </motion.h2>
-              
-              <motion.p 
+
+              <motion.p
                 initial={{ opacity: 0, y: 20 }}
                 whileInView={{ opacity: 1, y: 0 }}
                 viewport={{ once: true }}
                 transition={{ duration: 0.5, delay: 0.1 }}
                 className="text-gray-300 text-lg mb-8"
               >
-                Join industry leaders who trust our network of elite construction professionals to deliver exceptional results.
+                Join industry leaders who trust our network of elite
+                construction professionals to deliver exceptional results.
               </motion.p>
-              
-              <motion.div 
+
+              <motion.div
                 initial={{ opacity: 0, y: 20 }}
                 whileInView={{ opacity: 1, y: 0 }}
                 viewport={{ once: true }}

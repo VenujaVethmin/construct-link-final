@@ -1,5 +1,6 @@
 "use client";
 
+import axiosInstance from "@/lib/axiosInstance";
 import {
   BriefcaseIcon,
   BuildingOfficeIcon,
@@ -14,6 +15,10 @@ import Image from "next/image";
 import Link from "next/link";
 import { useParams, useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
+
+import useSWR from "swr";
+
+const fetcher = (url) => axiosInstance.get(url).then((res) => res.data);
 
 // Mock talent data - replace with actual API call in production
 const talentData = {
@@ -141,14 +146,23 @@ const projectsList = [
 ];
 
 const TalentProfilePage = () => {
+
+
   const params = useParams();
+  const {
+    data : talent,
+    error,
+    isLoading,
+    mutate,
+  } = useSWR(`/talents/talentProfile/${params.id}`, fetcher);
+
   const router = useRouter();
-  const [talent, setTalent] = useState(talentData);
+
   const [activeTab, setActiveTab] = useState("about");
   const [projects, setProjects] = useState(projectsList);
   const [showConfirmation, setShowConfirmation] = useState(false);
   const [selectedProject, setSelectedProject] = useState(null);
-  const [isLoading, setIsLoading] = useState(false);
+  const [isLoading1, setIsLoading] = useState(false);
 
   // This would be replaced with an actual API call in production
   useEffect(() => {
@@ -189,7 +203,7 @@ const TalentProfilePage = () => {
       {/* Profile Header/Banner */}
       <div className="relative h-64 sm:h-80">
         <Image
-          src={talent.coverImage}
+          src={talent?.coverImage || "https://images.unsplash.com/photo-1516937941344-00b4e0337589?q=80&w=1887&auto=format"}
           alt="Cover image"
           fill
           className="object-cover"
@@ -205,8 +219,8 @@ const TalentProfilePage = () => {
               {/* Profile Image */}
               <div className="w-32 h-32 rounded-xl border-4 border-gray-800 overflow-hidden flex-shrink-0 shadow-lg">
                 <Image
-                  src={talent.image}
-                  alt={talent.name}
+                  src={talent?.image || "/noimage.webp"}
+                  alt={talent?.name || "talent"}
                   width={128}
                   height={128}
                   className="object-cover w-full h-full"
@@ -219,52 +233,44 @@ const TalentProfilePage = () => {
                   <div>
                     <div className="flex items-center gap-2 mb-1">
                       <h1 className="text-2xl font-bold text-white">
-                        {talent.name}
+                        {talent?.name}
                       </h1>
-                      {talent.verified && (
+                      {talent?.talentProfile?.verified && (
                         <CheckBadgeIcon className="h-6 w-6 text-blue-400" />
                       )}
                     </div>
                     <p className="text-orange-400 text-lg mb-2">
-                      {talent.title}
+                      {talent?.talentProfile?.title}
                     </p>
 
                     <div className="flex flex-wrap items-center gap-x-4 gap-y-2 text-sm">
                       <div className="flex items-center gap-1">
                         <StarIconSolid className="h-5 w-5 text-yellow-400" />
                         <span className="text-white font-medium">
-                          {talent.rating}
+                          {talent?.talentProfile?.rating}
                         </span>
                         <span className="text-gray-400">
-                          ({talent.reviewCount} reviews)
+                          ({talent?.talentProfile?.reviewCount} reviews)
                         </span>
                       </div>
                       <div className="flex items-center gap-1 text-gray-300">
                         <MapPinIcon className="h-5 w-5" />
-                        <span>{talent.location}</span>
+                        <span>{talent?.talentProfile?.location}</span>
                       </div>
                       <div className="flex items-center gap-1 text-gray-300">
                         <BriefcaseIcon className="h-5 w-5" />
-                        <span>{talent.yearsExperience} years experience</span>
+                        <span>{talent?.talentProfile?.yearsExperience} years experience</span>
                       </div>
                     </div>
                   </div>
 
                   {/* Rate & Availability */}
                   <div className="bg-gray-700/50 rounded-lg p-4 text-center">
-                    <p className="text-gray-300 text-sm mb-1">Hourly Rate</p>
+                    <p className="text-gray-300 text-sm mb-1">Hourly Rate /</p>
                     <p className="text-white text-2xl font-bold mb-1">
-                      {talent.hourlyRate}
+                     Rs. {talent?.talentProfile?.hourlyRate}
                     </p>
-                    <p
-                      className={`text-sm ${
-                        talent.availability.includes("Available")
-                          ? "text-green-400"
-                          : "text-yellow-400"
-                      }`}
-                    >
-                      {talent.availability}
-                    </p>
+                
                   </div>
                 </div>
 
@@ -275,25 +281,25 @@ const TalentProfilePage = () => {
                       Projects Completed
                     </p>
                     <p className="text-white text-xl font-bold">
-                      {talent.completedProjects}
+                      {talent?.talentProfile.completedProjects}
                     </p>
                   </div>
                   <div className="bg-gray-700/30 rounded-lg p-3 text-center">
                     <p className="text-gray-300 text-xs mb-1">Specialization</p>
                     <p className="text-white text-md font-medium">
-                      {talent.specialization}
+                      {talent?.talentProfile.specialization}
                     </p>
                   </div>
                   <div className="bg-gray-700/30 rounded-lg p-3 text-center">
                     <p className="text-gray-300 text-xs mb-1">Languages</p>
                     <p className="text-white text-md font-medium">
-                      {talent.languages.join(", ")}
+                      {talent?.talentProfile?.languages?.join(", ")}
                     </p>
                   </div>
                   <div className="bg-gray-700/30 rounded-lg p-3 text-center">
                     <p className="text-gray-300 text-xs mb-1">Certifications</p>
                     <p className="text-white text-md font-medium">
-                      {talent.certifications.length}
+                      {talent?.talentProfile?.certifications?.length}
                     </p>
                   </div>
                 </div>
@@ -306,12 +312,12 @@ const TalentProfilePage = () => {
                 <ChatBubbleLeftRightIcon className="h-5 w-5" />
                 Message
               </button>
-              <button
+              <Link href={`/talents/invite/${params.id}`}
                 className="px-6 py-2 bg-orange-500 hover:bg-orange-600 text-white rounded-lg transition-colors"
-                onClick={() => setShowConfirmation(true)}
+                
               >
                 Invite to Project
-              </button>
+              </Link>
             </div>
           </div>
 
@@ -340,7 +346,7 @@ const TalentProfilePage = () => {
               {activeTab === "about" && (
                 <div>
                   <h2 className="text-xl font-bold text-white mb-4">About</h2>
-                  <p className="text-gray-300 mb-8">{talent.about}</p>
+                  <p className="text-gray-300 mb-8">{talent?.talentProfile.about}</p>
 
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
                     {/* Skills */}
@@ -349,7 +355,7 @@ const TalentProfilePage = () => {
                         Skills
                       </h3>
                       <div className="flex flex-wrap gap-2">
-                        {talent.skills.map((skill, index) => (
+                        {talent?.talentProfile?.skills?.map((skill, index) => (
                           <span
                             key={index}
                             className="px-3 py-1 bg-gray-700/40 text-gray-300 rounded-full text-sm"
@@ -366,7 +372,7 @@ const TalentProfilePage = () => {
                         Education
                       </h3>
                       <div className="space-y-4">
-                        {talent.education.map((edu, index) => (
+                        {talent?.talentProfile?.education?.map((edu, index) => (
                           <div
                             key={index}
                             className="border-l-2 border-gray-700 pl-4"
@@ -388,7 +394,7 @@ const TalentProfilePage = () => {
                       Certifications
                     </h3>
                     <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
-                      {talent.certifications.map((cert, index) => (
+                      {talent?.talentProfile?.certifications?.map((cert, index) => (
                         <div
                           key={index}
                           className="bg-gray-700/30 border border-gray-700/50 rounded-lg p-4 flex items-center gap-3"
@@ -411,7 +417,7 @@ const TalentProfilePage = () => {
                     Work Experience
                   </h2>
                   <div className="space-y-8">
-                    {talent.experience.map((exp, index) => (
+                    {talent?.talentProfile?.experience?.map((exp, index) => (
                       <div
                         key={index}
                         className="border-l-2 border-gray-700 pl-6 relative"
@@ -439,7 +445,7 @@ const TalentProfilePage = () => {
                     Project Portfolio
                   </h2>
                   <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                    {talent.portfolio.map((project, index) => (
+                    {talent?.talentProfile?.portfolio?.map((project, index) => (
                       <div
                         key={index}
                         className="bg-gray-800 border border-gray-700/50 rounded-lg overflow-hidden group"
@@ -550,16 +556,16 @@ const TalentProfilePage = () => {
                     <div className="flex items-center gap-2">
                       <StarIconSolid className="h-5 w-5 text-yellow-400" />
                       <span className="text-white font-medium">
-                        {talent.rating}
+                        {talent?.talentProfile.rating}
                       </span>
                       <span className="text-gray-400">
-                        ({talent.reviewCount} reviews)
+                        ({talent?.talentProfile.reviewCount} reviews)
                       </span>
                     </div>
                   </div>
 
                   <div className="space-y-6">
-                    {talent.reviews.map((review, index) => (
+                    {talent?.talentProfile.reviews.map((review, index) => (
                       <div
                         key={index}
                         className="bg-gray-800/50 border border-gray-700/50 rounded-lg p-5"
@@ -597,66 +603,7 @@ const TalentProfilePage = () => {
         </div>
       </div>
 
-      {/* Confirmation Dialog */}
-      {showConfirmation && (
-        <div className="fixed inset-0 bg-gray-900/80 flex items-center justify-center z-50 p-4">
-          <div className="bg-gray-800 border border-gray-700 rounded-xl max-w-md w-full p-6 shadow-2xl">
-            <h3 className="text-xl font-bold text-white mb-4">
-              {selectedProject
-                ? `Join ${selectedProject.name}`
-                : "Invite to Project"}
-            </h3>
-            <p className="text-gray-300 mb-6">
-              {selectedProject
-                ? `Are you sure you want to send a request to join "${selectedProject.name}"?`
-                : `Are you sure you want to invite ${talent.name} to your project?`}
-            </p>
-
-            <div className="flex justify-end gap-3">
-              <button
-                onClick={() => setShowConfirmation(false)}
-                className="px-4 py-2 border border-gray-600 rounded-lg text-gray-300 hover:bg-gray-700 transition-colors"
-                disabled={isLoading}
-              >
-                Cancel
-              </button>
-              <button
-                onClick={confirmSendRequest}
-                className="px-6 py-2 bg-orange-500 hover:bg-orange-600 text-white rounded-lg transition-colors flex items-center gap-2"
-                disabled={isLoading}
-              >
-                {isLoading ? (
-                  <>
-                    <svg
-                      className="animate-spin h-5 w-5 text-white"
-                      xmlns="http://www.w3.org/2000/svg"
-                      fill="none"
-                      viewBox="0 0 24 24"
-                    >
-                      <circle
-                        className="opacity-25"
-                        cx="12"
-                        cy="12"
-                        r="10"
-                        stroke="currentColor"
-                        strokeWidth="4"
-                      ></circle>
-                      <path
-                        className="opacity-75"
-                        fill="currentColor"
-                        d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
-                      ></path>
-                    </svg>
-                    Processing...
-                  </>
-                ) : (
-                  "Confirm"
-                )}
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
+    
     </div>
   );
 };

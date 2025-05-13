@@ -1,100 +1,39 @@
 "use client";
 
-import { useState, useEffect } from "react";
-import { useParams, useRouter } from "next/navigation";
-import Image from "next/image";
-import Link from "next/link";
 import {
   ArrowLeftIcon,
-  BuildingOfficeIcon,
   CalendarIcon,
   CheckCircleIcon,
   ChevronDownIcon,
-  ClockIcon,
   CurrencyDollarIcon,
-  DocumentTextIcon,
   MapPinIcon,
   PaperAirplaneIcon,
-  UserGroupIcon,
-  XMarkIcon,
+  UserGroupIcon
 } from "@heroicons/react/24/outline";
 import { CheckIcon } from "@heroicons/react/24/solid";
+import Image from "next/image";
+import Link from "next/link";
+import { useParams, useRouter } from "next/navigation";
+import { useEffect, useState } from "react";
+import axiosInstance from "@/lib/axiosInstance";
+import useSWR from "swr";
+import { toast } from "sonner";
 
-// Mock talent data (minimal version for this page)
-const talentData = {
-  id: "1",
-  name: "John Smith",
-  title: "Civil Engineer",
-  image:
-    "https://images.unsplash.com/photo-1584043720379-b56cd9199c94?q=80&w=400",
-  rating: 4.9,
-  hourlyRate: "$75",
-  specialization: "Commercial Construction",
-};
+const fetcher = (url) => axiosInstance.get(url).then((res) => res.data);
 
-// Mock user projects
-const userProjects = [
-  {
-    id: "proj1",
-    name: "Downtown Renovation",
-    description: "Commercial building renovation in downtown area",
-    status: "In_PROGRESS",
-    budget: 1250000,
-    location: "New York, NY",
-    startDate: "2025-06-15",
-    endDate: "2025-12-30",
-    teamSize: 8,
-    image:
-      "https://images.unsplash.com/photo-1486406146926-c627a92ad1ab?q=80&w=800",
-  },
-  {
-    id: "proj2",
-    name: "Waterfront Residential Complex",
-    description: "New residential development with 120 units",
-    status: "On_Hold",
-    budget: 8750000,
-    location: "Boston, MA",
-    startDate: "2025-08-01",
-    endDate: "2026-10-15",
-    teamSize: 24,
-    image:
-      "https://images.unsplash.com/photo-1487958449943-2429e8be8625?q=80&w=800",
-  },
-  {
-    id: "proj3",
-    name: "Community Center Expansion",
-    description: "Adding new facilities to existing community center",
-    status: "Almost_Done",
-    budget: 950000,
-    location: "Chicago, IL",
-    startDate: "2025-04-10",
-    endDate: "2025-09-30",
-    teamSize: 12,
-    image:
-      "https://images.unsplash.com/photo-1503387762-592deb58ef4e?q=80&w=800",
-  },
-  {
-    id: "proj4",
-    name: "Industrial Warehouse Construction",
-    description: "New warehouse facility for manufacturing company",
-    status: "In_PROGRESS",
-    budget: 3200000,
-    location: "Detroit, MI",
-    startDate: "2025-07-01",
-    endDate: "2026-03-15",
-    teamSize: 18,
-    image:
-      "https://images.unsplash.com/photo-1581094794329-c8112c5ce17f?q=80&w=800",
-  },
-];
 
 
 
 const ProjectInvitationPage = () => {
   const params = useParams();
+  const { data, error, isLoading, mutate } = useSWR(
+    `/talents/inviteData/${params.id}`,
+    fetcher
+  );
+
+ 
   const router = useRouter();
-  const [talent, setTalent] = useState(talentData);
-  const [projects, setProjects] = useState(userProjects);
+
   const [selectedProject, setSelectedProject] = useState(null);
   const [projectDropdownOpen, setProjectDropdownOpen] = useState(false);
  
@@ -105,13 +44,7 @@ const ProjectInvitationPage = () => {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [showSuccess, setShowSuccess] = useState(false);
 
-  // This would be replaced with actual API calls in production
-  useEffect(() => {
-    // Fetch talent data
-    // Example: fetchTalentData(params.id).then(data => setTalent(data))
-    // Fetch user's projects
-    // Example: fetchUserProjects().then(data => setProjects(data))
-  }, [params.id]);
+
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -119,21 +52,22 @@ const ProjectInvitationPage = () => {
 
     setIsSubmitting(true);
     try {
-      // This would be an actual API call in production
-      // Example: await sendProjectInvitation({
-      //   talentId: talent.id,
-      //   projectId: selectedProject.id,
-      //   role: selectedRole || customRole,
-      //   message,
-      //   startDate,
-      //   payRate: payRate ? parseFloat(payRate) : null
-      // })
+      
+      const res = await axiosInstance.post("/talents/sendInvite", {
+        projectId: selectedProject.id,
+        message: message,
+        receiverId: params.id,
+      });
 
-      // Simulate API call
-      await new Promise((resolve) => setTimeout(resolve, 1500));
+      if (res.status === 200) {
 
-      setIsSubmitting(false);
-      setShowSuccess(true);
+        toast.success("Invite sent successfully");
+
+        setIsSubmitting(false);
+        setShowSuccess(true);
+      }
+
+   
     } catch (error) {
       console.error("Error sending invitation:", error);
       setIsSubmitting(false);
@@ -180,7 +114,7 @@ const ProjectInvitationPage = () => {
               Invitation Sent Successfully!
             </h2>
             <p className="text-gray-300 mb-8">
-              Your invitation to {talent.name} for the {selectedProject?.name}{" "}
+              Your invitation to {data?.talent.name} for the {selectedProject?.name}{" "}
               project has been sent. You'll be notified when they respond.
             </p>
             <div className="flex flex-col sm:flex-row gap-4 justify-center">
@@ -210,18 +144,18 @@ const ProjectInvitationPage = () => {
                   <div className="flex items-center gap-4">
                     <div className="w-14 h-14 rounded-lg overflow-hidden flex-shrink-0">
                       <Image
-                        src={talent.image}
-                        alt={talent.name}
+                        src={data?.talent.image || "/noimage.webp"}
+                        alt={data?.talent.name || "talent"}
                         width={56}
                         height={56}
                         className="w-full h-full object-cover"
                       />
                     </div>
                     <div>
-                      <h2 className="text-white font-medium">{talent.name}</h2>
-                      <p className="text-orange-400 text-sm">{talent.title}</p>
+                      <h2 className="text-white font-medium">{data?.talent.name}</h2>
+                      <p className="text-orange-400 text-sm">{data?.talent?.talentProfile.title}</p>
                       <div className="text-gray-400 text-xs mt-1">
-                        {talent.specialization}
+                        {data?.talent?.specialization}
                       </div>
                     </div>
                   </div>
@@ -229,7 +163,7 @@ const ProjectInvitationPage = () => {
                     <div className="flex justify-between items-center">
                       <div className="text-gray-400 text-sm">Hourly Rate</div>
                       <div className="text-white font-medium">
-                        {talent.hourlyRate}
+                       Rs. {data?.talent?.talentProfile?.hourlyRate}
                       </div>
                     </div>
                   </div>
@@ -263,13 +197,7 @@ const ProjectInvitationPage = () => {
                           {selectedProject ? (
                             <div className="flex items-center gap-2">
                               <div className="w-6 h-6 rounded overflow-hidden bg-gray-600 flex-shrink-0">
-                                <Image
-                                  src={selectedProject.image}
-                                  alt={selectedProject.name}
-                                  width={24}
-                                  height={24}
-                                  className="w-full h-full object-cover"
-                                />
+                               
                               </div>
                               <span>{selectedProject.name}</span>
                             </div>
@@ -281,22 +209,14 @@ const ProjectInvitationPage = () => {
 
                         {projectDropdownOpen && (
                           <div className="absolute z-10 mt-1 w-full bg-gray-700 border border-gray-600 rounded-lg shadow-lg max-h-72 overflow-y-auto">
-                            {projects.map((project) => (
+                            {data?.projects.map((project) => (
                               <button
                                 key={project.id}
                                 type="button"
                                 className="w-full px-4 py-3 flex items-center gap-3 hover:bg-gray-600/50 text-left border-b border-gray-600/30 last:border-0"
                                 onClick={() => handleProjectSelect(project)}
                               >
-                                <div className="w-10 h-10 rounded overflow-hidden bg-gray-600 flex-shrink-0">
-                                  <Image
-                                    src={project.image}
-                                    alt={project.name}
-                                    width={40}
-                                    height={40}
-                                    className="w-full h-full object-cover"
-                                  />
-                                </div>
+                               
                                 <div>
                                   <div className="text-white font-medium">
                                     {project.name}
@@ -311,7 +231,7 @@ const ProjectInvitationPage = () => {
                               </button>
                             ))}
 
-                            {projects.length === 0 && (
+                            {data?.projects.length === 0 && (
                               <div className="px-4 py-3 text-gray-400 text-center">
                                 No projects available
                               </div>
@@ -335,7 +255,7 @@ const ProjectInvitationPage = () => {
                           <div className="flex items-center gap-2 text-gray-300">
                             <CurrencyDollarIcon className="h-4 w-4 text-gray-400" />
                             <span>
-                              ${selectedProject.budget.toLocaleString()} budget
+                              ${selectedProject?.budget?.toLocaleString()} budget
                             </span>
                           </div>
                           <div className="flex items-center gap-2 text-gray-300">

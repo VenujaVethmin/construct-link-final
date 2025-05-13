@@ -25,14 +25,14 @@ import {
 
 const navLinks = [
   {
-    href: "/user/dashboard",
-    label: "Home",
+    href: "/proffesional/dashboard",
+    label: "Dashboard",
     icon: <HomeIcon className="h-6 w-6" />,
   },
   {
-    href: "/user/projects",
-    label: "Projects",
-    icon: <ChartBarIcon className="h-6 w-6" />,
+    href: "/proffesional/invitations",
+    label: "Invitations",
+    icon: <BellIcon className="h-6 w-6" />,
   },
   {
     href: "/marketplace",
@@ -102,7 +102,7 @@ const notifications = [
   },
 ];
 
-export default function Navbar() {
+export default function NavbarProf() {
   const pathname = usePathname();
   const [isScrolled, setIsScrolled] = useState(false);
   const [isMobile, setIsMobile] = useState(false);
