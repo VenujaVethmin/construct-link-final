@@ -4,14 +4,17 @@ const prisma = new PrismaClient();
 
 
 export const accountType = async (req, res) => {
-  // ✅ renamed from "acountType"
+
   try {
+    const { role } = req.body;
+
+    
     const data = await prisma.user.update({
       where: {
         id: "cmamrlnwv0000f9c4eekydewa",
       },
       data: {
-        role: req.body.role,
+        role: role,
       },
     });
 
@@ -24,4 +27,7 @@ export const accountType = async (req, res) => {
     res.status(500).json({ error: error.message });
   }
 };
+
+
+
   

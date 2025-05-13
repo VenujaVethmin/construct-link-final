@@ -41,7 +41,19 @@ export async function middleware(request) {
     }
     
 
+
     // Restrict access based on role
+        
+
+    if (currentPath.startsWith("/auth/redirect") && user.role && user.role !== "UNDEFINED") {
+      return NextResponse.redirect(new URL(`/${user.role.toLowerCase()}/dashboard`, request.url));
+    }
+    
+      
+
+    if (currentPath.startsWith("/auth/onboarding") && user.role !== "UNDEFINED") {
+      return unauthorizedResponse("Unauthorized access to onboarding page.");
+    }
     if (currentPath.startsWith("/user") && user.role !== "CLIENT") {
       return unauthorizedResponse("This page is only for Clients.");
     }
@@ -212,5 +224,11 @@ function unauthorizedResponse(message) {
 }
 
 export const config = {
-  matcher: ["/user/:path*", "/supplier/:path*", "/admin/:path*" , "/proffesional/:path* " ,"/auth:path* " ],
+  matcher: [
+    "/user/:path*", 
+    "/supplier/:path*", 
+    "/admin/:path*", 
+    "/professional/:path*", 
+    "/auth/:path*" // This is what captures "/auth/redirect"
+  ],
 };

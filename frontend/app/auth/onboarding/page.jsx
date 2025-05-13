@@ -10,6 +10,7 @@ import {
 import { useRouter } from "next/navigation";
 import axiosInstance from "@/lib/axiosInstance";
 
+
 const accountTypes = [
   {
     id: "CLIENT",
@@ -45,17 +46,24 @@ export default function Onboarding() {
   const handleContinue = async () => {
     try {
       if (selectedType) {
-        const res = axiosInstance.put("/api/account/accountType", {
+        setIsLoading(true); // Move this up to show loader immediately
+        const res = await axiosInstance.put("/account/accountType", {
           role: selectedType,
         });
+
+        if (res.status === 200) {
+          window.alert("Account type updated successfully");
+          router.push("/auth/redirect");
+        }
+
+        setIsLoading(false); // Stop loader regardless of success
       }
-      setIsLoading(true);
-      console.log("Selected account type:", selectedType);
     } catch (error) {
+      setIsLoading(false); // Also stop loader on error
       console.error("Error during account type update:", error);
-      // Handle error (e.g., show a notification)
     }
   };
+  
 
   return (
     <div className="min-h-screen bg-gray-900 flex items-center justify-center p-4">
