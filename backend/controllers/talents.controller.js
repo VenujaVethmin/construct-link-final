@@ -2,6 +2,43 @@ import { PrismaClient } from "@prisma/client";
 
 const prisma = new PrismaClient();
 
+
+
+export const dashboard = async (req, res) => {
+  try {
+    const data = await prisma.project.findMany({
+      where: {
+        projectMembers: {
+          some: {
+            userId: "cmal6gqcs0002f9y85f1iaw4u",
+          },
+        },
+        status: {
+          not: "Completed",
+        },
+      },
+
+      include: {
+        _count: {
+          select: {
+            tasks: true,
+            projectMembers: true,
+          },
+        },
+      },
+    });
+    return res.status(200).json({
+      message: "Dashboard data fetched successfully",
+      data,
+    });
+  } catch (error) {
+    console.error("Error fetching dashboard data:", error);
+    res.status(500).json({ error: error.message });
+  }
+};
+ 
+ 
+
 export const talents = async (req, res) => {
    try {
       const data = await prisma.user.findMany(

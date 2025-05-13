@@ -9,7 +9,6 @@ import {
   MapPinIcon,
   FolderIcon,
   UserGroupIcon,
-  XMarkIcon,
   BuildingOffice2Icon,
 } from "@heroicons/react/24/outline";
 import Link from "next/link";
@@ -19,6 +18,29 @@ import useSWR from "swr";
 
 const fetcher = (url) => axiosInstance.get(url).then((res) => res.data);
 
+// Helper function to convert timestamp to "time ago" format
+const timeAgo = (timestamp) => {
+  const now = new Date();
+  const activityDate = new Date(timestamp);
+  const seconds = Math.floor((now - activityDate) / 1000);
+
+  const intervals = [
+    { label: "year", seconds: 31536000 },
+    { label: "month", seconds: 2592000 },
+    { label: "day", seconds: 86400 },
+    { label: "hour", seconds: 3600 },
+    { label: "minute", seconds: 60 },
+    { label: "second", seconds: 1 },
+  ];
+
+  for (const interval of intervals) {
+    const count = Math.floor(seconds / interval.seconds);
+    if (count >= 1) {
+      return `${count} ${interval.label}${count !== 1 ? "s" : ""} ago`;
+    }
+  }
+  return "just now";
+};
 
 const metrics = [
   {
@@ -47,57 +69,8 @@ const metrics = [
   },
 ];
 
-const projects = [
-  {
-    name: "City Center Mall",
-    budget: "$2.5M",
-    status: "In Progress",
-    location: "Downtown Area",
-    projectType: "Commercial",
-  },
-  {
-    name: "Office Complex",
-    budget: "$1.8M",
-    status: "On Hold",
-    location: "Business District",
-    projectType: "Corporate",
-  },
-  {
-    name: "Residential Tower",
-    budget: "$3.2M",
-    status: "Almost Done",
-    location: "Riverside",
-    projectType: "Residential",
-  },
-  {
-    name: "Shopping Plaza",
-    budget: "$1.5M",
-    status: "In Progress",
-    location: "Suburban Area",
-    projectType: "Retail",
-  },
-];
-
-const activities = [
-  {
-    text: "New task assigned: Floor plan review",
-    time: "2 hours ago",
-    project: "City Center Mall",
-  },
-  {
-    text: "Project milestone completed",
-    time: "4 hours ago",
-    project: "Office Complex",
-  },
-  {
-    text: "Team meeting scheduled",
-    time: "6 hours ago",
-    project: "Residential Tower",
-  },
-];
-
 export default function Dashboard() {
-   const { data : projects, error, isLoading, mutate } = useSWR(
+  const { data: projects, error, isLoading, mutate } = useSWR(
     "/user/dashboard",
     fetcher
   );
@@ -212,11 +185,11 @@ export default function Dashboard() {
                         <div>
                           <p className="text-xs text-gray-400">Budget</p>
                           <p className="text-sm text-white font-medium mt-0.5">
-                            {project.budget}
+                            ${project.budget.toLocaleString()}
                           </p>
                         </div>
                         <div>
-                          <p className="text-xs text-gray-400">Type</p>
+                          <p className="text_xs text-gray-400">Type</p>
                           <p className="text-sm text-white font-medium mt-0.5">
                             {project.projectType}
                           </p>
@@ -247,34 +220,38 @@ export default function Dashboard() {
               Recent Activity
             </h2>
             <div className="space-y-4">
-              {activities.map((activity, index) => (
-                <motion.div
-                  key={index}
-                  initial={{ opacity: 0, x: -20 }}
-                  animate={{ opacity: 1, x: 0 }}
-                  transition={{ delay: index * 0.1 }}
-                  className="flex items-start space-x-3"
-                >
-                  <div className="h-2 w-2 mt-2 rounded-full bg-orange-500" />
-                  <div>
-                    <p className="text-white">{activity.text}</p>
-                    <div className="flex items-center gap-2 mt-1">
-                      <span className="text-sm text-gray-400">
-                        {activity.time}
-                      </span>
-                      <span className="text-xs text-orange-500 bg-orange-500/20 px-2 py-1 rounded-full">
-                        {activity.project}
-                      </span>
+              {projects?.data.flatMap((project) =>
+                project.owner.recentActivities.map((activity, index) => (
+                  <motion.div
+                    key={`${project.id}-${index}`}
+                    initial={{ opacity: 0, x: -20 }}
+                    animate={{ opacity: 1, x: 0 }}
+                    transition={{ delay: index * 0.1 }}
+                    className="flex items-start space-x-3"
+                  >
+                    <div className="h-2 w-2 mt-2 rounded-full bg-orange-500" />
+                    <div>
+                      <p className="text-white">{activity.text}</p>
+                      <div className="flex items-center gap-2 mt-1">
+                        <span className="text-sm text-gray-400">
+                          {timeAgo(activity.time)}
+                        </span>
+                        <span className="text-xs text-orange-500 bg-orange-500/20 px-2 py-1 rounded-full">
+                          {activity.project.name}
+                        </span>
+                      </div>
                     </div>
-                  </div>
-                </motion.div>
-              ))}
+                  </motion.div>
+                ))
+              )}
             </div>
           </motion.div>
 
           {/* Modal */}
           <AnimatePresence>
-            {showModal && <NewProjectModal setShowModal={setShowModal} mutate={mutate} />}
+            {showModal && (
+              <NewProjectModal setShowModal={setShowModal} mutate={mutate} />
+            )}
           </AnimatePresence>
         </div>
       </div>
