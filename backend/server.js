@@ -17,6 +17,7 @@ import { PrismaClient } from "@prisma/client";
 import supplierRoute from "./routes/supplier.route.js";
 import marketPlaceRoute from "./routes/marketplace.route.js";
 import talentsRoute from "./routes/talents.route.js";
+import accountRoute from "./routes/account.route.js";
 
 const prisma = new PrismaClient();
 
@@ -148,6 +149,9 @@ app.use("/api/supplier", supplierRoute);
 app.use("/api/marketplace", marketPlaceRoute);
 
 app.use("/api/talents", talentsRoute);
+
+
+app.use("/api/account", ensureJWTAuth, accountRoute);
 
 
 

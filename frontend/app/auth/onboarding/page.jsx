@@ -8,10 +8,11 @@ import {
   BuildingOffice2Icon,
 } from "@heroicons/react/24/outline";
 import { useRouter } from "next/navigation";
+import axiosInstance from "@/lib/axiosInstance";
 
 const accountTypes = [
   {
-    id: "client",
+    id: "CLIENT",
     title: "Client",
     icon: <BuildingOffice2Icon className="h-6 w-6" />,
     description:
@@ -19,7 +20,7 @@ const accountTypes = [
     color: "orange",
   },
   {
-    id: "professional",
+    id: "PROFFESIONAL",
     title: "Professional",
     icon: <WrenchScrewdriverIcon className="h-6 w-6" />,
     description:
@@ -27,7 +28,7 @@ const accountTypes = [
     color: "blue",
   },
   {
-    id: "supplier",
+    id: "SUPPLIER",
     title: "Supplier",
     icon: <UserGroupIcon className="h-6 w-6" />,
     description:
@@ -42,14 +43,18 @@ export default function Onboarding() {
   const router = useRouter();
 
   const handleContinue = async () => {
-    if (!selectedType) return;
-    setIsLoading(true);
-
-    // Add your account type update logic here
-    console.log("Selected account type:", selectedType);
-
-    // Redirect to the next onboarding step or dashboard
-    // router.push(`/onboarding/${selectedType}`);
+    try {
+      if (selectedType) {
+        const res = axiosInstance.put("/api/account/accountType", {
+          role: selectedType,
+        });
+      }
+      setIsLoading(true);
+      console.log("Selected account type:", selectedType);
+    } catch (error) {
+      console.error("Error during account type update:", error);
+      // Handle error (e.g., show a notification)
+    }
   };
 
   return (

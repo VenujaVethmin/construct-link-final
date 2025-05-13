@@ -20,7 +20,7 @@ model User {
   email    String  @unique
   password String?
   image    String?
-  role     Role    @default(CLIENT)
+  role     Role    @default(UNDEFINED)
   projects Project[]
   products Product[]
   projectMembers ProjectMember[]
@@ -77,6 +77,7 @@ enum Role {
   PROFFESIONAL
   SUPPLIER
   ADMIN
+  UNDEFINED
 }
 
 
