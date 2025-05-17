@@ -12,6 +12,7 @@ import {
   TrashIcon,
   XCircleIcon,
 } from "@heroicons/react/24/outline";
+import axiosInstance from "@/lib/axiosInstance";
 
 // Construction skills for selection
 const constructionSkills = [
@@ -47,7 +48,6 @@ const TalentOnboardingPage = () => {
   const [step, setStep] = useState(1);
   const [loading, setLoading] = useState(false);
   const [profileImage, setProfileImage] = useState(null);
- 
 
   // Basic info
   const [formData, setFormData] = useState({
@@ -55,10 +55,9 @@ const TalentOnboardingPage = () => {
     specialization: "",
     location: "",
     hourlyRate: "",
-    
+
     about: "",
     yearsExperience: 0,
-    
   });
 
   // Skills
@@ -155,8 +154,6 @@ const TalentOnboardingPage = () => {
     }
   };
 
-
-
   const nextStep = () => {
     setStep(step + 1);
     window.scrollTo(0, 0);
@@ -172,19 +169,30 @@ const TalentOnboardingPage = () => {
 
     // Here you would submit all the data to your API
     try {
-      // Simulate API call
-      await new Promise((resolve) => setTimeout(resolve, 1500));
+      const res = await axiosInstance.post("/talents/profileUpdate", {
+        ...formData,
+        skills: selectedSkills,
+        education,
+        experience,
+        certifications,
+        profileImage,
+      });
 
-      // Example API call:
-      // await createTalentProfile({
+      // console.log({
       //   ...formData,
       //   skills: selectedSkills,
       //   education,
       //   experience,
       //   certifications,
       //   profileImage,
-      //   coverImage
-      // });
+      // }
+      // )
+
+      if (res.status === 200) {
+        // Navigate to the newly created profile
+        // router.push('/talents/profile');
+        setStep(5); // Show success page
+      }
 
       // Navigate to the newly created profile
       // router.push('/talents/profile');
@@ -298,8 +306,6 @@ const TalentOnboardingPage = () => {
                     </div>
                   </div>
                 </div>
-
-                
               </div>
 
               {/* Basic Fields */}
@@ -358,14 +364,14 @@ const TalentOnboardingPage = () => {
                   </label>
                   <div className="relative">
                     <span className="absolute inset-y-0 left-0 flex items-center pl-3 text-gray-400">
-                      $
+                      Rs
                     </span>
                     <input
                       type="number"
                       name="hourlyRate"
                       value={formData.hourlyRate}
                       onChange={handleInputChange}
-                      placeholder="75"
+                      placeholder="100"
                       className="w-full pl-8 px-4 py-3 rounded-lg bg-gray-700 border border-gray-600 text-white focus:ring-2 focus:ring-orange-500 focus:border-transparent"
                       required
                     />
@@ -374,8 +380,6 @@ const TalentOnboardingPage = () => {
               </div>
 
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-               
-
                 <div>
                   <label className="block text-gray-300 text-sm font-medium mb-2">
                     Years of Experience{" "}
@@ -393,8 +397,6 @@ const TalentOnboardingPage = () => {
                   />
                 </div>
               </div>
-
-              
 
               <div>
                 <label className="block text-gray-300 text-sm font-medium mb-2">
@@ -888,4 +890,3 @@ const TalentOnboardingPage = () => {
 };
 
 export default TalentOnboardingPage;
- 

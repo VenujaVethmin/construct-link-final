@@ -10,7 +10,7 @@ export async function middleware(request) {
    const token = request.cookies.get("token")?.value;
 
    if (!token) {
-     return NextResponse.redirect(new URL("/login", request.url));
+     return NextResponse.redirect(new URL("/auth/signin", request.url));
    }
 
   try {
@@ -49,7 +49,22 @@ export async function middleware(request) {
       return NextResponse.redirect(new URL(`/${user.role.toLowerCase()}/dashboard`, request.url));
     }
     
-      
+    if (
+      currentPath.startsWith("/proffesional") &&
+      user.firstTimeLogin === true
+    ) {
+      return NextResponse.redirect(new URL("/onboarding/talent", request.url));
+    }
+
+    if (
+      currentPath.startsWith("/supplier") &&
+      user.firstTimeLogin === true
+    ) {
+      return NextResponse.redirect(
+        new URL("/onboarding/supplier", request.url)
+      );
+    }
+    
 
     if (currentPath.startsWith("/auth/onboarding") && user.role !== "UNDEFINED") {
       return unauthorizedResponse("Unauthorized access to onboarding page.");
@@ -67,7 +82,7 @@ export async function middleware(request) {
        currentPath.startsWith("/proffesional") &&
        user.role !== "PROFFESIONAL"
      ) {
-       return unauthorizedResponse("This page is only for proffesionals.");
+       return unauthorizedResponse("This page is only for professionals.");
      }
 
     // Store user info in cookies for frontend access
@@ -225,10 +240,12 @@ function unauthorizedResponse(message) {
 
 export const config = {
   matcher: [
-    "/user/:path*", 
-    "/supplier/:path*", 
-    "/admin/:path*", 
-    "/professional/:path*", 
-    "/auth/:path*" // This is what captures "/auth/redirect"
+    "/user/:path*",
+    "/supplier/:path*",
+    "/admin/:path*",
+    "/proffesional/:path*",
+    "/supplier/:path*",
+    "/onboarding/:path*",
+    "/auth/redirect",
   ],
 };

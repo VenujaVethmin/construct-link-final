@@ -2,8 +2,6 @@ import { PrismaClient } from "@prisma/client";
 
 const prisma = new PrismaClient();
 
-
-
 export const dashboard = async (req, res) => {
   try {
     const data = await prisma.project.findMany({
@@ -36,89 +34,73 @@ export const dashboard = async (req, res) => {
     res.status(500).json({ error: error.message });
   }
 };
- 
- 
 
 export const talents = async (req, res) => {
-   try {
-      const data = await prisma.user.findMany(
-         {
-            take : 4 ,
-            where : {
-               role : "PROFFESIONAL"
-            },
-            include:{
-               talentProfile : true
-            }
-         }
-      )
-
-      return res.status(200).json(data);
-   } catch (error) {
-      console.error("Error in talents function:", error);
-      res.status(500).json({ error: error.message });
-      
-   }
-}
-
-
-export const talentProfile = async (req , res ) =>{
-   try {
-      const { id } = req.params;
-      const data = await prisma.user.findUnique(
-         {
-            where : {
-               id : id
-            },
-            include :{
-               talentProfile : true
-            }
-         }
-      )
-      return res.status(200).json(data);
-   } catch (error) {
-      console.error("Error in talentProfile function:", error);
-      res.status(500).json({ error: error.message });
-      
-   }
-}
-
-
-export const invitations = async (req , res) => {
-try {
-   const data = await prisma.invite.findMany({
-     where: {
-       receiverId: "cmal6gqcs0002f9y85f1iaw4u",
-       status: "PENDING"
-     },
-     include:{
-      sender:{
-         select:{
-           
-            name : true,
-            
-         }
+  try {
+    const data = await prisma.user.findMany({
+      take: 4,
+      where: {
+        role: "PROFFESIONAL",
       },
-      project:{
-         select:{
-            name : true,
-           id : true,
-         projectType : true,
-         }
-      }
-     }
-    
-   });
+      include: {
+        talentProfile: true,
+      },
+    });
 
-   return res.status(200).json(data);
-   
-} catch (error) {
-   console.error("Error in invitations function:", error);
-   res.status(500).json({ error: error.message });
-   
-}
+    return res.status(200).json(data);
+  } catch (error) {
+    console.error("Error in talents function:", error);
+    res.status(500).json({ error: error.message });
+  }
+};
 
-}
+export const talentProfile = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const data = await prisma.user.findUnique({
+      where: {
+        id: id,
+      },
+      include: {
+        talentProfile: true,
+      },
+    });
+    return res.status(200).json(data);
+  } catch (error) {
+    console.error("Error in talentProfile function:", error);
+    res.status(500).json({ error: error.message });
+  }
+};
+
+export const invitations = async (req, res) => {
+  try {
+    const data = await prisma.invite.findMany({
+      where: {
+        receiverId: "cmal6gqcs0002f9y85f1iaw4u",
+        status: "PENDING",
+      },
+      include: {
+        sender: {
+          select: {
+            name: true,
+          },
+        },
+        project: {
+          select: {
+            name: true,
+            id: true,
+            projectType: true,
+          },
+        },
+      },
+    });
+
+    return res.status(200).json(data);
+  } catch (error) {
+    console.error("Error in invitations function:", error);
+    res.status(500).json({ error: error.message });
+  }
+};
 
 export const acceptInvite = async (req, res) => {
   try {
@@ -193,99 +175,117 @@ export const acceptInvite = async (req, res) => {
     return res.status(500).json({ error: error.message });
   }
 };
- 
- 
 
-export const inviteData = async (req , res) => {
-
-   const { id } = req.params;
- try {
+export const inviteData = async (req, res) => {
+  const { id } = req.params;
+  try {
     const projects = await prisma.project.findMany({
       where: {
         ownerId: "cmal6canz0000f9y8akqn56u3",
       },
     });
 
-     const talent = await prisma.user.findUnique(
-      {
-         where : {
-            id : id,
-            role : "PROFFESIONAL"
-         },
+    const talent = await prisma.user.findUnique({
+      where: {
+        id: id,
+        role: "PROFFESIONAL",
+      },
 
-         select:{
-            name : true,
-            image : true,
-            talentProfile:{
-               select:{
-                  title : true,
-                hourlyRate : true,
-                
+      select: {
+        name: true,
+        image: true,
+        talentProfile: {
+          select: {
+            title: true,
+            hourlyRate: true,
+          },
+        },
+      },
+    });
 
-               }
-            }
-
-         }
-      }
-    )
-
-    return res.status(200).json({projects , talent})
- } catch (error) {
+    return res.status(200).json({ projects, talent });
+  } catch (error) {
     console.error("Error in invite function:", error);
     res.status(500).json({ error: error.message });
   }
-    
- }
+};
 
+export const sendInvite = async (req, res) => {
+  try {
+    const userId = "cmal6canz0000f9y8akqn56u3";
 
- export const sendInvite = async (req , res) => {
+    const data = await prisma.invite.create({
+      data: {
+        projectId: req.body.projectId,
+        senderId: userId,
+        receiverId: req.body.receiverId,
+        message: req.body.message,
+      },
+    });
 
-   try {
+    return res.status(200).json({ message: "Invite sent successfully" });
+  } catch (error) {
+    console.error("Error in sendInvite function:", error);
+    res.status(500).json({ error: error.message });
+  }
+};
 
-      const userId = "cmal6canz0000f9y8akqn56u3";
+export const getInvites = async (req, res) => {
+  const userId = "cmal6canz0000f9y8akqn56u3";
 
-      const data = await prisma.invite.create({
-        data: {
-          projectId: req.body.projectId,
-          senderId: userId,
-          receiverId: req.body.receiverId,
-          message: req.body.message,
-        },
-      });
+  try {
+    const data = await prisma.invite.findMany({
+      where: {
+        receiverId: userId,
+      },
+      include: {
+        project: true,
+        sender: true,
+      },
+    });
 
+    return res.status(200).json(data);
+  } catch (error) {
+    console.error("Error in getInvites function:", error);
+    res.status(500).json({ error: error.message });
+  }
+};
 
-      return res.status(200).json({ message: "Invite sent successfully" });
-      
-   } catch (error) {
-      console.error("Error in sendInvite function:", error);
-      res.status(500).json({ error: error.message });
-    }
-      
-   }
+export const profileUpdate = async (req, res) => {
+  try {
+    const {
+      title,
+      specialization,
+      location,
+      hourlyRate,
+      about,
+      yearsExperience,
+      skills,
+      education,
+      experience,
+      certifications,
+      profileImage,
+    } = req.body;
 
+    const data = await prisma.talentProfile.create({
+      data: {
+        title,
+        specialization,
+        location,
+        hourlyRate : parseFloat(hourlyRate),
+        about,
+        yearsExperience : parseInt(yearsExperience),
+        skills,
+        education,
+        experience,
+        certifications,
+        userId: "cmamrlnwv0000f9c4eekydewa",
+      },
+    });
 
-
-   export const getInvites = async (req , res) => {
-      const userId = "cmal6canz0000f9y8akqn56u3";
-
-      try {
-         const data = await prisma.invite.findMany({
-            where: {
-               receiverId: userId,
-            },
-            include: {
-               project: true,
-               sender: true,
-            },
-         });
-
-         return res.status(200).json(data);
-      } catch (error) {
-         console.error("Error in getInvites function:", error);
-         res.status(500).json({ error: error.message });
-       }
-   }
-
-
-
- 
+    return res.status(200).json(data)
+  } catch (error) {
+    console.error("Error in getInvites function:", error);
+    res.status(500).json({ error: error.message });
+  }
+};

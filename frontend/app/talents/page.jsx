@@ -416,7 +416,7 @@ const TalentsPage = () => {
                       )}
                     </div>
                     <p className="text-orange-400 text-sm truncate">
-                      {professional.talentProfile.title}
+                      {professional?.talentProfile?.title}
                     </p>
                   </div>
                 </div>
@@ -427,12 +427,12 @@ const TalentsPage = () => {
                       <StarIconSolid className="h-4 w-4 text-yellow-400" />
                       <span className="text-white">{professional.rating}</span>
                       <span className="text-gray-400">
-                        ({professional.talentProfile.reviewCount})
+                        ({professional.talentProfile?.reviewCount})
                       </span>
                     </div>
                     <div className="flex items-center gap-1 text-gray-400 text-sm">
                       <MapPinIcon className="h-4 w-4" />
-                      <span>{professional.talentProfile.location}</span>
+                      <span>{professional.talentProfile?.location}</span>
                     </div>
                   </div>
 
@@ -440,20 +440,20 @@ const TalentsPage = () => {
                     <div className="flex items-center justify-between text-sm mb-1">
                       <div className="flex items-center gap-1 text-gray-400">
                         <BriefcaseIcon className="h-4 w-4" />
-                        <span>{professional.talentProfile.yearsExperience} years</span>
+                        <span>{professional.talentProfile?.yearsExperience} years</span>
                       </div>
                       <span className="text-white font-medium">
-                       Rs. {professional.talentProfile.hourlyRate}/hr
+                       Rs. {professional.talentProfile?.hourlyRate}/hr
                       </span>
                     </div>
                     <div className="flex items-center gap-1 text-gray-400 text-sm">
                       <ClockIcon className="h-4 w-4" />
-                      <span>{professional.talentProfile.availability}</span>
+                      <span>{professional.talentProfile?.availability}</span>
                     </div>
                   </div>
 
                   <div className="flex flex-wrap gap-1 mb-4">
-                    {professional.talentProfile.skills?.slice(0, 3).map((skill, index) => (
+                    {professional.talentProfile?.skills?.slice(0, 3).map((skill, index) => (
                       <span
                         key={index}
                         className="px-2 py-0.5 rounded-full bg-gray-700/50 text-gray-300 text-xs"

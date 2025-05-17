@@ -136,6 +136,7 @@ app.get("/api/me", ensureJWTAuth, async (req, res) => {
       email: user.email,
       role: user.role,
       image: user.image,
+      firstTimeLogin: user.firstTimeLogin
     });
   } catch (error) {
     res.status(500).json({ error: "Failed to fetch user" });

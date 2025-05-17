@@ -20,6 +20,7 @@ model User {
   email    String  @unique
   password String?
   image    String?
+  firstTimeLogin Boolean @default(true)
   role     Role    @default(UNDEFINED)
   projects Project[]
   products Product[]

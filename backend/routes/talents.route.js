@@ -4,6 +4,7 @@ import {
   dashboard,
   invitations,
   inviteData,
+  profileUpdate,
   sendInvite,
   talentProfile,
   talents,
@@ -18,7 +19,7 @@ talentsRoute.get("/talentProfile/:id", talentProfile);
 talentsRoute.get("/invitations", invitations);
 
 talentsRoute.get("/inviteData/:id", inviteData);
-
+talentsRoute.post("/profileUpdate", profileUpdate);
 talentsRoute.post("/sendInvite", sendInvite);
 
 talentsRoute.post("/acceptInvite/:id", acceptInvite);
