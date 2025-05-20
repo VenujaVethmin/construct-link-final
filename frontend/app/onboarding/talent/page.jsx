@@ -870,7 +870,7 @@ const TalentOnboardingPage = () => {
             </p>
             <div className="flex flex-col sm:flex-row gap-4 justify-center">
               <button
-                onClick={() => router.push("/talents/dashboard")}
+                onClick={() => router.push("/proffesional/dashboard")}
                 className="px-6 py-3 bg-orange-500 hover:bg-orange-600 text-white rounded-lg"
               >
                 Go to Dashboard

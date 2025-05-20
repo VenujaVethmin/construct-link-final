@@ -59,6 +59,9 @@ const ProductDetail = () => {
   const [lightboxImage, setLightboxImage] = useState(0);
   const [isFavorite, setIsFavorite] = useState(false);
 
+  const images = productData?.data?.images ?? [];
+const displaySrc = images[selectedImage] ?? "/noimage.webp";
+
 
 
   const reviewFileRef = useRef(null);
@@ -154,12 +157,12 @@ const ProductDetail = () => {
           {/* Product Images */}
           <div>
             <div className="relative h-[400px] sm:h-[500px] rounded-xl overflow-hidden mb-4 group">
-              <Image
-                src={productData?.data.images[selectedImage] || "/noimage.webp"}
-                alt={productData?.data.images[selectedImage] || "image"}
-                fill
-                className="object-cover"
-              />
+            <Image
+  src={displaySrc}
+  alt={displaySrc}
+  fill
+  className="object-cover"
+/>
               <button
                 onClick={() => openLightbox(selectedImage)}
                 className="absolute bottom-4 right-4 p-2 bg-black/50 backdrop-blur-sm rounded-full text-white opacity-0 group-hover:opacity-100 transition-opacity hover:bg-black/70"
@@ -168,7 +171,7 @@ const ProductDetail = () => {
               </button>
             </div>
             <div className="grid grid-cols-4 gap-4">
-              {productData?.data.images.map((image, index) => (
+              {productData?.data?.images?.map((image, index) => (
                 <button
                   key={`thumb-${index}`}
                   onClick={() => setSelectedImage(index)}
@@ -193,14 +196,14 @@ const ProductDetail = () => {
           <div>
             <div className="mb-6">
               <div className="flex items-center gap-2 text-sm text-orange-400 mb-2">
-                <Link
-                  href={`/marketplace/categories/${productData?.data.category
+                {/* <Link
+                  href={`/marketplace/categories/${productData?.data?.category
                     .toLowerCase()
                     .replace(/\s+/g, "-")}`}
                   className="hover:text-orange-300 transition-colors"
                 >
                   {productData?.data.category}
-                </Link>
+                </Link> */}
                 <span className="w-1 h-1 rounded-full bg-orange-500/70"></span>
                 <span className="text-green-400">
                   {/* {productData.availability} */}
@@ -401,7 +404,7 @@ const ProductDetail = () => {
                     Key Features
                   </h4>
                   <ul className="grid grid-cols-1 md:grid-cols-2 gap-x-6 gap-y-2 mb-6">
-                    {productData?.data.features.map((feature, index) => (
+                    {productData?.data.features?.map((feature, index) => (
                       <li
                         key={`feature-${index}`}
                         className="flex items-start gap-2 text-gray-300"
@@ -416,7 +419,7 @@ const ProductDetail = () => {
                     Applications
                   </h4>
                   <ul className="grid grid-cols-1 md:grid-cols-2 gap-x-6 gap-y-2 mb-6">
-                    {productData?.data.applications.map((app, index) => (
+                    {productData?.data.applications?.map((app, index) => (
                       <li
                         key={`app-${index}`}
                         className="flex items-start gap-2 text-gray-300"
@@ -431,7 +434,7 @@ const ProductDetail = () => {
                     Certifications
                   </h4>
                   <div className="flex flex-wrap gap-3 mb-6">
-                    {productData?.data.certifications.map((cert, index) => (
+                    {productData?.data.certifications?.map((cert, index) => (
                       <div
                         key={`cert-${index}`}
                         className="bg-gray-800/60 border border-gray-700/50 rounded-full px-4 py-1.5 text-sm text-gray-300 flex items-center gap-2"

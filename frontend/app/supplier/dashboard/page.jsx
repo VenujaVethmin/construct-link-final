@@ -1,22 +1,22 @@
 "use client";
 
-import { useState } from "react";
-import { motion } from "framer-motion";
 import {
   BuildingStorefrontIcon,
-  TruckIcon,
+  ChevronRightIcon,
+  ClockIcon,
   CurrencyDollarIcon,
   ShoppingBagIcon,
-  ClockIcon,
-  CalendarDaysIcon,
-  CheckCircleIcon,
-  XCircleIcon,
-  ChartBarIcon,
-  ArrowUpIcon,
-  ArrowDownIcon,
-  ChevronRightIcon,
-  PlusIcon,
+  TruckIcon,
+  XCircleIcon
 } from "@heroicons/react/24/outline";
+import { motion } from "framer-motion";
+import { useState } from "react";
+
+import axiosInstance from "@/lib/axiosInstance";
+import useSWR from "swr";
+import Link from "next/link";
+
+const fetcher = (url) => axiosInstance.get(url).then((res) => res.data);
 
 const containerVariants = {
   hidden: { opacity: 0 },
@@ -116,6 +116,14 @@ const supplierOverview = {
 };
 
 const SupplierDashboard = () => {
+
+  const {
+    data,
+    error,
+    isLoading,
+    mutate,
+  } = useSWR("/supplier/dashboard", fetcher);
+
   const [timeframe, setTimeframe] = useState("month");
 
   // Format currency
@@ -192,10 +200,10 @@ const SupplierDashboard = () => {
           </div>
           <div className="flex-1 text-center md:text-left">
             <h1 className="text-2xl font-bold text-white">
-              {supplierOverview.name}
+              {data?.store?.stores[0]?.name}
             </h1>
             <p className="text-gray-400 mt-1">
-              Supplier of construction materials and equipment
+              {data?.store?.stores[0].description ? data?.store?.stores[0].description  : "Supplier of construction materials and equipment"}
             </p>
             <div className="flex flex-wrap mt-3 gap-3 justify-center md:justify-start">
               <span className="px-3 py-1 bg-green-500/20 text-green-400 rounded-full text-sm">
@@ -210,12 +218,12 @@ const SupplierDashboard = () => {
             </div>
           </div>
           <div className="flex gap-3">
-            <button className="px-4 py-2 bg-orange-500 hover:bg-orange-600 text-white rounded-lg transition-colors">
+            <Link href={"/supplier/products"} className="px-4 py-2 bg-orange-500 hover:bg-orange-600 text-white rounded-lg transition-colors">
               Add Products
-            </button>
-            <button className="px-4 py-2 bg-gray-700 hover:bg-gray-600 text-white rounded-lg transition-colors">
+            </Link>
+            <Link href={"/supplier/store"}  className="px-4 py-2 bg-gray-700 hover:bg-gray-600 text-white rounded-lg transition-colors">
               View Store
-            </button>
+            </Link>
           </div>
         </div>
       </motion.div>
@@ -234,7 +242,7 @@ const SupplierDashboard = () => {
             </div>
           </div>
           <h3 className="text-2xl font-bold text-white mb-1">
-            {formatCurrency(supplierOverview.stats.totalRevenue)}
+            {formatCurrency(data?.totalRevenue)}
           </h3>
           <p className="text-sm text-gray-400">Total Revenue</p>
           <div className="absolute -right-8 -bottom-8 w-24 h-24 bg-gradient-to-br from-white/5 to-white/0 rounded-full blur-xl" />
@@ -252,7 +260,7 @@ const SupplierDashboard = () => {
             </div>
           </div>
           <h3 className="text-2xl font-bold text-white mb-1">
-            {supplierOverview.stats.totalOrders}
+            {data?.totalOrders}
           </h3>
           <p className="text-sm text-gray-400">Total Orders</p>
           <div className="absolute -right-8 -bottom-8 w-24 h-24 bg-gradient-to-br from-white/5 to-white/0 rounded-full blur-xl" />
@@ -270,7 +278,7 @@ const SupplierDashboard = () => {
             </div>
           </div>
           <h3 className="text-2xl font-bold text-white mb-1">
-            {supplierOverview.stats.pendingOrders}
+            {data?.pendingOrders}
           </h3>
           <p className="text-sm text-gray-400">Pending Orders</p>
           <div className="absolute -right-8 -bottom-8 w-24 h-24 bg-gradient-to-br from-white/5 to-white/0 rounded-full blur-xl" />
@@ -288,7 +296,7 @@ const SupplierDashboard = () => {
             </div>
           </div>
           <h3 className="text-2xl font-bold text-white mb-1">
-            {supplierOverview.stats.activeProducts}
+            {data?.activeProducts}
           </h3>
           <p className="text-sm text-gray-400">Active Products</p>
           <div className="absolute -right-8 -bottom-8 w-24 h-24 bg-gradient-to-br from-white/5 to-white/0 rounded-full blur-xl" />
@@ -319,12 +327,10 @@ const SupplierDashboard = () => {
             <table className="w-full">
               <thead>
                 <tr className="border-b border-gray-700">
-                  <th className="pb-3 text-left text-sm font-medium text-gray-400">
+                  <th className="pb-3  text-left text-sm font-medium text-gray-400">
                     Order ID
                   </th>
-                  <th className="pb-3 text-left text-sm font-medium text-gray-400">
-                    Project
-                  </th>
+
                   <th className="pb-3 text-left text-sm font-medium text-gray-400">
                     Date
                   </th>
@@ -337,30 +343,28 @@ const SupplierDashboard = () => {
                 </tr>
               </thead>
               <tbody className="divide-y divide-gray-700/50">
-                {supplierOverview.recentOrders.map((order) => {
-                  const status = getStatusStyle(order.status);
+                {data?.data?.map((order) => {
+                  const status = getStatusStyle(order?.status);
                   return (
                     <tr
                       key={order.id}
                       className="hover:bg-gray-700/20 transition-colors"
                     >
-                      <td className="py-3 text-sm font-medium text-white">
+                      <td className="py-3  text-sm font-medium text-white">
                         {order.id}
                       </td>
+
                       <td className="py-3 text-sm text-gray-300">
-                        {order.project}
+                        {formatDate(order?.createdAt)}
                       </td>
                       <td className="py-3 text-sm text-gray-300">
-                        {formatDate(order.date)}
-                      </td>
-                      <td className="py-3 text-sm text-gray-300">
-                        {formatCurrency(order.amount)}
+                        {formatCurrency(order?.totalPrice)}
                       </td>
                       <td className="py-3">
                         <span
                           className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${status.bg} ${status.text}`}
                         >
-                          {status.label}
+                          {status?.label}
                         </span>
                       </td>
                     </tr>
@@ -387,8 +391,8 @@ const SupplierDashboard = () => {
           </div>
 
           <div className="space-y-4">
-            {supplierOverview.lowStockItems.map((item, index) => {
-              const stockPercentage = (item.stock / item.minRequired) * 100;
+            {data?.products?.map((item, index) => {
+              const stockPercentage = (item.stock / item.minStock) * 100;
 
               return (
                 <div
@@ -401,7 +405,7 @@ const SupplierDashboard = () => {
                   </div>
                   <div className="flex items-center justify-between mt-2 text-xs text-gray-400">
                     <span>Current: {item.stock} units</span>
-                    <span>Min: {item.minRequired} units</span>
+                    <span>Min: {item.minStock} units</span>
                   </div>
                   <div className="mt-2 relative h-2 w-full bg-gray-700 rounded-full overflow-hidden">
                     <div
@@ -414,103 +418,9 @@ const SupplierDashboard = () => {
                 </div>
               );
             })}
-
-            <button className="w-full mt-2 px-4 py-2 bg-red-500/20 hover:bg-red-500/30 text-red-400 rounded-lg flex items-center justify-center gap-2 transition-colors">
-              <PlusIcon className="h-4 w-4" />
-              Restock Items
-            </button>
           </div>
         </motion.div>
       </div>
-
-      {/* Top Products */}
-      <motion.div
-        variants={itemVariants}
-        className="bg-gray-800/40 backdrop-blur-sm rounded-xl border border-gray-700/50 p-6"
-      >
-        <div className="flex items-center justify-between mb-6">
-          <h3 className="text-lg font-medium text-white flex items-center gap-2">
-            <ChartBarIcon className="h-5 w-5 text-purple-400" />
-            Top Products
-          </h3>
-          <div className="flex items-center gap-2">
-            <button
-              onClick={() => setTimeframe("week")}
-              className={`px-3 py-1 text-sm rounded-lg transition-colors ${
-                timeframe === "week"
-                  ? "bg-purple-500/20 text-purple-400"
-                  : "text-gray-400 hover:text-white"
-              }`}
-            >
-              Week
-            </button>
-            <button
-              onClick={() => setTimeframe("month")}
-              className={`px-3 py-1 text-sm rounded-lg transition-colors ${
-                timeframe === "month"
-                  ? "bg-purple-500/20 text-purple-400"
-                  : "text-gray-400 hover:text-white"
-              }`}
-            >
-              Month
-            </button>
-            <button
-              onClick={() => setTimeframe("year")}
-              className={`px-3 py-1 text-sm rounded-lg transition-colors ${
-                timeframe === "year"
-                  ? "bg-purple-500/20 text-purple-400"
-                  : "text-gray-400 hover:text-white"
-              }`}
-            >
-              Year
-            </button>
-          </div>
-        </div>
-
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          {supplierOverview.topProducts.map((product, index) => (
-            <motion.div
-              key={index}
-              whileHover={{ scale: 1.01 }}
-              className="bg-gray-700/30 rounded-lg p-4 border border-gray-700 hover:border-purple-500/30 transition-colors"
-            >
-              <div className="flex items-start justify-between">
-                <div>
-                  <h4 className="text-white font-medium">{product.name}</h4>
-                  <p className="text-gray-400 text-sm mt-1">
-                    {formatCurrency(product.sales)} in sales
-                  </p>
-                </div>
-                <div
-                  className={`flex items-center gap-1 ${
-                    product.growth > 0 ? "text-green-400" : "text-red-400"
-                  }`}
-                >
-                  {product.growth > 0 ? (
-                    <ArrowUpIcon className="h-4 w-4" />
-                  ) : (
-                    <ArrowDownIcon className="h-4 w-4" />
-                  )}
-                  <span className="text-sm font-medium">
-                    {Math.abs(product.growth)}%
-                  </span>
-                </div>
-              </div>
-              <div className="mt-3 h-2 w-full bg-gray-700 rounded-full overflow-hidden">
-                <div
-                  className="h-full bg-gradient-to-r from-purple-500 to-blue-500"
-                  style={{ width: `${(product.sales / 3000) * 100}%` }}
-                ></div>
-              </div>
-            </motion.div>
-          ))}
-        </div>
-      </motion.div>
-
-    
-    
-
-   
     </motion.div>
   );
 };

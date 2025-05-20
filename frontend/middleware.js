@@ -48,6 +48,10 @@ export async function middleware(request) {
     if (currentPath.startsWith("/auth/redirect") && user.role && user.role !== "UNDEFINED") {
       return NextResponse.redirect(new URL(`/${user.role.toLowerCase()}/dashboard`, request.url));
     }
+
+    if (currentPath.startsWith("/auth/onboarding") && user.role && user.role !== "UNDEFINED") {
+      return NextResponse.redirect(new URL(`/${user.role.toLowerCase()}/dashboard`, request.url));
+    }
     
     if (
       currentPath.startsWith("/proffesional") &&
@@ -64,6 +68,14 @@ export async function middleware(request) {
         new URL("/onboarding/supplier", request.url)
       );
     }
+
+
+    if (currentPath.startsWith("/onboarding/") && user.firstTimeLogin === false) {
+      return NextResponse.redirect(
+        new URL(`/${user.role.toLowerCase()}/dashboard`, request.url)
+      );
+    }
+    
     
 
     if (currentPath.startsWith("/auth/onboarding") && user.role !== "UNDEFINED") {
@@ -247,5 +259,6 @@ export const config = {
     "/supplier/:path*",
     "/onboarding/:path*",
     "/auth/redirect",
+    "/auth/onboarding",
   ],
 };

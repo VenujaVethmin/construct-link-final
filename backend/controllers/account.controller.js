@@ -11,7 +11,7 @@ export const accountType = async (req, res) => {
     
     const data = await prisma.user.update({
       where: {
-        id: "cmamrlnwv0000f9c4eekydewa",
+        id: req.user.id,
       },
       data: {
         role: role,

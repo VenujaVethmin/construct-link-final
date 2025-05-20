@@ -259,7 +259,7 @@ const AddProductPage = () => {
           <div className="flex justify-between items-center">
             <div className="flex items-center gap-2">
               <Link
-                href="/supplier/products"
+                href="/supplier/dashboard"
                 className="p-2 hover:bg-gray-700/50 rounded-lg transition-colors"
               >
                 <ArrowLeftIcon className="h-5 w-5 text-gray-400" />
@@ -432,33 +432,7 @@ const AddProductPage = () => {
                       </div>
                     </div>
 
-                    <div>
-                      <label className="block text-sm text-gray-400 mb-2">
-                        Price Per Unit (Optional)
-                      </label>
-                      <div className="relative">
-                        <span className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400">
-                          Rs.
-                        </span>
-                        <input
-                          type="number"
-                          min="0"
-                          step="0.01"
-                          value={productForm.pricePerUnit}
-                          onChange={(e) =>
-                            setProductForm({
-                              ...productForm,
-                              pricePerUnit: e.target.value,
-                            })
-                          }
-                          placeholder="0.00"
-                          className="w-full bg-gray-700/50 border border-gray-600 rounded-lg px-4 py-3 pl-12 text-white"
-                        />
-                      </div>
-                      <p className="text-xs text-gray-500 mt-1">
-                        If different from the main price
-                      </p>
-                    </div>
+                    
                   </div>
 
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -492,34 +466,7 @@ const AddProductPage = () => {
                       </select>
                     </div>
 
-                    <div>
-                      <label className="block text-sm text-gray-400 mb-2">
-                        Availability Status
-                      </label>
-                      <select
-                        value={productForm.availability}
-                        onChange={(e) =>
-                          setProductForm({
-                            ...productForm,
-                            availability: e.target.value,
-                          })
-                        }
-                        className="w-full bg-gray-700/50 border border-gray-600 rounded-lg px-4 py-3 text-white appearance-none"
-                        style={{
-                          backgroundImage:
-                            'url(\'data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="white" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M19 9l-7 7-7-7" /></svg>\')',
-                          backgroundRepeat: "no-repeat",
-                          backgroundPosition: "right 1rem center",
-                          backgroundSize: "1rem",
-                        }}
-                      >
-                        {availabilityOptions.map((option) => (
-                          <option key={option} value={option}>
-                            {option}
-                          </option>
-                        ))}
-                      </select>
-                    </div>
+                    
                   </div>
 
                   <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
@@ -1215,41 +1162,10 @@ const AddProductPage = () => {
             {activeSection === "advanced" && (
               <div className="bg-gray-800/40 backdrop-blur-sm border border-gray-700/50 rounded-xl p-6">
                 <h2 className="text-xl font-bold text-white mb-6">
-                  Advanced Settings
+                  Save Product
                 </h2>
 
-                <div className="space-y-6">
-                  <div>
-                    <label className="block text-sm text-gray-400 mb-2">
-                      Product Status
-                    </label>
-                    <select
-                      value={productForm.status}
-                      onChange={(e) =>
-                        setProductForm({
-                          ...productForm,
-                          status: e.target.value,
-                        })
-                      }
-                      className="w-full bg-gray-700/50 border border-gray-600 rounded-lg px-4 py-3 text-white appearance-none"
-                      style={{
-                        backgroundImage:
-                          'url(\'data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="white" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M19 9l-7 7-7-7" /></svg>\')',
-                        backgroundRepeat: "no-repeat",
-                        backgroundPosition: "right 1rem center",
-                        backgroundSize: "1rem",
-                      }}
-                    >
-                      <option value="active">
-                        Active (Visible to customers)
-                      </option>
-                      <option value="draft">
-                        Draft (Hidden from customers)
-                      </option>
-                      <option value="archived">Archived</option>
-                    </select>
-                  </div>
-                </div>
+                
 
                 <div className="mt-12 pt-6 border-t border-gray-700">
                   <div className="bg-green-900/20 border border-green-800/20 rounded-lg p-4 mb-8">

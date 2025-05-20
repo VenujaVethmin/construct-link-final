@@ -325,7 +325,7 @@ const TalentProfilePage = () => {
           <div>
             {/* Tabs */}
             <div className="flex overflow-x-auto border-b border-gray-700/50">
-              {["about", "experience", "projects", "reviews"].map((tab) => (
+              {["about", "experience"].map((tab) => (
                 <button
                   key={tab}
                   className={`px-6 py-4 font-medium text-sm whitespace-nowrap transition-colors ${

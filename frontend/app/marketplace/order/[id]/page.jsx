@@ -144,7 +144,8 @@ const OrderPage = () => {
       });
       toast.success("Address added successfully");
     } catch (error) {
-      toast.error("Failed to add address");
+      // toast.error("Failed to add address");
+      console.error(error.message)
     }
   };
 
@@ -271,30 +272,37 @@ const OrderPage = () => {
                   <span className="text-gray-400">(Optional)</span>
                 </h2>
                 <div className="space-y-3">
-                  {data.projects.map((project, idx) => (
-                    <div
-                      key={idx}
-                      onClick={() => setSelectedProject(project)}
-                      className={`cursor-pointer p-3 rounded-lg border transition-all ${
-                        selectedProject?.name === project.name
-                          ? "border-orange-500 bg-orange-500/10"
-                          : "border-gray-700 hover:border-gray-600"
-                      }`}
-                    >
-                      <div className="flex items-center">
-                        <div
-                          className={`h-4 w-4 mr-3 rounded-full border ${
-                            selectedProject?.name === project.name
-                              ? "border-orange-500 bg-orange-500"
-                              : "border-gray-600"
-                          }`}
-                        />
-                        <h3 className="text-white font-medium">
-                          {project.name}
-                        </h3>
-                      </div>
-                    </div>
-                  ))}
+                {data?.projects?.length === 0 ? (
+  <p className="text-gray-400">
+    No projects yet — head over to the dashboard
+    
+    to create one.
+  </p>
+) : (
+  data.projects.map((project, idx) => (
+    <div
+      key={idx}
+      onClick={() => setSelectedProject(project)}
+      className={`cursor-pointer p-3 rounded-lg border transition-all ${
+        selectedProject?.name === project.name
+          ? "border-orange-500 bg-orange-500/10"
+          : "border-gray-700 hover:border-gray-600"
+      }`}
+    >
+      <div className="flex items-center">
+        <div
+          className={`h-4 w-4 mr-3 rounded-full border ${
+            selectedProject?.name === project.name
+              ? "border-orange-500 bg-orange-500"
+              : "border-gray-600"
+          }`}
+        />
+        <h3 className="text-white font-medium">{project.name}</h3>
+      </div>
+    </div>
+  ))
+)}
+
                 </div>
                
               </div>

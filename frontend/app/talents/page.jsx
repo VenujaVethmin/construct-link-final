@@ -13,7 +13,10 @@ import {
   ClockIcon,
   MagnifyingGlassIcon,
   MapPinIcon,
-  ShieldCheckIcon
+  ShieldCheckIcon,
+  CurrencyDollarIcon,
+  EnvelopeIcon,
+  BuildingOffice2Icon
 } from "@heroicons/react/24/outline";
 import { StarIcon as StarIconSolid } from "@heroicons/react/24/solid";
 import { AnimatePresence, motion } from "framer-motion";
@@ -267,9 +270,12 @@ const TalentsPage = () => {
                   />
                   <MagnifyingGlassIcon className="absolute left-3 top-1/2 transform -translate-y-1/2 h-5 w-5 text-gray-400" />
                 </div>
-                <button className="px-6 py-3 bg-orange-500 text-white rounded-lg font-medium hover:bg-orange-600 transition-colors">
+                <Link
+                  href={`/talents/talent?search=${searchTerm}`}
+                  className="px-6 py-3 bg-orange-500 text-white rounded-lg font-medium hover:bg-orange-600 transition-colors"
+                >
                   Find Experts
-                </button>
+                </Link>
               </motion.div>
 
               <motion.div
@@ -381,6 +387,7 @@ const TalentsPage = () => {
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+           
             {data?.map((professional, index) => (
               <motion.div
                 key={professional.id}
@@ -391,6 +398,7 @@ const TalentsPage = () => {
                 whileHover={{ y: -6 }}
                 className="bg-gradient-to-br from-gray-800/90 to-gray-900/90 backdrop-blur-sm border border-gray-700/50 rounded-xl overflow-hidden flex flex-col group"
               >
+                {/* Image & Name */}
                 <div className="relative h-48">
                   <Image
                     src={professional.image || "/noimage.webp"}
@@ -399,13 +407,6 @@ const TalentsPage = () => {
                     className="object-cover transition-transform duration-700 group-hover:scale-105"
                   />
                   <div className="absolute top-0 left-0 w-full h-full bg-gradient-to-t from-gray-900 via-gray-900/40 to-transparent"></div>
-
-                  {professional.featured && (
-                    <div className="absolute top-3 right-3 bg-orange-500 text-white text-xs px-2 py-1 rounded-full">
-                      Featured
-                    </div>
-                  )}
-
                   <div className="absolute bottom-0 left-0 w-full p-4">
                     <div className="flex items-center gap-2">
                       <h3 className="text-white font-medium truncate">
@@ -417,63 +418,122 @@ const TalentsPage = () => {
                     </div>
                     <p className="text-orange-400 text-sm truncate">
                       {professional?.talentProfile?.title}
+                      {professional?.talentProfile?.specialization && (
+                        <span className="text-gray-400">
+                          {" "}
+                          • {professional.talentProfile.specialization}
+                        </span>
+                      )}
                     </p>
                   </div>
                 </div>
 
-                <div className="p-4 flex-grow">
+                {/* Main Details */}
+                <div className="p-4 flex-grow flex flex-col">
                   <div className="flex items-center justify-between mb-3">
                     <div className="flex items-center gap-1">
                       <StarIconSolid className="h-4 w-4 text-yellow-400" />
-                      <span className="text-white">{professional.rating}</span>
+                      <span className="text-white">
+                        {professional.talentProfile?.rating ?? "New"}
+                      </span>
                       <span className="text-gray-400">
-                        ({professional.talentProfile?.reviewCount})
+                        ({professional.talentProfile?.reviewCount || 0})
                       </span>
                     </div>
                     <div className="flex items-center gap-1 text-gray-400 text-sm">
                       <MapPinIcon className="h-4 w-4" />
-                      <span>{professional.talentProfile?.location}</span>
+                      <span>
+                        {professional.talentProfile?.location || "N/A"}
+                      </span>
                     </div>
                   </div>
 
-                  <div className="mb-3">
-                    <div className="flex items-center justify-between text-sm mb-1">
-                      <div className="flex items-center gap-1 text-gray-400">
-                        <BriefcaseIcon className="h-4 w-4" />
-                        <span>{professional.talentProfile?.yearsExperience} years</span>
-                      </div>
-                      <span className="text-white font-medium">
-                       Rs. {professional.talentProfile?.hourlyRate}/hr
+                  <div className="mb-3 flex flex-wrap gap-4 justify-between">
+                    <div className="flex items-center gap-1 text-gray-400 text-sm">
+                      <BriefcaseIcon className="h-4 w-4" />
+                      <span>
+                        {professional.talentProfile?.yearsExperience || 0} yrs
+                        exp
                       </span>
                     </div>
                     <div className="flex items-center gap-1 text-gray-400 text-sm">
-                      <ClockIcon className="h-4 w-4" />
-                      <span>{professional.talentProfile?.availability}</span>
+                      <CurrencyDollarIcon className="h-4 w-4" />
+                      <span>
+                        Rs. {professional.talentProfile?.hourlyRate || 0}/hr
+                      </span>
                     </div>
+                  
                   </div>
 
-                  <div className="flex flex-wrap gap-1 mb-4">
-                    {professional.talentProfile?.skills?.slice(0, 3).map((skill, index) => (
-                      <span
-                        key={index}
-                        className="px-2 py-0.5 rounded-full bg-gray-700/50 text-gray-300 text-xs"
-                      >
-                        {skill}
-                      </span>
-                    ))}
+                  {/* About */}
+                  {professional.talentProfile?.about && (
+                    <p className="text-gray-400 text-sm mb-3 line-clamp-2">
+                      {professional.talentProfile.about}
+                    </p>
+                  )}
+
+                  {/* Skills */}
+                  <div className="flex flex-wrap gap-1 mb-3">
+                    {professional.talentProfile?.skills
+                      ?.slice(0, 3)
+                      .map((skill, idx) => (
+                        <span
+                          key={idx}
+                          className="px-2 py-0.5 rounded-full bg-gray-700/50 text-gray-300 text-xs"
+                        >
+                          {skill}
+                        </span>
+                      ))}
                   </div>
+
+                  {/* Education & Certifications */}
+                  <div className="flex flex-col gap-2 mb-3">
+                    {professional.talentProfile?.education?.length > 0 && (
+                      <div className="flex items-center gap-2 text-xs text-gray-300">
+                        <BuildingOffice2Icon className="h-4 w-4" />
+                        <span>
+                          {professional.talentProfile.education[0].degree},{" "}
+                          {professional.talentProfile.education[0].institution}
+                        </span>
+                      </div>
+                    )}
+                    {professional.talentProfile?.certifications?.length > 0 && (
+                      <div className="flex items-center gap-2 text-xs text-gray-300">
+                        <CheckBadgeIcon className="h-4 w-4" />
+                        <span>
+                          {professional.talentProfile.certifications
+                            .slice(0, 2)
+                            .join(", ")}
+                          {professional.talentProfile.certifications.length >
+                            2 && " ..."}
+                        </span>
+                      </div>
+                    )}
+                  </div>
+
+                  {/* Completed Projects */}
+                 
                 </div>
 
-                <div className="p-4 pt-0">
+                {/* Actions */}
+                <div className="p-4 pt-0 flex gap-2">
                   <Link
                     href={`/talents/${professional.id}`}
-                    className="block w-full py-2 px-4 bg-gradient-to-r from-orange-500 to-orange-600 hover:from-orange-600 hover:to-orange-700 text-white text-center rounded-lg transition-colors font-medium"
+                    className="flex-1 py-2 px-4 bg-gradient-to-r from-orange-500 to-orange-600 hover:from-orange-600 hover:to-orange-700 text-white text-center rounded-lg transition-colors font-medium"
                   >
                     View Profile
                   </Link>
+                  <a
+                    href={`mailto:${professional.email}`}
+                    className="p-2 rounded-lg bg-gray-700/30 hover:bg-gray-700/50 text-gray-400 hover:text-white transition-colors"
+                    title="Email"
+                  >
+                    <EnvelopeIcon className="h-5 w-5" />
+                  </a>
                 </div>
               </motion.div>
             ))}
+            
           </div>
         </div>
       </div>
@@ -558,7 +618,7 @@ const TalentsPage = () => {
                     className="bg-gray-800/40 backdrop-blur-sm border border-gray-700/50 rounded-xl p-5 cursor-pointer"
                   >
                     <Link
-                      href={`/talents/search?category=${encodeURIComponent(
+                      href={`/talents/talent?search=${encodeURIComponent(
                         category
                       )}`}
                       className="block h-full"
@@ -735,7 +795,7 @@ const TalentsPage = () => {
 
               <div className="mt-8">
                 <Link
-                  href="/talents/search"
+                  href="/talents/talent"
                   className="inline-block px-6 py-3 bg-gradient-to-r from-orange-500 to-orange-600 hover:from-orange-600 hover:to-orange-700 text-white rounded-lg font-medium transition-colors"
                 >
                   Find Your Expert Now

@@ -89,7 +89,7 @@ export const addNewAddress = async (req, res) => {
 
     const data = await prisma.address.create({
       data: {
-        userId: "cmaeag0xr0000f97gptu6absi",
+        userId: "cmal6canz0000f9y8akqn56u3",
         addressName: addressName,
         fullAddress: fullAddress,
         contactName: contactName,
@@ -197,8 +197,9 @@ export const marketplace = async (req, res) => {
           },
         },
         products: {
-          take : 4
+          take : 2
         }, // includes all product fields
+        stores : true
       },
     });
 

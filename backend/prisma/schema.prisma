@@ -43,7 +43,7 @@ model TalentProfile {
   title             String?
   specialization    String?
   hourlyRate        Float?
-  location         String?
+  location          String?
   yearsExperience   Int       @default(0)
   completedProjects Int       @default(0)
   about             String?   @db.Text
@@ -56,10 +56,11 @@ model TalentProfile {
   rating            Float?    @default(0)
   reviewCount       Int       @default(0)
   coverImage        String?
-  
+
   createdAt         DateTime  @default(now())
   updatedAt         DateTime  @updatedAt
 }
+
 
 model Address {
   id        String   @id @default(cuid())
@@ -177,25 +178,6 @@ model Expense{
 
 
 
-// model Product {
-//   id        String   @id @default(cuid())
-//   name      String
-//   description String?
-//   price     Float
-//   unit      String?
-//   image     String? @default("https://i0.wp.com/tinasbotanicals.com/wp-content/uploads/2025/01/No-Product-Image-Available.png?fit=800%2C800&ssl=1")
-//   stock     Int?
-//   minStock  Int?
-//   minOrder  Int?
-//   category  String?
-//   specifications Json?
-//   supplierId String
-//   supplier  User     @relation(fields: [supplierId], references: [id])
-//   orders    Order[]
-  
-//   createdAt DateTime @default(now())
-//   updatedAt DateTime @updatedAt
-// }
 
 model Product {
   id             String   @id @default(cuid())
@@ -265,17 +247,30 @@ model Order {
   updatedAt DateTime @updatedAt
 }
 
-model Store{
-  id        String   @id @default(cuid())
-  name      String
-  image     String?
+model Store {
+  id          String   @id @default(cuid())
+  name        String
   description String?
-  location  String?
-  ownerId   String
-  owner     User     @relation(fields: [ownerId], references: [id])
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  phone       String?
+  address     String?
+  city        String?
+  state       String?
+  postalCode  String?
+  
+  type        String?              // e.g., "Manufacturer"
+  serviceAreas Json?               // Array of strings
+
+  image       String?
+  location    String?              // legacy field—keep if still useful
+  ownerId     String
+  owner       User     @relation(fields: [ownerId], references: [id])
+
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@unique([ownerId, name], name: "ownerId_name")
 }
+
 
 
 

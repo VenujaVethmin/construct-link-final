@@ -54,6 +54,31 @@ export const talents = async (req, res) => {
   }
 };
 
+export const searchTalents = async (req, res) => {
+  try {
+    const searchTerm = req.query.search || ""; // default to empty string if not provided
+
+    const data = await prisma.user.findMany({
+      where: {
+        role: "PROFFESIONAL",
+        OR: [
+          { name: { contains: searchTerm, mode: "insensitive" } },
+          { talentProfile : {title : {contains : searchTerm , mode :"insensitive"}} },
+        ],
+      },
+      include: {
+        talentProfile: true,
+      },
+     
+    });
+
+    res.status(200).json(data);
+  } catch (error) {
+    console.error("Error searching market:", error);
+    res.status(500).json({ error: "Internal server error" });
+  }
+};
+
 export const talentProfile = async (req, res) => {
   try {
     const { id } = req.params;
@@ -250,7 +275,6 @@ export const getInvites = async (req, res) => {
     res.status(500).json({ error: error.message });
   }
 };
-
 export const profileUpdate = async (req, res) => {
   try {
     const {
@@ -264,28 +288,53 @@ export const profileUpdate = async (req, res) => {
       education,
       experience,
       certifications,
-      profileImage,
+      profileImage,  // you might want to save this in coverImage field?
     } = req.body;
 
-    const data = await prisma.talentProfile.create({
-      data: {
+    const userId = "cmamrlnwv0000f9c4eekydewa"; // replace with dynamic user id, e.g. from req.user
+
+    const data = await prisma.talentProfile.upsert({
+      where: { userId },
+      create: {
         title,
         specialization,
         location,
-        hourlyRate : parseFloat(hourlyRate),
+        hourlyRate: hourlyRate ? parseFloat(hourlyRate) : undefined,
         about,
-        yearsExperience : parseInt(yearsExperience),
+        yearsExperience: yearsExperience ? parseInt(yearsExperience) : 0,
         skills,
         education,
         experience,
         certifications,
-        userId: "cmamrlnwv0000f9c4eekydewa",
+     
+        userId,
+      },
+      update: {
+        title,
+        specialization,
+        location,
+        hourlyRate: hourlyRate ? parseFloat(hourlyRate) : undefined,
+        about,
+        yearsExperience: yearsExperience ? parseInt(yearsExperience) : 0,
+        skills,
+        education,
+        experience,
+        certifications,
+        
       },
     });
 
-    return res.status(200).json(data)
+    // Await the update so it's completed before responding
+    if (data.createdAt.getTime() === data.updatedAt.getTime()) {
+      await prisma.user.update({
+        where: { id: userId },
+        data: { firstTimeLogin: false },
+      });
+    }
+
+    return res.status(200).json(data);
   } catch (error) {
-    console.error("Error in getInvites function:", error);
+    console.error("Error in profileUpdate:", error);
     res.status(500).json({ error: error.message });
   }
 };

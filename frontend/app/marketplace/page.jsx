@@ -21,6 +21,7 @@ import {
   EnvelopeIcon,
   QueueListIcon,
   FunnelIcon,
+  ShoppingCartIcon,
   HandThumbUpIcon,
 } from "@heroicons/react/24/outline";
 import { StarIcon as StarIconSolid } from "@heroicons/react/24/solid";
@@ -165,131 +166,6 @@ const topSuppliers = [
   },
 ];
 
-const featuredProducts = [
-  {
-    id: 1,
-    name: "Premium Steel Rebar Bundle",
-    category: "Structural Materials",
-    image:
-      "https://images.unsplash.com/photo-1616401784845-180882ba9ba8?q=80&w=2070&auto=format&fit=crop",
-    rating: 4.9,
-    reviewCount: 142,
-    supplier: "MetalWorks Inc.",
-    location: "Detroit, MI",
-    price: "$1,200.00",
-    pricePerUnit: "$4.00/unit",
-    availability: "In Stock",
-    featured: true,
-  },
-  {
-    id: 2,
-    name: "High-Efficiency HVAC System",
-    category: "Mechanical Equipment",
-    image:
-      "https://images.unsplash.com/photo-1531973486364-5fa64260d75b?q=80&w=2069&auto=format&fit=crop",
-    rating: 4.8,
-    reviewCount: 97,
-    supplier: "Cool Systems Co.",
-    location: "Dallas, TX",
-    price: "$4,500.00",
-    pricePerUnit: "$4,500.00/unit",
-    availability: "Ships in 2 weeks",
-    featured: true,
-  },
-  {
-    id: 3,
-    name: "Smart Home Integration Kit",
-    category: "Electrical",
-    image:
-      "https://images.unsplash.com/photo-1558002038-1055907df827?q=80&w=1974&auto=format&fit=crop",
-    rating: 4.7,
-    reviewCount: 78,
-    supplier: "Modern Electrical Supply",
-    location: "San Francisco, CA",
-    price: "$650.00",
-    pricePerUnit: "$650.00/kit",
-    availability: "In Stock",
-    featured: true,
-  },
-  {
-    id: 4,
-    name: "Eco-Friendly Insulation Panels",
-    category: "Insulation",
-    image:
-      "https://images.unsplash.com/photo-1501952515248-2235f7f0ae78?q=80&w=1933&auto=format&fit=crop",
-    rating: 4.9,
-    reviewCount: 65,
-    supplier: "GreenBuild Materials",
-    location: "Toronto, Canada",
-    price: "$180.00",
-    pricePerUnit: "$18.00/sq ft",
-    availability: "In Stock",
-    featured: true,
-  },
-];
-
-const trendingProducts = [
-  {
-    id: 5,
-    name: "Solar Panel Roofing System",
-    category: "Renewable Energy",
-    image:
-      "https://images.unsplash.com/photo-1509391366360-2e959784a276?q=80&w=2072&auto=format&fit=crop",
-    rating: 4.8,
-    reviewCount: 87,
-    supplier: "SunTech Solutions",
-    location: "Phoenix, AZ",
-    price: "$5,200.00",
-    pricePerUnit: "$260.00/panel",
-    availability: "Ships in 3 days",
-    featured: true,
-  },
-  {
-    id: 6,
-    name: "Load-Bearing Concrete Mix",
-    category: "Building Materials",
-    image:
-      "https://images.unsplash.com/photo-1607251032678-8de17ce826b1?q=80&w=1974&auto=format&fit=crop",
-    rating: 4.6,
-    reviewCount: 124,
-    supplier: "Industrial Concrete Corp.",
-    location: "Denver, CO",
-    price: "$240.00",
-    pricePerUnit: "$12.00/bag",
-    availability: "In Stock",
-    featured: false,
-  },
-  {
-    id: 7,
-    name: "Premium Quartz Countertop",
-    category: "Finishing Materials",
-    image:
-      "https://images.unsplash.com/photo-1588854337221-4cf9fa96059c?q=80&w=2070&auto=format&fit=crop",
-    rating: 4.9,
-    reviewCount: 102,
-    supplier: "Elite Surfaces",
-    location: "New York, NY",
-    price: "$1,800.00",
-    pricePerUnit: "$90.00/sq ft",
-    availability: "Made to Order",
-    featured: false,
-  },
-  {
-    id: 8,
-    name: "Heavy-Duty Power Generator",
-    category: "Power Equipment",
-    image:
-      "https://images.unsplash.com/photo-1518640467707-6811f4a6ab73?q=80&w=2080&auto=format&fit=crop",
-    rating: 4.7,
-    reviewCount: 56,
-    supplier: "PowerMax Generators",
-    location: "Houston, TX",
-    price: "$2,400.00",
-    pricePerUnit: "$2,400.00/unit",
-    availability: "Ships in 1 week",
-    featured: false,
-  },
-];
 
 const categoryOptions = [
   "Building Materials",
@@ -676,7 +552,7 @@ const Marketplace = () => {
         <section className="mb-16">
           <div className="flex flex-col md:flex-row md:items-end justify-between mb-10">
             <div>
-              <h2 className="text-3xl font-bold text-white mb-3">
+              <h2 className="text-3xl font-bold text-white">
                 Top Verified Suppliers
               </h2>
               <p className="text-gray-400 max-w-2xl">
@@ -713,64 +589,158 @@ const Marketplace = () => {
                       className="object-cover"
                     />
                     <div className="absolute inset-0 bg-gradient-to-t from-gray-900 via-gray-900/40 to-transparent"></div>
-                    <div className="absolute top-4 right-4 bg-blue-500 text-white px-3 py-1 rounded-full text-xs font-medium">
-                      {/* {supplier.verifiedYears} Years Verified */}
-                    </div>
+                    {supplier.products && supplier.products.length > 0 && (
+                      <div className="absolute top-4 right-4 bg-blue-500/90 backdrop-blur-sm text-white px-3 py-1 rounded-full text-xs font-medium flex items-center gap-1">
+                        <CheckCircleIcon className="h-3.5 w-3.5" />
+                        <span>{supplier.products.length} Products</span>
+                      </div>
+                    )}
                     <div className="absolute bottom-4 left-4">
                       <h3 className="text-xl font-semibold text-white mb-1">
                         {supplier.name}
                       </h3>
                       <div className="flex items-center gap-1 text-gray-300 text-sm">
                         <MapPinIcon className="h-4 w-4" />
-                        <span>{supplier?.store?.location}</span>
+                        <span>
+                          {supplier.stores && supplier.stores[0]?.city
+                            ? `${supplier.stores[0].city}, ${
+                                supplier.stores[0].state || ""
+                              }`
+                            : "Location not available"}
+                        </span>
                       </div>
                     </div>
                   </div>
 
                   <div className="p-5">
-                    <div className="flex items-center justify-between mb-4">
-                      <div className="flex items-center gap-2 text-sm text-gray-400">
-                        <BuildingOffice2Icon className="h-4 w-4" />
-                        <span>Specializes in</span>
-                      </div>
+                    <div className="mb-4 space-y-2">
+                      {supplier.stores && supplier.stores[0] && (
+                        <>
+                          <div className="flex items-center justify-between">
+                            <div className="flex items-center gap-2 text-sm">
+                              <BuildingOffice2Icon className="h-4 w-4 text-orange-400" />
+                              <span className="text-gray-300 font-medium">
+                                {supplier.stores[0].name || "Store"}
+                                <span className="ml-1 text-xs text-gray-500">
+                                  • {supplier.stores[0].type || "Supplier"}
+                                </span>
+                              </span>
+                            </div>
+
+                            {supplier.stores[0].phone && (
+                              <div className="flex items-center gap-1 text-xs text-gray-400">
+                                <PhoneIcon className="h-3.5 w-3.5" />
+                                <span>{supplier.stores[0].phone}</span>
+                              </div>
+                            )}
+                          </div>
+
+                          {supplier.stores[0].description && (
+                            <p className="text-xs text-gray-400 line-clamp-2">
+                              {supplier.stores[0].description}
+                            </p>
+                          )}
+
+                          {supplier.stores[0].serviceAreas &&
+                            supplier.stores[0].serviceAreas.length > 0 && (
+                              <div className="flex flex-wrap gap-1 pt-1">
+                                {supplier.stores[0].serviceAreas.map(
+                                  (area, idx) => (
+                                    <span
+                                      key={idx}
+                                      className="text-xs bg-gray-700/50 text-gray-300 px-2 py-0.5 rounded-full"
+                                    >
+                                      {area}
+                                    </span>
+                                  )
+                                )}
+                              </div>
+                            )}
+                        </>
+                      )}
                     </div>
 
                     <div className="border-t border-gray-700/30 pt-4 mb-4">
-                      <h4 className="text-white text-sm font-medium mb-3">
-                        Featured Products
-                      </h4>
-                      <div className="grid grid-cols-2 gap-3">
-                        {supplier?.featured?.map((product) => (
-                          <div
-                            key={`featured-${product.id}`}
-                            className="bg-gray-700/30 rounded-lg p-2 hover:bg-gray-700/50 transition-colors"
-                          >
-                            <div className="relative aspect-square rounded-md overflow-hidden mb-2">
-                              <Image
-                                src={product.image}
-                                alt={product.name}
-                                fill
-                                className="object-cover"
-                              />
-                            </div>
-                            <p className="text-xs text-gray-300 truncate">
-                              {product.name}
-                            </p>
-                          </div>
-                        ))}
+                      <div className="flex justify-between items-center mb-3">
+                        <h4 className="text-white text-sm font-medium">
+                          Featured Products
+                        </h4>
+                        {supplier.products && supplier.products.length > 2 && (
+                          <span className="text-xs text-orange-400">
+                            +{supplier.products.length - 2} more
+                          </span>
+                        )}
                       </div>
+
+                      {supplier.products && supplier.products.length > 0 ? (
+                        <div className="grid grid-cols-2 gap-3">
+                          {supplier.products.slice(0, 2).map((product) => (
+                            <div
+                              key={`featured-${product.id}`}
+                              className="bg-gray-700/30 rounded-lg p-2 hover:bg-gray-700/50 transition-colors group"
+                            >
+                              <div className="relative aspect-square rounded-md overflow-hidden mb-2">
+                                <Image
+                                  src={
+                                    product.images && product.images.length > 0
+                                      ? product.images[0]
+                                      : "/noimage.webp"
+                                  }
+                                  alt={product.name}
+                                  fill
+                                  className="object-cover group-hover:scale-110 transition-transform duration-300"
+                                />
+                                {product.category && (
+                                  <div className="absolute top-1 right-1 bg-black/60 backdrop-blur-sm text-white text-[10px] px-1.5 py-0.5 rounded-md">
+                                    {product.category}
+                                  </div>
+                                )}
+                              </div>
+                              <div>
+                                <p className="text-xs text-gray-300 font-medium line-clamp-1">
+                                  {product.name}
+                                </p>
+                                <div className="flex justify-between items-center mt-1">
+                                  <p className="text-[10px] text-orange-400 font-semibold">
+                                    Rs. {product.price?.toLocaleString()}
+                                    <span className="text-gray-500">
+                                      /{product.unit || "each"}
+                                    </span>
+                                  </p>
+                                  <p className="text-[10px] px-1.5 py-0.5 rounded-full bg-green-500/20 text-green-400">
+                                    {product.stock > 0
+                                      ? "In Stock"
+                                      : "Out of Stock"}
+                                  </p>
+                                </div>
+                              </div>
+                            </div>
+                          ))}
+                        </div>
+                      ) : (
+                        <div className="flex items-center justify-center bg-gray-800/40 rounded-lg p-4 text-gray-400 text-sm">
+                          <ShoppingCartIcon className="h-4 w-4 mr-2 opacity-70" />
+                          No products available
+                        </div>
+                      )}
                     </div>
 
-                    <div className="flex gap-2">
-                      <button className="flex-1 bg-orange-500 text-white py-2 rounded-lg hover:bg-orange-600 text-sm font-medium transition-colors">
-                        View Products
+                    <div className="grid grid-cols-3 gap-2">
+                      <button className="col-span-2 flex justify-center items-center bg-orange-500 text-white py-2 px-3 rounded-lg hover:bg-orange-600 text-sm font-medium transition-colors">
+                        View Store
                       </button>
-                      <button className="p-2 rounded-lg bg-gray-700/30 hover:bg-gray-700/50 text-gray-400 hover:text-white transition-colors">
-                        <PhoneIcon className="h-5 w-5" />
-                      </button>
-                      <button className="p-2 rounded-lg bg-gray-700/30 hover:bg-gray-700/50 text-gray-400 hover:text-white transition-colors">
-                        <EnvelopeIcon className="h-5 w-5" />
-                      </button>
+                      {/* {supplier.stores && supplier.stores[0]?.phone ? (
+                        <a
+                          href={`tel:${supplier.stores[0].phone}`}
+                          className="p-2 rounded-lg bg-gray-700/30 hover:bg-gray-700/50 text-gray-400 hover:text-white transition-colors flex justify-center items-center"
+                        >
+                          <PhoneIcon className="h-5 w-5" />
+                        </a>
+                      ) : (
+                        <div className="p-2 rounded-lg bg-gray-700/30 text-gray-600 flex justify-center items-center">
+                          <PhoneIcon className="h-5 w-5" />
+                        </div>
+                      )} */}
                     </div>
                   </div>
                 </Link>
@@ -835,47 +805,51 @@ const Marketplace = () => {
                   <div className="p-5 flex-grow">
                     <div className="flex justify-between items-start mb-2">
                       <span className="text-sm text-orange-400">
-                        {product.category}
+                        {product.category || "Uncategorized"}
                       </span>
                       <div className="flex items-center gap-1">
                         <StarIconSolid className="h-4 w-4 text-yellow-400" />
                         <span className="text-white text-sm">
-                          {product.rating}
+                          {product.rating || "New"}
                         </span>
                       </div>
                     </div>
-                    <h3 className="font-semibold text-white text-lg mb-2">
+                    <h3 className="font-semibold text-white text-lg mb-2 line-clamp-2">
                       {product.name}
                     </h3>
                     <div className="flex items-center gap-2 mb-3">
                       <div className="text-gray-400 text-sm">
-                        {product.reviewCount} reviews
+                        {product.reviewCount || 0} reviews
                       </div>
                       <div className="w-1 h-1 rounded-full bg-gray-600"></div>
                       <div className="flex items-center gap-1 text-sm text-gray-400">
                         <MapPinIcon className="h-4 w-4" />
-                        <span>{product.location}</span>
+                        <span>{product.location || "Online"}</span>
                       </div>
                     </div>
 
                     <div className="flex justify-between items-center mb-4">
                       <div className="flex flex-col">
                         <span className="text-white font-bold">
-                          Rs. {product.price}
+                          Rs. {product.price?.toLocaleString() || 0}
                         </span>
                         <span className="text-gray-400 text-xs">
-                          /{product.unit}
+                          /{product.unit || "each"}
                         </span>
                       </div>
-                      <span
-                        className={`text-sm px-2 py-1 rounded-full ${
-                          product.stock > 0
-                            ? "bg-green-500/20 text-green-400"
-                            : "bg-orange-500/20 text-orange-400"
-                        }`}
-                      >
-                        {product.stock}
-                      </span>
+                      <div>
+                        {product.stock > 0 ? (
+                          <span className="text-sm px-2 py-1 rounded-full bg-green-500/20 text-green-400">
+                            {product.stock > product.minStock
+                              ? "In Stock"
+                              : "Low Stock"}
+                          </span>
+                        ) : (
+                          <span className="text-sm px-2 py-1 rounded-full bg-red-500/20 text-red-400">
+                            Out of Stock
+                          </span>
+                        )}
+                      </div>
                     </div>
 
                     <div className="flex gap-2">
@@ -883,7 +857,7 @@ const Marketplace = () => {
                         View Details
                       </button>
                       <button className="p-2 rounded-lg bg-gray-700/30 hover:bg-gray-700/50 text-gray-400 hover:text-white transition-colors">
-                        <CurrencyDollarIcon className="h-5 w-5" />
+                        <ShoppingCartIcon className="h-5 w-5" />
                       </button>
                     </div>
                   </div>

@@ -5,6 +5,7 @@ import {
   invitations,
   inviteData,
   profileUpdate,
+  searchTalents,
   sendInvite,
   talentProfile,
   talents,
@@ -17,6 +18,8 @@ talentsRoute.get("/talents", talents);
 talentsRoute.get("/talentProfile/:id", talentProfile);
 
 talentsRoute.get("/invitations", invitations);
+
+talentsRoute.get("/searchTalents", searchTalents);
 
 talentsRoute.get("/inviteData/:id", inviteData);
 talentsRoute.post("/profileUpdate", profileUpdate);
