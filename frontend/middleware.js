@@ -6,53 +6,53 @@ export async function middleware(request) {
   const url = new URL(request.url);
   const currentPath = url.pathname;
 
+  const token = request.cookies.get("token")?.value;
 
-   const token = request.cookies.get("token")?.value;
-
-   if (!token) {
-     return NextResponse.redirect(new URL("/auth/signin", request.url));
-   }
+  if (!token) {
+    return NextResponse.redirect(new URL("/auth/signin", request.url));
+  }
 
   try {
-    
-   const res = await fetch(`${backendUrl}/api/me`, {
-     method: "GET",
-     headers: {
-       "Content-Type": "application/json",
-       Authorization: `Bearer ${token}`,
-     },
-   });
+    const res = await fetch(`${backendUrl}/api/me`, {
+      method: "GET",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${token}`,
+      },
+    });
 
-
-   if (res.status !== 200) {
-  return NextResponse.redirect(new URL("/auth/signin", request.url));
-}
+    if (res.status !== 200) {
+      return NextResponse.redirect(new URL("/auth/signin", request.url));
+    }
 
     const user = await res.json();
-    console.log("User data:", user);
 
     if (!user.id) {
       return NextResponse.redirect(new URL("/auth/signin", request.url));
     }
 
+    const role = user.role?.toLowerCase();
 
-    if(user && user.role === "UNDEFINED") {
+    // If user has UNDEFINED role, force onboarding
+    if (
+      user &&
+      user.role === "UNDEFINED" &&
+      !currentPath.startsWith("/auth/onboarding")
+    ) {
       return NextResponse.redirect(new URL("/auth/onboarding", request.url));
     }
-    
 
-
-    // Restrict access based on role
-        
-
-    if (currentPath.startsWith("/auth/redirect") && user.role && user.role !== "UNDEFINED") {
-      return NextResponse.redirect(new URL(`/${user.role.toLowerCase()}/dashboard`, request.url));
+    // Redirect from /auth/redirect or /auth/onboarding if already onboarded
+    if (
+      (currentPath.startsWith("/auth/redirect") ||
+        currentPath.startsWith("/auth/onboarding")) &&
+      user.role !== "UNDEFINED" &&
+      !currentPath.startsWith(`/${role}/dashboard`)
+    ) {
+      return NextResponse.redirect(new URL(`/${role}/dashboard`, request.url));
     }
 
-    if (currentPath.startsWith("/auth/onboarding") && user.role && user.role !== "UNDEFINED") {
-      return NextResponse.redirect(new URL(`/${user.role.toLowerCase()}/dashboard`, request.url));
-    }
-    
+    // First time login redirects
     if (
       currentPath.startsWith("/proffesional") &&
       user.firstTimeLogin === true
@@ -60,163 +60,111 @@ export async function middleware(request) {
       return NextResponse.redirect(new URL("/onboarding/talent", request.url));
     }
 
-    if (
-      currentPath.startsWith("/supplier") &&
-      user.firstTimeLogin === true
-    ) {
+    if (currentPath.startsWith("/supplier") && user.firstTimeLogin === true) {
       return NextResponse.redirect(
         new URL("/onboarding/supplier", request.url)
       );
     }
 
-
-    if (currentPath.startsWith("/onboarding/") && user.firstTimeLogin === false) {
-      return NextResponse.redirect(
-        new URL(`/${user.role.toLowerCase()}/dashboard`, request.url)
-      );
+    // Prevent onboarding access after first login
+    if (
+      currentPath.startsWith("/onboarding/") &&
+      user.firstTimeLogin === false
+    ) {
+      return NextResponse.redirect(new URL(`/${role}/dashboard`, request.url));
     }
-    
-    
 
-    if (currentPath.startsWith("/auth/onboarding") && user.role !== "UNDEFINED") {
+    // Role-based page protection
+    if (
+      currentPath.startsWith("/auth/onboarding") &&
+      user.role !== "UNDEFINED"
+    ) {
       return unauthorizedResponse("Unauthorized access to onboarding page.");
     }
+
     if (currentPath.startsWith("/user") && user.role !== "CLIENT") {
       return unauthorizedResponse("This page is only for Clients.");
     }
+
     if (currentPath.startsWith("/supplier") && user.role !== "SUPPLIER") {
-      return unauthorizedResponse("This page is only for SUPPLIERs.");
+      return unauthorizedResponse("This page is only for Suppliers.");
     }
+
     if (currentPath.startsWith("/admin") && user.role !== "ADMIN") {
       return unauthorizedResponse("This page is only for Administrators.");
     }
-     if (
-       currentPath.startsWith("/proffesional") &&
-       user.role !== "PROFFESIONAL"
-     ) {
-       return unauthorizedResponse("This page is only for professionals.");
-     }
 
-    // Store user info in cookies for frontend access
-    const response = NextResponse.next();
-    
+    if (
+      currentPath.startsWith("/professional") &&
+      user.role !== "PROFESSIONAL"
+    ) {
+      return unauthorizedResponse("This page is only for Professionals.");
+    }
 
-    return response;
+    return NextResponse.next();
   } catch (error) {
     console.error("Middleware error:", error);
-   
+    return unauthorizedResponse("Something went wrong. Please try again.");
   }
 }
 
+// Helper function for 403 error response
 function unauthorizedResponse(message) {
   return new NextResponse(
-    `<html>
+    `
+    <html>
       <head>
         <title>Unauthorized Access - Healthi</title>
         <style>
-          @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
-          import { axios } from 'axios';
-
-          * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-          }
-          
+          @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap');
+          * { margin: 0; padding: 0; box-sizing: border-box; }
           body {
             font-family: 'Inter', sans-serif;
             background: linear-gradient(135deg, #eafefa 0%, #ffffff 100%);
-            min-height: 100vh;
             display: flex;
-            align-items: center;
             justify-content: center;
+            align-items: center;
+            height: 100vh;
             padding: 20px;
           }
-          
           .container {
-            max-width: 450px;
-            width: 100%;
-            background: rgba(255, 255, 255, 0.95);
-            backdrop-filter: blur(10px);
+            background: #fff;
+            padding: 40px;
             border-radius: 16px;
-            padding: 40px 32px;
-            box-shadow: 
-              0 4px 6px -1px rgba(0, 0, 0, 0.1),
-              0 2px 4px -1px rgba(0, 0, 0, 0.06),
-              0 0 0 1px rgba(0, 0, 0, 0.05);
             text-align: center;
+            max-width: 400px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.1);
           }
-          
-          .icon {
-            width: 64px;
-            height: 64px;
-            margin: 0 auto 24px;
-            background: #fee2e2;
-            border-radius: 12px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-          }
-          
           h1 {
-            color: #232323;
             font-size: 24px;
             font-weight: 700;
-            margin-bottom: 12px;
+            margin-bottom: 16px;
+            color: #232323;
           }
-          
           p {
-            color: #82889c;
             font-size: 16px;
-            line-height: 1.625;
-            margin-bottom: 32px;
+            color: #666;
+            margin-bottom: 24px;
           }
-          
           .buttons {
             display: flex;
-            gap: 12px;
             justify-content: center;
+            gap: 12px;
           }
-          
           button {
-            padding: 12px 24px;
-            border-radius: 12px;
-            font-size: 14px;
+            padding: 10px 20px;
+            border-radius: 8px;
             font-weight: 600;
             cursor: pointer;
-            transition: all 0.2s ease;
-            display: flex;
-            align-items: center;
-            gap: 8px;
-          }
-          
-          .back-button {
-            background: #f8f9fa;
-            color: #82889c;
-            border: 1px solid #e2e2e2;
-          }
-          
-          .back-button:hover {
-            background: #e2e2e2;
-          }
-          
-          .login-button {
-            background: linear-gradient(135deg, #3a99b7 0%, #2d7a93 100%);
-            color: white;
             border: none;
           }
-          
-          .login-button:hover {
-            transform: translateY(-1px);
-            box-shadow: 0 4px 12px rgba(58, 153, 183, 0.25);
+          .back-button {
+            background: #f0f0f0;
+            color: #333;
           }
-          
-          a {
-            text-decoration: none;
-            color: inherit;
-            display: flex;
-            align-items: center;
-            gap: 8px;
+          .login-button {
+            background: #2d7a93;
+            color: white;
           }
         </style>
       </head>
@@ -225,20 +173,8 @@ function unauthorizedResponse(message) {
           <h1>Unauthorized Access</h1>
           <p>${message}</p>
           <div class="buttons">
-            <button onclick="history.back()" class="back-button">
-              <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18" />
-              </svg>
-              Go Back
-            </button>
-            <button class="login-button">
-              <a href="/login">
-                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 16l-4-4m0 0l4-4m-4 4h14m-5 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h7a3 3 0 013 3v1" />
-                </svg>
-                Login
-              </a>
-            </button>
+            <button class="back-button" onclick="history.back()">Go Back</button>
+            <a href="/auth/signin"><button class="login-button">Login</button></a>
           </div>
         </div>
       </body>
@@ -256,7 +192,6 @@ export const config = {
     "/supplier/:path*",
     "/admin/:path*",
     "/proffesional/:path*",
-    "/supplier/:path*",
     "/onboarding/:path*",
     "/auth/redirect",
     "/auth/onboarding",

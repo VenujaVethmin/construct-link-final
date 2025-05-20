@@ -227,12 +227,7 @@ const StorePage = () => {
             </div>
           </div>
           <div className="flex gap-3">
-            <Link href="/supplier/products/new">
-              <button className="px-4 py-2 bg-orange-500 hover:bg-orange-600 text-white rounded-lg transition-colors flex items-center gap-2">
-                <PlusIcon className="h-5 w-5" />
-                Add Product
-              </button>
-            </Link>
+            
           </div>
         </div>
       </motion.div>

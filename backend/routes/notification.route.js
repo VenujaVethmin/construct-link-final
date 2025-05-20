@@ -1,11 +1,11 @@
 import { Router } from "express";
-import { talents } from "../controllers/talents.controller.js";
+import { notificationTalents } from './../controllers/notification.controller';
 
 
 const notificationRoute = Router();
 
 
-notificationRoute.get("/talents", talents);
+notificationRoute.get("/talents", notificationTalents);
 
 
 

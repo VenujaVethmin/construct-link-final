@@ -1,5 +1,5 @@
 import { Router } from "express";
-import { addExpense, createProject, createTask, dashboard, deleteExpense, expenses, getTasks, overview, projectMaterials, team, updateBudget, updateExpense, updateTask } from "../controllers/user.controller.js";
+import { addExpense, createProject, createTask, dashboard, deleteExpense, deleteTask, expenses, getTasks, overview, projectMaterials, team, updateBudget, updateExpense, updateTask } from "../controllers/user.controller.js";
 
 
 const userRoute = Router();
@@ -12,6 +12,7 @@ userRoute.get("/expenses/:id", expenses);
 userRoute.get("/projectMaterials/:id", projectMaterials);
 userRoute.get("/overview/:id", overview);
 userRoute.get("/getTasks/:id", getTasks);
+userRoute.delete("/deleteTask/:id", deleteTask);
 userRoute.post("/createProject", createProject);
 userRoute.post("/addExpense/:id", addExpense);
 userRoute.put("/updateExpense/:id", updateExpense);

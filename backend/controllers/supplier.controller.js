@@ -11,87 +11,81 @@ export const dashboard = async (req , res) => {
 
 
     const totalRevenue = await prisma.order.count({
-      where:{
+      where: {
         product: {
-          supplierId: "cmatemd5v0000f9j8zm15ypix",
-          
+          supplierId: req.user.id,
         },
-        status: "DELIVERED"
-      }
-    })
+        status: "DELIVERED",
+      },
+    });
 
 
     const totalOrders = await prisma.order.count({
-      where:{
+      where: {
         product: {
-          supplierId: "cmatemd5v0000f9j8zm15ypix",
+          supplierId: req.user.id,
         },
-        status : {
-          not: "DELIVERED"
-        }
-      }
-    }
-    )
+        status: {
+          not: "DELIVERED",
+        },
+      },
+    });
 
 
     const pendingOrders = await prisma.order.count({
-      where:{
+      where: {
         product: {
-          supplierId: "cmatemd5v0000f9j8zm15ypix",
+          supplierId: req.user.id,
         },
-        status : "PENDING"
-      }
-    })
+        status: "PENDING",
+      },
+    });
 
 
     const activeProducts = await prisma.product.count({
       where: {
-        supplierId: "cmatemd5v0000f9j8zm15ypix",
+        supplierId: req.user.id,
       },
     });
 
 
     const products = await prisma.product.findMany({
       where: {
-        supplierId: "cmatemd5v0000f9j8zm15ypix",
-
+        supplierId: req.user.id,
       },
       select: {
         name: true,
         stock: true,
         minStock: true,
       },
-    })
+    });
 
     const data = await prisma.order.findMany({
       where: {
         product: {
-          supplierId: "cmatemd5v0000f9j8zm15ypix",
-          
+          supplierId: req.user.id,
         },
-        
       },
-      include:{
-        project:{
-          select:{
-            name : true
-          }
-        }
-       
-      }
+      include: {
+        project: {
+          select: {
+            name: true,
+          },
+        },
+      },
     });
 
     const store = await prisma.user.findUnique({
       where: {
-        id: "cmatemd5v0000f9j8zm15ypix",
+        id: req.user.id,
       },
       select: {
-       stores :{
-        select:{
-          name : true,
-          description:true
-        }
-       }
+        stores: {
+          select: {
+            name: true,
+            description: true,
+          },
+        },
       },
     });
     return res.status(200).json({
@@ -120,7 +114,7 @@ export const getProduct = async (req, res) => {
   try {
     // Get supplier ID from authenticated user (this assumes you have authentication middleware)
     // If you don't have authentication yet, you can continue using the hardcoded ID
-    const supplierId = req.user?.id || "cm9qw67qj0000ibw4piy35qds";
+    const supplierId = req.user.id ;
     
     const data = await prisma.product.findMany({
       where: {
@@ -175,7 +169,7 @@ export const createProduct = async (req, res) => {
       
     } = req.body;
 
-    const supplierId = req.user?.id || "cmatemd5v0000f9j8zm15ypix";
+    const supplierId = req.user.id ;
 
     const data = await prisma.product.create({
       data: {
@@ -264,7 +258,7 @@ export const createStore = async (req, res) => {
       image,
     } = req.body;
 
-    const ownerId = "cmatemd5v0000f9j8zm15ypix"; // replace with req.user.id
+    const ownerId = req.user.id; // replace with req.user.id
 
     const store = await prisma.store.upsert({
       where: { ownerId_name: { ownerId, name } }, // uses the unique key
@@ -292,6 +286,8 @@ export const createStore = async (req, res) => {
       });
     }
 
+    
+
     return res.status(200).json(store);
   } catch (error) {
     console.error("Error in createStore:", error);
@@ -305,15 +301,15 @@ export const store = async (req ,res) => {
   try {
     const data = await prisma.product.findMany({
       where: {
-        supplierId: "cmatemd5v0000f9j8zm15ypix",
+        supplierId: req.user.id,
       },
-      include:{
-        supplier:{
-          include:{
-            stores:true
-          }
-        }
-      }
+      include: {
+        supplier: {
+          include: {
+            stores: true,
+          },
+        },
+      },
     });
 
     return res.status(200).json(data);

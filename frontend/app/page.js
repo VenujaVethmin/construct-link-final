@@ -83,17 +83,17 @@ export default function HomePage() {
               className="flex flex-col sm:flex-row gap-4 justify-center"
             >
               <Link
-                href="/talents"
+                href="/marketplace"
                 className="inline-flex items-center justify-center px-6 py-3 rounded-lg bg-orange-500 text-white font-medium hover:bg-orange-600 transition-colors"
               >
-                Find Professionals
+                Browse Marketplace
                 <ArrowRightIcon className="ml-2 h-5 w-5" />
               </Link>
               <Link
-                href="/marketplace"
+                href="/auth/redirect"
                 className="inline-flex items-center justify-center px-6 py-3 rounded-lg bg-gray-800 text-white font-medium hover:bg-gray-700 transition-colors"
               >
-                Browse Marketplace
+                Dashboard 
               </Link>
             </motion.div>
           </motion.div>

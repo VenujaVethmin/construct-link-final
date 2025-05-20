@@ -7,7 +7,8 @@ const nextConfig = {
       "source.unsplash.com",
       "i0.wp.com",
       "randomuser.me",
-      "lh3.googleusercontent.com"
+      "lh3.googleusercontent.com",
+      "res.cloudinary.com"
     ],
   },
 };

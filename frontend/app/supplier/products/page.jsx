@@ -74,6 +74,9 @@ const AddProductPage = () => {
   const [loading, setLoading] = useState(false);
   const [mainImagePreview, setMainImagePreview] = useState("");
   const [additionalImages, setAdditionalImages] = useState([]);
+  const [uploadProgress, setUploadProgress] = useState(0);
+  console.log(uploadProgress)
+
 
   const [productForm, setProductForm] = useState({
     name: "",
@@ -86,7 +89,7 @@ const AddProductPage = () => {
     minOrder: "1",
     availability: "In Stock",
     estimatedDelivery: "3-5 Business Days",
-    shipping: "Free shipping on orders over $2,000",
+    shipping: "Free shipping on orders over Rs.2000",
     description: "",
     specifications: [],
     features: [],
@@ -98,27 +101,47 @@ const AddProductPage = () => {
     status: "active",
   });
 
-  const handleMainImageSelect = (e) => {
+  const handleMainImageSelect = async (e) => {
     const file = e.target.files[0];
-
+  
     if (file) {
       if (file.size > 5 * 1024 * 1024) {
         toast.error("Image size should be less than 5MB");
         return;
       }
-
-      // Create preview URL
-      const reader = new FileReader();
-      reader.onloadend = () => {
-        setMainImagePreview(reader.result);
-        setProductForm({
-          ...productForm,
-          image: reader.result,
+  
+      const formData = new FormData();
+      formData.append("imageFormData", file);
+  
+      try {
+        const res = await axiosInstance.post("/cloudinary/upload", formData, {
+          onUploadProgress: (progressEvent) => {
+            const percent = Math.round(
+              (progressEvent.loaded * 100) / progressEvent.total
+            );
+            setUploadProgress(percent);
+          },
         });
-      };
-      reader.readAsDataURL(file);
+  
+        if (res.status === 200) {
+          window.alert("Image uploaded successfully");
+          setMainImagePreview(res.data.url);
+          setProductForm((prevForm) => ({
+            ...prevForm,
+            images: [...prevForm.images, res.data.url],
+          }));
+          setUploadProgress(0); // Reset after success
+        } else {
+          toast.error("Failed to upload image");
+        }
+      } catch (error) {
+        console.error("Error uploading image:", error);
+        toast.error("Failed to upload image");
+        setUploadProgress(0); // Reset on error
+      }
     }
   };
+  
 
   const handleAdditionalImagesSelect = (e) => {
     const files = Array.from(e.target.files);
@@ -238,7 +261,7 @@ const AddProductPage = () => {
         toast.success("Product added successfully!");
         // Redirect to products list after short delay
         setTimeout(() => {
-          router.push("/supplier/products");
+          router.push("/supplier/store");
         }, 1500);
       }
     } catch (error) {
@@ -610,81 +633,7 @@ const AddProductPage = () => {
 
                 <div className="space-y-8">
                   {/* Specifications */}
-                  <div>
-                    <div className="flex items-center gap-2 mb-4">
-                      <DocumentTextIcon className="h-5 w-5 text-blue-400" />
-                      <h3 className="text-lg font-medium text-white">
-                        Technical Specifications
-                      </h3>
-                    </div>
-
-                    <div className="bg-gray-700/20 border border-gray-700/30 rounded-xl p-5">
-                      <p className="text-gray-300 mb-4">
-                        Add specifications in Name: Value format (e.g.,
-                        "Material: Steel")
-                      </p>
-
-                      <div className="flex gap-3 mb-4">
-                        <input
-                          id="specifications-input"
-                          type="text"
-                          placeholder="e.g. Material: Carbon Steel"
-                          className="flex-1 bg-gray-700/50 border border-gray-600 rounded-lg px-4 py-3 text-white"
-                          onKeyDown={(e) => {
-                            if (e.key === "Enter") {
-                              e.preventDefault();
-                              handleAddItem("specifications", e.target.value);
-                            }
-                          }}
-                        />
-                        <button
-                          type="button"
-                          onClick={() =>
-                            handleAddItem(
-                              "specifications",
-                              document.getElementById("specifications-input")
-                                .value
-                            )
-                          }
-                          className="px-4 py-3 bg-blue-600 hover:bg-blue-700 text-white rounded-lg transition-colors"
-                        >
-                          Add
-                        </button>
-                      </div>
-
-                      {productForm.specifications?.length > 0 && (
-                        <div className="bg-gray-800/60 rounded-lg p-4 mt-4">
-                          <h4 className="text-sm font-medium text-gray-300 mb-3">
-                            Added Specifications:
-                          </h4>
-                          <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-                            {productForm.specifications.map((spec, index) => (
-                              <div
-                                key={`spec-${index}`}
-                                className="flex items-center justify-between bg-gray-700/40 rounded-lg px-4 py-2"
-                              >
-                                <div className="text-white">
-                                  <span className="text-gray-400">
-                                    {spec.name}:{" "}
-                                  </span>
-                                  {spec.value}
-                                </div>
-                                <button
-                                  type="button"
-                                  onClick={() =>
-                                    removeItem("specifications", index)
-                                  }
-                                  className="p-1 hover:bg-gray-600 rounded-full transition-colors"
-                                >
-                                  <XMarkIcon className="h-5 w-5 text-gray-400" />
-                                </button>
-                              </div>
-                            ))}
-                          </div>
-                        </div>
-                      )}
-                    </div>
-                  </div>
+                  
 
                   {/* Features */}
                   <div>
@@ -1076,66 +1025,7 @@ const AddProductPage = () => {
                     </div>
                   </div>
 
-                  {/* Additional Images */}
-                  <div>
-                    <h3 className="text-lg font-medium text-white mb-4">
-                      Additional Images
-                    </h3>
-
-                    <div className="bg-gray-700/20 border border-gray-700/30 rounded-xl p-5">
-                      <p className="text-gray-300 mb-4">
-                        Add multiple images to showcase different angles and
-                        details of your product
-                      </p>
-
-                      <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-4">
-                        {additionalImages.map((image, index) => (
-                          <div
-                            key={`additional-img-${index}`}
-                            className="relative aspect-square rounded-lg overflow-hidden bg-gray-800 group"
-                          >
-                            <Image
-                              src={image}
-                              alt={`Product image ${index + 1}`}
-                              fill
-                              className="object-cover"
-                            />
-                            <button
-                              type="button"
-                              onClick={() => removeAdditionalImage(index)}
-                              className="absolute top-2 right-2 p-1.5 bg-black/60 rounded-full text-white hover:bg-red-600 transition-colors opacity-0 group-hover:opacity-100"
-                            >
-                              <XMarkIcon className="h-4 w-4" />
-                            </button>
-                          </div>
-                        ))}
-
-                        <button
-                          type="button"
-                          onClick={() => additionalImagesRef.current?.click()}
-                          className="aspect-square bg-gray-800/60 rounded-lg border-2 border-dashed border-gray-600 flex flex-col items-center justify-center hover:bg-gray-700/60 transition-colors"
-                        >
-                          <PlusIcon className="h-8 w-8 text-gray-400 mb-2" />
-                          <span className="text-sm text-gray-400">
-                            Add Images
-                          </span>
-                          <input
-                            ref={additionalImagesRef}
-                            type="file"
-                            accept="image/*"
-                            multiple
-                            className="hidden"
-                            onChange={handleAdditionalImagesSelect}
-                          />
-                        </button>
-                      </div>
-
-                      <p className="text-xs text-gray-500">
-                        You can upload up to 8 additional images. Maximum size:
-                        5MB per image.
-                      </p>
-                    </div>
-                  </div>
+                  
                 </div>
 
                 <div className="mt-8 flex justify-between">

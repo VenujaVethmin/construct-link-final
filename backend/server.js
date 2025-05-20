@@ -18,6 +18,7 @@ import supplierRoute from "./routes/supplier.route.js";
 import marketPlaceRoute from "./routes/marketplace.route.js";
 import talentsRoute from "./routes/talents.route.js";
 import accountRoute from "./routes/account.route.js";
+import cloudinaryRoute from './routes/cloudinary.route.js';
 
 const prisma = new PrismaClient();
 
@@ -53,7 +54,7 @@ const generateToken = (user) => {
 };
 
 
-app.post("/auth/register", async (req, res) => {
+app.post("/api/auth/register", async (req, res) => {
   const { name, email, password } = req.body;
 
   try {
@@ -87,9 +88,9 @@ app.post("/auth/register", async (req, res) => {
   }
 });
 
-app.post("/auth/login", (req, res, next) => {
+app.post("/api/auth/login", (req, res, next) => {
   passport.authenticate("local", { session: false }, (error, user, info) => {
-    if (error) return res.status(500).json({ error: "Something went wrong" });
+    if (error) return res.status(500).json({ error: error.message });
     if (!user) return res.status(401).json({ error: info?.message });
 
     const token = generateToken(user);
@@ -143,14 +144,16 @@ app.get("/api/me", ensureJWTAuth, async (req, res) => {
   }
 });
 
-app.use("/api/user"  ,userRoute);
+app.use("/api/user", ensureJWTAuth  ,userRoute);
 
-app.use("/api/supplier", supplierRoute);
+app.use("/api/supplier",ensureJWTAuth, supplierRoute);
 
-app.use("/api/marketplace", marketPlaceRoute);
+app.use("/api/marketplace",ensureJWTAuth, marketPlaceRoute);
 
-app.use("/api/talents", talentsRoute);
+app.use("/api/talents",ensureJWTAuth, talentsRoute);
 
+
+app.use("/api/cloudinary", cloudinaryRoute);
 
 app.use("/api/account", ensureJWTAuth, accountRoute);
 

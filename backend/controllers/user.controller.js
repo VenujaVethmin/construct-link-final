@@ -6,7 +6,7 @@ export const dashboard = async (req, res) => {
   try {
     const data = await prisma.project.findMany({
       where: {
-        ownerId: "cmal6canz0000f9y8akqn56u3",
+        ownerId: req.user.id,
         status: {
           not: "Completed",
         },
@@ -31,7 +31,7 @@ export const dashboard = async (req, res) => {
 
     const projectCount = await prisma.project.count({
       where: {
-        ownerId: "cmal6canz0000f9y8akqn56u3",
+        ownerId: req.user.id,
         status: {
           not: "Completed",
         },
@@ -43,7 +43,7 @@ export const dashboard = async (req, res) => {
           not: "COMPLETED",
         },
         project: {
-          ownerId: "cmal6canz0000f9y8akqn56u3",
+          ownerId: req.user.id,
           status: {
             not: "Completed",
           },
@@ -51,18 +51,16 @@ export const dashboard = async (req, res) => {
       },
     });
 
-    const members = await prisma.projectMember.count(
-      {
-        where:{
-          project:{
-            ownerId: "cmal6canz0000f9y8akqn56u3",
-            status: {
-              not: "Completed",
-            },
-          }
-        }
-      }
-    )
+    const members = await prisma.projectMember.count({
+      where: {
+        project: {
+          ownerId: req.user.id,
+          status: {
+            not: "Completed",
+          },
+        },
+      },
+    });
     return res.status(200).json({
       message: "Dashboard data fetched successfully",
       data,
@@ -373,6 +371,24 @@ export const getTasks = async (req, res) => {
       where: {
         projectId: id,
       },
+      include:{
+        project:{
+          include:{
+            projectMembers :{
+              select:{
+                user:{
+                  select:{
+                    name:true,
+                    id :true
+
+
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
     });
     res.status(200).json({
       message: "Tasks fetched successfully",
@@ -441,3 +457,23 @@ export const updateTask = async (req, res) => {
     res.status(500).json({ error: error.message });
   }
 };
+
+
+export const deleteTask = async (req, res) => {
+  try {
+    const { id } = req.params;
+   
+    const data = await prisma.task.delete({
+      where: { id: id },
+      
+    });
+    res.status(200).json({
+      message: "Task deleted successfully",
+     
+    });
+  } catch (error) {
+    console.error("Error updating task:", error);
+    res.status(500).json({ error: error.message });
+  }
+};
+

@@ -487,66 +487,7 @@ const Marketplace = () => {
         </div>
 
         {/* Categories Section */}
-        <section className="mb-16">
-          <div className="flex flex-col md:flex-row md:items-end justify-between mb-10">
-            <div>
-              <h2 className="text-3xl font-bold text-white mb-3">
-                Browse Categories
-              </h2>
-              <p className="text-gray-400 max-w-2xl">
-                Explore our comprehensive selection of high-quality construction
-                materials across all categories
-              </p>
-            </div>
-            {/* <Link
-              href="/marketplace/categories"
-              className="text-orange-400 hover:text-orange-300 flex items-center mt-4 md:mt-0 text-sm font-medium"
-            >
-              View all categories
-              <ChevronRightIcon className="h-5 w-5 ml-1" />
-            </Link> */}
-          </div>
-
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-            {categories.map((category, index) => (
-              <motion.div
-                key={`category-${category.id}`}
-                initial={{ opacity: 0, y: 20 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                viewport={{ once: true }}
-                transition={{ duration: 0.5, delay: index * 0.1 }}
-                whileHover={{ y: -6 }}
-                className="relative rounded-xl overflow-hidden shadow-lg group"
-              >
-                <div className="relative h-72">
-                  <Image
-                    src={category.image}
-                    alt={category.name}
-                    fill
-                    className="object-cover transition-transform duration-500 group-hover:scale-110"
-                  />
-                  <div className="absolute inset-0 bg-gradient-to-t from-gray-900/90 via-gray-900/60 to-transparent">
-                    <div className="absolute bottom-0 left-0 p-6 text-white w-full">
-                      <h3 className="text-2xl font-semibold mb-2">
-                        {category.name}
-                      </h3>
-                      <p className="text-gray-300 mb-4">
-                        {category.count}+ products
-                      </p>
-                      <Link
-                        href={`/marketplace/categories/${category.id}`}
-                        className="inline-flex items-center gap-2 text-orange-400 hover:text-orange-300 transition-colors font-medium"
-                      >
-                        Browse Category
-                        <ArrowRightIcon className="h-4 w-4" />
-                      </Link>
-                    </div>
-                  </div>
-                </div>
-              </motion.div>
-            ))}
-          </div>
-        </section>
+      
 
         {/* Top Suppliers Section */}
         <section className="mb-16">

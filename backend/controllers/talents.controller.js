@@ -4,31 +4,94 @@ const prisma = new PrismaClient();
 
 export const dashboard = async (req, res) => {
   try {
-    const data = await prisma.project.findMany({
-      where: {
-        projectMembers: {
-          some: {
-            userId: "cmal6gqcs0002f9y85f1iaw4u",
-          },
-        },
-        status: {
-          not: "Completed",
-        },
-      },
+   
 
-      include: {
-        _count: {
-          select: {
-            tasks: true,
-            projectMembers: true,
+      const data = await prisma.project.findMany({
+        where: {
+          projectMembers: {
+            some: {
+              userId: req.user.id,
+            },
+          },
+          status: {
+            not: "Completed",
           },
         },
-      },
-    });
-    return res.status(200).json({
-      message: "Dashboard data fetched successfully",
-      data,
-    });
+  
+        include: {
+          owner: {
+            include: {
+              recentActivities: {
+                include: {
+                  project: {
+                    select: {
+                      name: true,
+                    },
+                  },
+                },
+              },
+            },
+          },
+        },
+      });
+  
+      const projectCount = await prisma.project.count({
+        where: {
+          projectMembers: {
+            some: {
+              userId: req.user.id,
+            },
+          },
+          status: {
+            not: "Completed",
+          },
+        },
+      });
+      const activeTasks = await prisma.task.count({
+        where: {
+          status: {
+            not: "COMPLETED",
+          },
+          project: {
+            projectMembers: {
+              some: {
+                userId: req.user.id,
+              },
+            },
+            status: {
+              not: "Completed",
+            },
+          },
+        },
+      });
+  
+      const members = await prisma.projectMember.count({
+        where: {
+          project: {
+            projectMembers: {
+              some: {
+                userId: req.user.id,
+              },
+            },
+            status: {
+              not: "Completed",
+            },
+          },
+        },
+      });
+
+
+      return res.status(200).json({
+        message: "Dashboard data fetched successfully",
+        data,
+        projectCount,
+        activeTasks,
+        members,
+      });
+  
+
+
+
   } catch (error) {
     console.error("Error fetching dashboard data:", error);
     res.status(500).json({ error: error.message });
@@ -101,7 +164,7 @@ export const invitations = async (req, res) => {
   try {
     const data = await prisma.invite.findMany({
       where: {
-        receiverId: "cmal6gqcs0002f9y85f1iaw4u",
+        receiverId: req.user.id,
         status: "PENDING",
       },
       include: {
@@ -131,7 +194,7 @@ export const acceptInvite = async (req, res) => {
   try {
     const { id } = req.params; // invite ID
     const { status } = req.body;
-    const userId = "cmal6gqcs0002f9y85f1iaw4u"; // Ideally, use auth context
+    const userId = req.user.id; // Ideally, use auth context
 
     const invitation = await prisma.invite.findUnique({
       where: { id },
@@ -206,7 +269,7 @@ export const inviteData = async (req, res) => {
   try {
     const projects = await prisma.project.findMany({
       where: {
-        ownerId: "cmal6canz0000f9y8akqn56u3",
+        ownerId: req.user.id,
       },
     });
 
@@ -237,7 +300,7 @@ export const inviteData = async (req, res) => {
 
 export const sendInvite = async (req, res) => {
   try {
-    const userId = "cmal6canz0000f9y8akqn56u3";
+    const userId = req.user.id;
 
     const data = await prisma.invite.create({
       data: {
@@ -256,7 +319,7 @@ export const sendInvite = async (req, res) => {
 };
 
 export const getInvites = async (req, res) => {
-  const userId = "cmal6canz0000f9y8akqn56u3";
+  const userId = req.user.id;
 
   try {
     const data = await prisma.invite.findMany({
@@ -291,7 +354,7 @@ export const profileUpdate = async (req, res) => {
       profileImage,  // you might want to save this in coverImage field?
     } = req.body;
 
-    const userId = "cmamrlnwv0000f9c4eekydewa"; // replace with dynamic user id, e.g. from req.user
+    const userId = req.user.id; // replace with dynamic user id, e.g. from req.user
 
     const data = await prisma.talentProfile.upsert({
       where: { userId },
@@ -329,6 +392,14 @@ export const profileUpdate = async (req, res) => {
       await prisma.user.update({
         where: { id: userId },
         data: { firstTimeLogin: false },
+      });
+    }
+
+
+    if(profileImage){
+      await prisma.user.update({
+        where: { id: userId },
+        data: { image: profileImage },
       });
     }
 

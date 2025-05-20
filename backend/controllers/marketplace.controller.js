@@ -54,8 +54,8 @@ export const getProductByid = async (req, res) => {
     const projects = await prisma.project.findMany({
       where: {
         OR: [
-          { ownerId: "cmaeag0xr0000f97gptu6absi" },
-          { projectMembers: { some: { userId: "cmaeag0xr0000f97gptu6absi" } } },
+          { ownerId: req.user.id },
+          { projectMembers: { some: { userId: req.user.id } } },
         ],
       },
       select: {
@@ -67,7 +67,7 @@ export const getProductByid = async (req, res) => {
 
     const address = await prisma.address.findMany({
       where: {
-        userId: "cmaeag0xr0000f97gptu6absi",
+        userId: req.user.id,
       },
       select: {
         id: true,
@@ -89,7 +89,7 @@ export const addNewAddress = async (req, res) => {
 
     const data = await prisma.address.create({
       data: {
-        userId: "cmal6canz0000f9y8akqn56u3",
+        userId: req.user.id,
         addressName: addressName,
         fullAddress: fullAddress,
         contactName: contactName,
@@ -123,7 +123,7 @@ export const placeOrder = async (req, res) => {
 
     const data = await prisma.order.create({
       data: {
-        userId: "cmaeag0xr0000f97gptu6absi",
+        userId: req.user.id,
         productId: productId,
         projectId: projectId,
         deliveryAddress: deliveryAddress,

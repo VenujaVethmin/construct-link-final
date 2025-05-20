@@ -52,7 +52,7 @@ export default function Onboarding() {
         });
 
         if (res.status === 200) {
-          window.alert("Account type updated successfully");
+         
           router.push("/auth/redirect");
         }
 

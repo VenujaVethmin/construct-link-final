@@ -12,6 +12,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import axiosInstance from "@/lib/axiosInstance";
 import useSWR from "swr";
 import { useParams } from 'next/navigation'
+import { toast } from "sonner";
 
 const fetcher = (url) => axiosInstance.get(url).then((res) => res.data);
 
@@ -33,11 +34,10 @@ const Tasks = () => {
 const params = useParams()
 
 
-   const {
-     data,
-     error,
-     isLoading,
-   } = useSWR(`/user/getTasks/${params.id}`, fetcher);
+   const { data, error, isLoading, mutate } = useSWR(
+     `/user/getTasks/${params.id}`,
+     fetcher
+   );
     
 
 
@@ -107,23 +107,32 @@ const params = useParams()
   };
 
   const handleCreateTask = async (e) => {
-  e.preventDefault();
-  try {
-    const res = await axiosInstance.post(`/user/createTask/${params.id}`, {
-      ...newTask,
-    });
+    e.preventDefault();
 
-    if (res.status === 200) {
-      window.alert("Task created successfully!");
+    let dueDateToSend = newTask.dueDate;
+    if (!dueDateToSend || isNaN(new Date(dueDateToSend).getTime())) {
+      dueDateToSend = null; // Prevent invalid date error
     }
 
-    setIsAddingTask(false);
-    resetNewTask();
-  } catch (err) {
-    console.error("Create Task Error:", err.response?.data?.error || err.message);
-    console.error(`Failed to create task: ${err.response?.data?.error || err.message}`);
-  }
-};
+    try {
+      const res = await axiosInstance.post(`/user/createTask/${params.id}`, {
+        ...newTask,
+        dueDate: dueDateToSend ? new Date(dueDateToSend) : null,
+      });
+
+      if (res.status === 200) {
+        mutate()
+        setIsAddingTask(false);
+        resetNewTask();
+      }
+    } catch (err) {
+      console.error(
+        "Create Task Error:",
+        err.response?.data?.error || err.message
+      );
+    }
+  };
+  
 
 
   const resetNewTask = () => {
@@ -176,8 +185,22 @@ const params = useParams()
     setDraggedTask(null);
   };
 
-  const handleDeleteTask = (taskId) => {
-    setTasks(tasks.filter((task) => task.id !== taskId));
+  const handleDeleteTask = async (taskId) => {
+
+    try {
+
+      const res = await axiosInstance.delete(`/user/deleteTask/${taskId}`);
+      
+      if(res.status === 200) {
+
+        mutate()
+        toast.success("task deleted successfully")
+      }
+    } catch (error) {
+      console.error("Error updating task status:", error);
+      
+    }
+   
   };
 
   return (
@@ -406,21 +429,13 @@ const params = useParams()
                     >
                       <option value="">Select team member</option>
                       {/* Dummy team members data */}
-                      <option value="John Smith">
-                        John Smith (Civil Engineer)
-                      </option>
-                      <option value="Sarah Wilson">
-                        Sarah Wilson (Architect)
-                      </option>
-                      <option value="Mike Johnson">
-                        Mike Johnson (Project Manager)
-                      </option>
-                      <option value="Emily Davis">
-                        Emily Davis (Structural Engineer)
-                      </option>
-                      <option value="David Brown">
-                        David Brown (Electrical Engineer)
-                      </option>
+                      {data?.data?.[0]?.project?.projectMembers?.map((member) => (
+                        <option key={member.user.id} value={member.user.name}>
+                          {member.user.name}
+                        </option>
+                      ))}
+                     
+                    
                     </select>
                     <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2 text-gray-400">
                       <svg
@@ -587,23 +602,7 @@ const params = useParams()
                 </div>
               </div>
 
-              <div className="flex items-center">
-                <input
-                  type="checkbox"
-                  id="isWatching"
-                  className="rounded bg-gray-700 border-gray-600 text-orange-500 focus:ring-orange-500"
-                  checked={newTask.isWatching}
-                  onChange={(e) =>
-                    setNewTask({ ...newTask, isWatching: e.target.checked })
-                  }
-                />
-                <label
-                  htmlFor="isWatching"
-                  className="ml-2 text-sm text-gray-300"
-                >
-                  Watch this task
-                </label>
-              </div>
+              
 
               <div className="flex justify-end gap-3 pt-2">
                 <motion.button

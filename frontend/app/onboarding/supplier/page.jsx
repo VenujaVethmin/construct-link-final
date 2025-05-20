@@ -41,7 +41,7 @@ const SupplierOnboardingPage = () => {
   const [step, setStep] = useState(1);
   const [loading, setLoading] = useState(false);
   const [logoImage, setLogoImage] = useState(null); // preview URL
-  const [logoFile, setLogoFile] = useState(null); // actual file
+  const [imageUrl, setLogoFile] = useState(null); // actual file
 
   // Company info
   const [companyInfo, setCompanyInfo] = useState({
@@ -75,11 +75,46 @@ const SupplierOnboardingPage = () => {
   };
 
   // Handle logo upload
-  const handleLogoChange = (e) => {
-    if (e.target.files[0]) {
+  const handleLogoChange = async (e) => {
+    const file = e.target.files[0];
+
+    if (file) {
+      if (file.size > 5 * 1024 * 1024) {
+        toast.error("Image size should be less than 5MB");
+        return;
+      }
+
+      const formData = new FormData();
+      formData.append("imageFormData", file);
+
+      try {
+        const res = await axiosInstance.post("/cloudinary/upload", formData, {
+          onUploadProgress: (progressEvent) => {
+            const percent = Math.round(
+              (progressEvent.loaded * 100) / progressEvent.total
+            );
+            
+          },
+        });
+
+        if (res.status === 200) {
+          window.alert("Image uploaded successfully");
+          setLogoFile(res.data.secure_url);
+        
+        } else {
+          toast.error("Failed to upload image");
+         
+        }
+      } catch (error) {
+        console.error("Error uploading image:", error);
+        toast.error("Failed to upload image");
+        
+      }
+    }
+   
       setLogoImage(URL.createObjectURL(e.target.files[0]));
       setLogoFile(e.target.files[0]);
-    }
+    
   };
 
   // Step navigation
@@ -117,6 +152,7 @@ const SupplierOnboardingPage = () => {
         ...companyInfo,
         type: businessDetails.type,
         serviceAreas: businessDetails.serviceAreas,
+        image: imageUrl,
       });
       
       if(res.status === 200){
@@ -127,6 +163,7 @@ const SupplierOnboardingPage = () => {
         ...companyInfo,
         type: businessDetails.type,
         serviceAreas: businessDetails.serviceAreas,
+        image: imageUrl,
       });
 
    

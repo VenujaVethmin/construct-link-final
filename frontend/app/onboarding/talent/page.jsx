@@ -55,7 +55,7 @@ const TalentOnboardingPage = () => {
     specialization: "",
     location: "",
     hourlyRate: "",
-
+     
     about: "",
     yearsExperience: 0,
   });
@@ -148,11 +148,44 @@ const TalentOnboardingPage = () => {
     }
   };
 
-  const handleProfileImageChange = (e) => {
-    if (e.target.files[0]) {
-      setProfileImage(URL.createObjectURL(e.target.files[0]));
+  const handleProfileImageChange = async (e) => {
+    const file = e.target.files[0];
+
+    if (file) {
+      if (file.size > 5 * 1024 * 1024) {
+        toast.error("Image size should be less than 5MB");
+        return;
+      }
+
+      const formData = new FormData();
+      formData.append("imageFormData", file);
+
+      try {
+        const res = await axiosInstance.post("/cloudinary/upload", formData, {
+          onUploadProgress: (progressEvent) => {
+            const percent = Math.round(
+              (progressEvent.loaded * 100) / progressEvent.total
+            );
+          
+          },
+        });
+
+        if (res.status === 200) {
+          window.alert("Image uploaded successfully");
+          setProfileImage(res.data.secure_url);
+        
+        } else {
+          toast.error("Failed to upload image");
+          
+        }
+      } catch (error) {
+        console.error("Error uploading image:", error);
+        toast.error("Failed to upload image");
+        
+      }
     }
   };
+  
 
   const nextStep = () => {
     setStep(step + 1);

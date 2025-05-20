@@ -15,7 +15,7 @@ import {
   ExclamationCircleIcon,
 } from "@heroicons/react/24/outline";
 import Link from "next/link";
-
+import NewProjectModal from "../components/NewProjectModal";
 import axiosInstance from "@/lib/axiosInstance";
 import useSWR from "swr";
 
@@ -51,7 +51,7 @@ export default function Dashboard() {
     error,
     isLoading,
     mutate,
-  } = useSWR("/talents/dashboard", fetcher);
+  } = useSWR("/user/dashboard", fetcher);
 
   // Fixed the metrics to be more responsive with fallbacks
   const metrics = [
@@ -139,7 +139,18 @@ export default function Dashboard() {
                 {hasProjects ? "Active Projects" : "My Projects"}
               </h2>
 
-           
+              {/* Only show the New Project button when there are existing projects */}
+              {hasProjects && (
+                <motion.button
+                  whileHover={{ scale: 1.05 }}
+                  whileTap={{ scale: 0.95 }}
+                  onClick={() => setShowModal(true)}
+                  className="bg-gradient-to-r from-orange-500 to-orange-600 text-white px-6 py-2.5 rounded-lg
+                            shadow-lg shadow-orange-500/30 hover:shadow-orange-500/40 transition-all duration-300"
+                >
+                  New Project
+                </motion.button>
+              )}
             </div>
 
             {isLoading ? (
@@ -230,7 +241,7 @@ export default function Dashboard() {
                           <div>
                             <p className="text-xs text-gray-400">Budget</p>
                             <p className="text-sm text-white font-medium mt-0.5">
-                              Rs.{project.budget.toLocaleString()}
+                              Rs.{project.budget?.toLocaleString()}
                             </p>
                           </div>
                           <div>
@@ -323,7 +334,12 @@ export default function Dashboard() {
             )}
           </motion.div>
 
-         
+          {/* Modal */}
+          <AnimatePresence>
+            {showModal && (
+              <NewProjectModal setShowModal={setShowModal} mutate={mutate} />
+            )}
+          </AnimatePresence>
         </div>
       </div>
     </motion.div>
