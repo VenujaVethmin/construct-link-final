@@ -1,29 +1,26 @@
 "use client";
 
-import { useState, useEffect } from "react";
-import { useParams, useRouter } from "next/navigation";
-import Image from "next/image";
-import Link from "next/link";
-import { motion } from "framer-motion";
 import {
-  ChevronLeftIcon,
-  TruckIcon,
-  BuildingOfficeIcon,
-  CheckCircleIcon,
-  ClipboardDocumentListIcon,
-  PhoneIcon,
-  UserIcon,
-  CalendarDaysIcon,
-  DocumentTextIcon,
   ArrowPathIcon,
-  ExclamationTriangleIcon,
-  CheckIcon,
+  CalendarDaysIcon,
   ChatBubbleLeftEllipsisIcon,
-  PrinterIcon,
+  CheckCircleIcon,
+  CheckIcon,
+  ChevronLeftIcon,
+  ClipboardDocumentListIcon,
+  DocumentTextIcon,
   EnvelopeIcon,
+  ExclamationTriangleIcon,
   MapPinIcon,
+  PhoneIcon,
+  TruckIcon,
+  UserIcon,
   XMarkIcon
 } from "@heroicons/react/24/outline";
+import Image from "next/image";
+import Link from "next/link";
+import { useParams, useRouter } from "next/navigation";
+import { useEffect, useState } from "react";
 
 // Sample order data (in a real app this would come from an API)
 const orderData = {
@@ -266,10 +263,7 @@ const OrderDetailsPage = () => {
               <ChatBubbleLeftEllipsisIcon className="h-4 w-4 mr-1.5" />
               Message Customer
             </button>
-            <button className="px-3 py-1.5 bg-gray-700 hover:bg-gray-600 text-white rounded-lg text-sm flex items-center">
-              <PrinterIcon className="h-4 w-4 mr-1.5" />
-              Print Invoice
-            </button>
+           
             <button 
               onClick={() => setIsStatusModalOpen(true)}
               className="px-3 py-1.5 bg-orange-500 hover:bg-orange-600 text-white rounded-lg text-sm flex items-center"

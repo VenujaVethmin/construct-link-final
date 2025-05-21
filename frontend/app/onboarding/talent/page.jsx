@@ -1,8 +1,6 @@
 "use client";
 
-import { useState } from "react";
-import Image from "next/image";
-import { useRouter } from "next/navigation";
+import axiosInstance from "@/lib/axiosInstance";
 import {
   ArrowRightIcon,
   CheckCircleIcon,
@@ -12,7 +10,9 @@ import {
   TrashIcon,
   XCircleIcon,
 } from "@heroicons/react/24/outline";
-import axiosInstance from "@/lib/axiosInstance";
+import Image from "next/image";
+import { useRouter } from "next/navigation";
+import { useState } from "react";
 
 // Construction skills for selection
 const constructionSkills = [
@@ -48,6 +48,7 @@ const TalentOnboardingPage = () => {
   const [step, setStep] = useState(1);
   const [loading, setLoading] = useState(false);
   const [profileImage, setProfileImage] = useState(null);
+  console.log(profileImage);
 
   // Basic info
   const [formData, setFormData] = useState({
@@ -172,7 +173,7 @@ const TalentOnboardingPage = () => {
 
         if (res.status === 200) {
           window.alert("Image uploaded successfully");
-          setProfileImage(res.data.secure_url);
+          setProfileImage(res.data.url);
         
         } else {
           toast.error("Failed to upload image");
@@ -223,8 +224,8 @@ const TalentOnboardingPage = () => {
 
       if (res.status === 200) {
         // Navigate to the newly created profile
-        // router.push('/talents/profile');
-        setStep(5); // Show success page
+        router.push('/proffesional/dashboard');
+   
       }
 
       // Navigate to the newly created profile

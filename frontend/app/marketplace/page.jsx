@@ -1,36 +1,34 @@
 "use client";
 
-import { useState, useEffect, useRef } from "react";
 import {
-  MagnifyingGlassIcon,
-  StarIcon,
-  MapPinIcon,
-  ChevronRightIcon,
-  ChevronLeftIcon,
-  ArrowRightIcon,
-  ShieldCheckIcon,
-  TruckIcon,
-  TagIcon,
-  CurrencyDollarIcon,
-  CheckCircleIcon,
-  PlusIcon,
-  XMarkIcon,
-  PhotoIcon,
   BuildingOffice2Icon,
-  PhoneIcon,
-  EnvelopeIcon,
-  QueueListIcon,
-  FunnelIcon,
-  ShoppingCartIcon,
+  CheckCircleIcon,
+  ChevronLeftIcon,
+  ChevronRightIcon,
   HandThumbUpIcon,
+  MagnifyingGlassIcon,
+  MapPinIcon,
+  PhoneIcon,
+  QueueListIcon,
+  ShieldCheckIcon,
+  ShoppingCartIcon,
+  TagIcon,
+  TruckIcon
 } from "@heroicons/react/24/outline";
 import { StarIcon as StarIconSolid } from "@heroicons/react/24/solid";
-import { motion, AnimatePresence } from "framer-motion";
+import { motion } from "framer-motion";
 import Image from "next/image";
 import Link from "next/link";
+import { useEffect, useRef, useState } from "react";
 
 import axiosInstance from "@/lib/axiosInstance";
 import useSWR from "swr";
+
+
+
+
+
+
 
 const fetcher = (url) => axiosInstance.get(url).then((res) => res.data);
 
@@ -44,13 +42,7 @@ const banners = [
     image:
       "https://images.unsplash.com/photo-1541888946425-d81bb19240f5?q=80&w=1970&auto=format&fit=crop",
   },
-  {
-    id: 2,
-    title: "Save Up to 25% on Bulk Orders",
-    description: "Special discounts on bulk purchases this month only",
-    image:
-      "https://images.unsplash.com/photo-1565895405127-481853366cf8?q=80&w=1965&auto=format&fit=crop",
-  },
+
   {
     id: 3,
     title: "Sustainable Building Materials",
@@ -60,111 +52,7 @@ const banners = [
   },
 ];
 
-const categories = [
-  {
-    id: 1,
-    name: "Building Materials",
-    count: 1240,
-    image:
-      "https://images.unsplash.com/photo-1618038483079-e5f12e0838ef?q=80&w=2069&auto=format&fit=crop",
-  },
-  {
-    id: 2,
-    name: "Electrical Supplies",
-    count: 857,
-    image:
-      "https://images.unsplash.com/photo-1613490493576-7fde63acd811?q=80&w=2071&auto=format&fit=crop",
-  },
-  {
-    id: 3,
-    name: "Plumbing & HVAC",
-    count: 642,
-    image:
-      "https://images.unsplash.com/photo-1607472586893-edb57bdc0e39?q=80&w=1974&auto=format&fit=crop",
-  },
-  {
-    id: 4,
-    name: "Tools & Equipment",
-    count: 1089,
-    image:
-      "https://images.unsplash.com/photo-1581147036324-c47a03a81d48?q=80&w=1974&auto=format&fit=crop",
-  },
-];
 
-const topSuppliers = [
-  {
-    id: 1,
-    name: "GreenBuild Materials",
-    image:
-      "https://images.unsplash.com/photo-1542744173-8e7e53415bb0?q=80&w=2070&auto=format&fit=crop",
-    location: "Toronto, Canada",
-    rating: 4.9,
-    verifiedYears: 8,
-    specialties: ["Sustainable Materials", "Insulation"],
-    featured: [
-      {
-        id: 1,
-        name: "Eco-Insulation Panels",
-        image:
-          "https://images.unsplash.com/photo-1638865257163-89910a04a010?q=80&w=1974&auto=format&fit=crop",
-      },
-      {
-        id: 2,
-        name: "Recycled Composite Lumber",
-        image:
-          "https://images.unsplash.com/photo-1528323273322-d81458248d40?q=80&w=2429&auto=format&fit=crop",
-      },
-    ],
-  },
-  {
-    id: 2,
-    name: "Industrial Hardware Co.",
-    image:
-      "https://images.unsplash.com/photo-1552664730-d307ca884978?q=80&w=2070&auto=format&fit=crop",
-    location: "Chicago, IL",
-    rating: 4.8,
-    verifiedYears: 12,
-    specialties: ["Fasteners", "Structural Steel"],
-    featured: [
-      {
-        id: 3,
-        name: "Premium Steel Fasteners",
-        image:
-          "https://images.unsplash.com/photo-1617791160505-6f00504e3519?q=80&w=2070&auto=format&fit=crop",
-      },
-      {
-        id: 4,
-        name: "Construction-grade Bolts",
-        image:
-          "https://images.unsplash.com/photo-1626847037657-fd3626206892?q=80&w=1974&auto=format&fit=crop",
-      },
-    ],
-  },
-  {
-    id: 3,
-    name: "Modern Electrical Supply",
-    image:
-      "https://images.unsplash.com/photo-1579389083078-4e7018379f7e?q=80&w=2070&auto=format&fit=crop",
-    location: "San Francisco, CA",
-    rating: 4.7,
-    verifiedYears: 6,
-    specialties: ["Smart Systems", "Wiring"],
-    featured: [
-      {
-        id: 5,
-        name: "Smart Home Control Systems",
-        image:
-          "https://images.unsplash.com/photo-1558002038-1055907df827?q=80&w=1974&auto=format&fit=crop",
-      },
-      {
-        id: 6,
-        name: "Commercial-grade Wiring",
-        image:
-          "https://images.unsplash.com/photo-1525785967371-87ba44b3e6cf?q=80&w=1936&auto=format&fit=crop",
-      },
-    ],
-  },
-];
 
 
 const categoryOptions = [
@@ -262,6 +150,7 @@ const Marketplace = () => {
       specifications: addForm.specifications.filter((_, i) => i !== index),
     });
   };
+
 
 
 

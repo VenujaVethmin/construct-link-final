@@ -1,20 +1,16 @@
 "use client";
 
-import { useState } from "react";
-import { motion, AnimatePresence } from "framer-motion";
 import {
-  ArrowTrendingUpIcon,
-  ChartBarIcon,
   ClipboardIcon,
-  MapPinIcon,
-  FolderIcon,
-  UserGroupIcon,
-  BuildingOffice2Icon,
-  PlusIcon,
   DocumentPlusIcon,
   ExclamationCircleIcon,
+  FolderIcon,
+  MapPinIcon,
+  UserGroupIcon
 } from "@heroicons/react/24/outline";
+import { motion } from "framer-motion";
 import Link from "next/link";
+import { useState } from "react";
 
 import axiosInstance from "@/lib/axiosInstance";
 import useSWR from "swr";
@@ -179,18 +175,9 @@ export default function Dashboard() {
                     No projects yet
                   </h3>
                   <p className="text-gray-400 max-w-md mx-auto">
-                    Get started by creating your first construction project to
-                    track tasks, materials, and collaborate with team members.
+                  Get started by accepting invitations to join existing construction projects or create your own to track tasks, manage materials, and collaborate with your team.
                   </p>
-                  <motion.button
-                    whileHover={{ scale: 1.05 }}
-                    whileTap={{ scale: 0.95 }}
-                    onClick={() => setShowModal(true)}
-                    className="mt-4 bg-gradient-to-r from-orange-500 to-orange-600 text-white px-8 py-3 rounded-lg
-                              shadow-lg shadow-orange-500/30 hover:shadow-orange-500/40 transition-all duration-300"
-                  >
-                    Create Your First Project
-                  </motion.button>
+                  
                 </div>
               </motion.div>
             ) : (

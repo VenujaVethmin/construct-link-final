@@ -10,11 +10,13 @@ import {
   XCircleIcon
 } from "@heroicons/react/24/outline";
 import { motion } from "framer-motion";
-import { useState } from "react";
 
+
+import LoadingScreen from "@/components/LoadingScreen";
 import axiosInstance from "@/lib/axiosInstance";
-import useSWR from "swr";
+import Image from "next/image";
 import Link from "next/link";
+import useSWR from "swr";
 
 const fetcher = (url) => axiosInstance.get(url).then((res) => res.data);
 
@@ -39,81 +41,7 @@ const itemVariants = {
   },
 };
 
-// Dummy data (replace with actual API calls in production)
-const supplierOverview = {
-  name: "ABC Building Materials Ltd.",
-  profileImage: "/placeholder.png",
-  stats: {
-    totalRevenue: 254768,
-    totalOrders: 128,
-    pendingOrders: 24,
-    activeProducts: 76,
-  },
-  recentOrders: [
-    {
-      id: "ORD-9385",
-      project: "Commercial Tower A21",
-      items: [
-        { name: "Portland Cement", quantity: 150, unit: "bags" },
-        { name: "Steel Reinforcement Bars", quantity: 80, unit: "pieces" },
-      ],
-      status: "pending",
-      date: "2025-04-26T10:30:00",
-      amount: 12840,
-    },
-    {
-      id: "ORD-9384",
-      project: "Residential Complex B7",
-      items: [
-        { name: "Ceramic Tiles", quantity: 2000, unit: "sq.ft" },
-        { name: "PVC Pipes", quantity: 100, unit: "meters" },
-      ],
-      status: "completed",
-      date: "2025-04-25T13:15:00",
-      amount: 8650,
-    },
-    {
-      id: "ORD-9382",
-      project: "Office Building C14",
-      items: [
-        { name: "Glass Panels", quantity: 45, unit: "panels" },
-        { name: "Insulation Material", quantity: 120, unit: "rolls" },
-      ],
-      status: "in_progress",
-      date: "2025-04-24T09:45:00",
-      amount: 16750,
-    },
-    {
-      id: "ORD-9381",
-      project: "Highway Extension P3",
-      items: [
-        { name: "Bitumen", quantity: 500, unit: "gallons" },
-        { name: "Gravel", quantity: 20, unit: "tons" },
-      ],
-      status: "completed",
-      date: "2025-04-24T08:20:00",
-      amount: 9320,
-    },
-  ],
-  lowStockItems: [
-    { name: "Portland Cement", stock: 52, minRequired: 100 },
-    { name: "Steel Reinforcement Bars", stock: 34, minRequired: 50 },
-    { name: "Ceramic Tiles", stock: 230, minRequired: 500 },
-    { name: "Glass Panels", stock: 8, minRequired: 20 },
-  ],
-  revenueByMonth: [
-    { month: "Jan", amount: 18500 },
-    { month: "Feb", amount: 22400 },
-    { month: "Mar", amount: 21300 },
-    { month: "Apr", amount: 24800 },
-  ],
-  topProducts: [
-    { name: "Portland Cement", sales: 2450, growth: 12 },
-    { name: "Steel Reinforcement Bars", sales: 1980, growth: -3 },
-    { name: "Ceramic Tiles", sales: 1740, growth: 8 },
-    { name: "Glass Panels", sales: 1520, growth: 15 },
-  ],
-};
+
 
 const SupplierDashboard = () => {
 
@@ -124,7 +52,14 @@ const SupplierDashboard = () => {
     mutate,
   } = useSWR("/supplier/dashboard", fetcher);
 
-  const [timeframe, setTimeframe] = useState("month");
+  
+  if (isLoading) {
+    return (
+     <LoadingScreen/>
+    );
+  }
+
+
 
   // Format currency
   const formatCurrency = (amount) => {
@@ -196,14 +131,27 @@ const SupplierDashboard = () => {
       >
         <div className="flex flex-col md:flex-row gap-6 items-center md:items-start">
           <div className="w-24 h-24 rounded-xl bg-gray-700/50 flex items-center justify-center overflow-hidden">
-            <BuildingStorefrontIcon className="h-12 w-12 text-orange-400" />
+            {data?.store?.stores[0]?.image ? (
+              <Image src={data?.store?.stores[0]?.image}
+              alt="Store Image"
+              width={96}
+              height={96}
+              className="w-full h-full object-cover rounded-xl"
+              
+              
+              />
+            ) : (
+              <BuildingStorefrontIcon className="h-12 w-12 text-orange-400" />
+            )}
           </div>
           <div className="flex-1 text-center md:text-left">
             <h1 className="text-2xl font-bold text-white">
               {data?.store?.stores[0]?.name}
             </h1>
             <p className="text-gray-400 mt-1">
-              {data?.store?.stores[0].description ? data?.store?.stores[0].description  : "Supplier of construction materials and equipment"}
+              {data?.store?.stores[0]?.description
+                ? data?.store?.stores[0].description
+                : "Supplier of construction materials and equipment"}
             </p>
             <div className="flex flex-wrap mt-3 gap-3 justify-center md:justify-start">
               <span className="px-3 py-1 bg-green-500/20 text-green-400 rounded-full text-sm">
@@ -218,10 +166,16 @@ const SupplierDashboard = () => {
             </div>
           </div>
           <div className="flex gap-3">
-            <Link href={"/supplier/products"} className="px-4 py-2 bg-orange-500 hover:bg-orange-600 text-white rounded-lg transition-colors">
+            <Link
+              href={"/supplier/products"}
+              className="px-4 py-2 bg-orange-500 hover:bg-orange-600 text-white rounded-lg transition-colors"
+            >
               Add Products
             </Link>
-            <Link href={"/supplier/store"}  className="px-4 py-2 bg-gray-700 hover:bg-gray-600 text-white rounded-lg transition-colors">
+            <Link
+              href={"/supplier/store"}
+              className="px-4 py-2 bg-gray-700 hover:bg-gray-600 text-white rounded-lg transition-colors"
+            >
               View Store
             </Link>
           </div>
@@ -385,9 +339,7 @@ const SupplierDashboard = () => {
               <XCircleIcon className="h-5 w-5 text-red-400" />
               Low Stock Alert
             </h3>
-            <span className="px-2 py-0.5 bg-red-500/20 text-red-400 rounded-full text-sm">
-              {supplierOverview.lowStockItems.length} items
-            </span>
+           
           </div>
 
           <div className="space-y-4">

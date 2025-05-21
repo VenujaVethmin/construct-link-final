@@ -1,38 +1,41 @@
 "use client";
 
-import { useState, useEffect, useRef } from "react";
-import { motion, AnimatePresence } from "framer-motion";
-import Link from "next/link";
-import { usePathname } from "next/navigation";
+import { logOut } from "@/lib/auth-hooks";
+import axiosInstance from "@/lib/axiosInstance";
 import {
-  HomeIcon,
-  BuildingStorefrontIcon,
-  UserGroupIcon,
-  ShoppingBagIcon,
-  UserCircleIcon,
-  BellIcon,
-  Bars3Icon,
-  XMarkIcon,
-  CogIcon,
-  ChartBarIcon,
-  PlusIcon,
   ArrowRightOnRectangleIcon,
+  BellIcon,
+  BuildingStorefrontIcon,
+  ChartBarIcon,
   CheckCircleIcon,
-  ExclamationCircleIcon,
-  InformationCircleIcon,
   ClockIcon,
+  CogIcon,
+  ExclamationCircleIcon,
+  HomeIcon,
+  InformationCircleIcon,
+  UserCircleIcon,
+  UserGroupIcon,
+  XMarkIcon
 } from "@heroicons/react/24/outline";
+import { AnimatePresence, motion } from "framer-motion";
+import Image from "next/image";
+import Link from "next/link";
+import { usePathname, useRouter } from "next/navigation";
+import { useEffect, useRef, useState } from "react";
+import useSWR from "swr";
+
+const fetcher = (url) => axiosInstance.get(url).then((res) => res.data);
 
 const navLinks = [
   {
-    href: "/proffesional/dashboard",
-    label: "Dashboard",
+    href: "/user/dashboard",
+    label: "Home",
     icon: <HomeIcon className="h-6 w-6" />,
   },
   {
-    href: "/proffesional/invitations",
-    label: "Invitations",
-    icon: <BellIcon className="h-6 w-6" />,
+    href: "/user/projects",
+    label: "Projects",
+    icon: <ChartBarIcon className="h-6 w-6" />,
   },
   {
     href: "/marketplace",
@@ -52,7 +55,7 @@ const navLinks = [
 ];
 
 const userMenuItems = [
-  { label: "Profile Settings", icon: <CogIcon className="h-5 w-5" /> },
+  
   {
     label: "Sign Out",
     icon: <ArrowRightOnRectangleIcon className="h-5 w-5" />,
@@ -102,7 +105,14 @@ const notifications = [
   },
 ];
 
-export default function NavbarSupp() {
+export default function Navbar() {
+  const {
+      data,
+      error,
+      isLoading,
+      mutate,
+    } = useSWR("/me", fetcher);
+    const router = useRouter();
   const pathname = usePathname();
   const [isScrolled, setIsScrolled] = useState(false);
   const [isMobile, setIsMobile] = useState(false);
@@ -249,145 +259,6 @@ export default function NavbarSupp() {
               {/* User Actions */}
               <div className="flex items-center space-x-6">
                 {/* Notification Bell */}
-                <div className="relative" ref={notificationRef}>
-                  <motion.button
-                    whileHover={{ scale: 1.1 }}
-                    whileTap={{ scale: 0.9 }}
-                    onClick={() =>
-                      setActiveDropdown(
-                        activeDropdown === "notifications"
-                          ? null
-                          : "notifications"
-                      )
-                    }
-                    className="relative text-gray-400 hover:text-white"
-                  >
-                    <BellIcon className="h-6 w-6" />
-                    {unreadCount > 0 && (
-                      <span
-                        className="absolute -top-1 -right-1 h-5 w-5 bg-orange-500 rounded-full 
-                                    text-xs flex items-center justify-center text-white font-medium"
-                      >
-                        {unreadCount}
-                      </span>
-                    )}
-                  </motion.button>
-
-                  {/* Notification Panel */}
-                  <AnimatePresence>
-                    {activeDropdown === "notifications" && (
-                      <motion.div
-                        initial={{ opacity: 0, y: 10, scale: 0.95 }}
-                        animate={{ opacity: 1, y: 0, scale: 1 }}
-                        exit={{ opacity: 0, y: 10, scale: 0.95 }}
-                        className="absolute right-0 mt-2 w-80 bg-gray-800 border border-gray-700 
-                                  rounded-xl shadow-xl overflow-hidden z-50"
-                      >
-                        <div className="p-4 border-b border-gray-700">
-                          <div className="flex items-center justify-between">
-                            <h3 className="text-lg font-semibold text-white">
-                              Notifications
-                            </h3>
-                            <div className="flex space-x-2">
-                              {unreadCount > 0 && (
-                                <motion.button
-                                  whileHover={{ scale: 1.05 }}
-                                  whileTap={{ scale: 0.95 }}
-                                  onClick={markAllAsRead}
-                                  className="text-xs text-orange-400 hover:text-orange-300"
-                                >
-                                  Mark all as read
-                                </motion.button>
-                              )}
-                            </div>
-                          </div>
-                        </div>
-
-                        <div className="max-h-[480px] overflow-y-auto">
-                          {userNotifications.length > 0 ? (
-                            userNotifications.map((notification) => (
-                              <motion.div
-                                key={notification.id}
-                                initial={{ opacity: 0 }}
-                                animate={{ opacity: 1 }}
-                                exit={{ opacity: 0 }}
-                                className={`p-4 border-b border-gray-700/50 hover:bg-gray-700/30 relative ${
-                                  notification.isUnread ? "bg-gray-700/20" : ""
-                                }`}
-                              >
-                                <div className="flex">
-                                  <div className="flex-shrink-0 mr-3 mt-1">
-                                    {getNotificationIcon(notification.type)}
-                                  </div>
-                                  <div className="flex-1">
-                                    <div className="flex justify-between">
-                                      <p
-                                        className={`font-medium ${
-                                          notification.isUnread
-                                            ? "text-white"
-                                            : "text-gray-300"
-                                        }`}
-                                      >
-                                        {notification.title}
-                                      </p>
-                                      <div className="flex items-center space-x-1 ml-2">
-                                        {notification.isUnread && (
-                                          <div className="h-2 w-2 bg-orange-500 rounded-full"></div>
-                                        )}
-                                      </div>
-                                    </div>
-                                    <p className="text-gray-400 text-sm mt-1">
-                                      {notification.message}
-                                    </p>
-                                    <div className="flex justify-between items-center mt-2">
-                                      <div className="flex items-center text-gray-500 text-xs">
-                                        <ClockIcon className="h-3 w-3 mr-1" />
-                                        {notification.time}
-                                      </div>
-                                      <div className="flex space-x-1">
-                                        {notification.isUnread && (
-                                          <button
-                                            onClick={() =>
-                                              markAsRead(notification.id)
-                                            }
-                                            className="text-xs text-gray-400 hover:text-white"
-                                          >
-                                            Mark as read
-                                          </button>
-                                        )}
-                                        <button
-                                          onClick={() =>
-                                            deleteNotification(notification.id)
-                                          }
-                                          className="text-xs text-gray-400 hover:text-white"
-                                        >
-                                          Delete
-                                        </button>
-                                      </div>
-                                    </div>
-                                  </div>
-                                </div>
-                              </motion.div>
-                            ))
-                          ) : (
-                            <div className="p-6 text-center">
-                              <p className="text-gray-400">No notifications</p>
-                            </div>
-                          )}
-                        </div>
-
-                        <div className="p-3 border-t border-gray-700 text-center">
-                          <Link
-                            href="/notifications"
-                            className="text-sm text-orange-400 hover:text-orange-300"
-                          >
-                            View all notifications
-                          </Link>
-                        </div>
-                      </motion.div>
-                    )}
-                  </AnimatePresence>
-                </div>
 
                 {/* User Menu */}
                 <div className="relative" ref={profileRef}>
@@ -402,8 +273,18 @@ export default function NavbarSupp() {
                     className="flex items-center space-x-3 text-gray-400 hover:text-white 
                              bg-gray-800/50 rounded-lg px-4 py-2"
                   >
-                    <UserCircleIcon className="h-8 w-8" />
-                    <span className="font-medium">John Doe</span>
+                    {data?.image ? (
+                      <Image
+                        src={data?.image}
+                        alt="User Avatar"
+                        width={32}
+                        height={32}
+                        className="rounded-full h-8 w-8 object-cover"
+                      />
+                    ) : (
+                      <UserCircleIcon className="h-8 w-8" />
+                    )}
+                    <span className="font-medium">{data?.name}</span>
                   </motion.button>
 
                   <AnimatePresence>
@@ -421,8 +302,8 @@ export default function NavbarSupp() {
                             whileHover={{
                               backgroundColor: "rgba(255,255,255,0.1)",
                             }}
-                            className="flex items-center space-x-2 w-full px-4 py-3 text-gray-300 
-                                     hover:text-white transition-colors"
+                            className="flex items-center space-x-2 w-full px-4 py-3 text-gray-300 hover:text-white transition-colors"
+                            onClick={() => logOut(router)}
                           >
                             {item.icon}
                             <span>{item.label}</span>

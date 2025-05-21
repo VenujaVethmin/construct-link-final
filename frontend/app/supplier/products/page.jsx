@@ -1,22 +1,21 @@
 "use client";
 
-import { useState, useRef, useCallback } from "react";
+import axiosInstance from "@/lib/axiosInstance";
 import {
   ArrowLeftIcon,
-  PhotoIcon,
-  XMarkIcon,
   CheckCircleIcon,
+  PhotoIcon,
   PlusIcon,
-  DocumentTextIcon,
+  QuestionMarkCircleIcon,
   ShieldCheckIcon,
   TagIcon,
-  QuestionMarkCircleIcon,
+  XMarkIcon
 } from "@heroicons/react/24/outline";
 import Image from "next/image";
 import Link from "next/link";
-import { toast, Toaster } from "sonner";
 import { useRouter } from "next/navigation";
-import axiosInstance from "@/lib/axiosInstance";
+import { useRef, useState } from "react";
+import { toast, Toaster } from "sonner";
 
 const AddProductPage = () => {
   const router = useRouter();

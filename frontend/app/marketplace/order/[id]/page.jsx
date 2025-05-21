@@ -1,23 +1,23 @@
 "use client";
 
-import { useState, useEffect } from "react";
-import { useParams } from "next/navigation";
-import Image from "next/image";
-import Link from "next/link";
-import { motion } from "framer-motion";
+import axiosInstance from "@/lib/axiosInstance";
 import {
+  CheckCircleIcon,
   ChevronLeftIcon,
-  PlusCircleIcon,
+  ClipboardDocumentListIcon,
   MinusIcon,
+  PlusCircleIcon,
   PlusIcon,
   TruckIcon,
-  ClipboardDocumentListIcon,
   XMarkIcon,
-  CheckCircleIcon,
 } from "@heroicons/react/24/outline";
-import axiosInstance from "@/lib/axiosInstance";
-import useSWR from "swr";
+import { motion } from "framer-motion";
+import Image from "next/image";
+import Link from "next/link";
+import { useParams } from "next/navigation";
+import { useEffect, useState } from "react";
 import { toast } from "sonner";
+import useSWR from "swr";
 
 
 const fetcher = (url) => axiosInstance.get(url).then((res) => res.data);

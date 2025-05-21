@@ -26,33 +26,7 @@ import useSWR from "swr";
 
 const fetcher = (url) => axiosInstance.get(url).then((res) => res.data);
 
-const navLinks = [
-  {
-    href: "/user/dashboard",
-    label: "Home",
-    icon: <HomeIcon className="h-6 w-6" />,
-  },
-  {
-    href: "/user/projects",
-    label: "Projects",
-    icon: <ChartBarIcon className="h-6 w-6" />,
-  },
-  {
-    href: "/marketplace",
-    label: "Market",
-    icon: <BuildingStorefrontIcon className="h-6 w-6" />,
-  },
-  {
-    href: "/talents",
-    label: "Talents",
-    icon: <UserGroupIcon className="h-6 w-6" />,
-  },
-  {
-    href: "/user/profile",
-    label: "Profile",
-    icon: <UserCircleIcon className="h-6 w-6" />,
-  },
-];
+
 
 const userMenuItems = [
   
@@ -112,6 +86,30 @@ export default function Navbar() {
       isLoading,
       mutate,
     } = useSWR("/me", fetcher);
+
+    const navLinks = [
+      {
+        href: `/${data?.role.toLowerCase()}/dashboard`,
+        label: "Dashboard",
+        icon: <HomeIcon className="h-6 w-6" />,
+      },
+    
+      {
+        href: "/marketplace",
+        label: "Market",
+        icon: <BuildingStorefrontIcon className="h-6 w-6" />,
+      },
+      {
+        href: "/talents",
+        label: "Talents",
+        icon: <UserGroupIcon className="h-6 w-6" />,
+      },
+      {
+        href: "/user/profile",
+        label: "Profile",
+        icon: <UserCircleIcon className="h-6 w-6" />,
+      },
+    ];
     const router = useRouter();
   const pathname = usePathname();
   const [isScrolled, setIsScrolled] = useState(false);
@@ -234,7 +232,7 @@ export default function Navbar() {
 
               {/* Desktop Links */}
               <div className="flex items-center space-x-4">
-                {navLinks.slice(0, 4).map((link) => (
+                {navLinks.slice(0, 3).map((link) => (
                   <motion.div
                     key={link.href}
                     whileHover={{ scale: 1.05 }}

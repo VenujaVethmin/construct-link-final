@@ -1,21 +1,20 @@
 "use client";
 
-import { useState } from "react";
-import { useRouter } from "next/navigation";
-import { motion } from "framer-motion";
+import axiosInstance from "@/lib/axiosInstance";
 import {
-  CheckCircleIcon,
-  XCircleIcon,
-  EyeIcon,
-  ClockIcon,
   BriefcaseIcon,
   BuildingOfficeIcon,
   CalendarIcon,
+  CheckCircleIcon,
+  ClockIcon,
+  XCircleIcon
 } from "@heroicons/react/24/outline";
-import axiosInstance from "@/lib/axiosInstance";
-import useSWR from "swr";
 import { format } from "date-fns";
+import { motion } from "framer-motion";
+import { useRouter } from "next/navigation";
+import { useState } from "react";
 import { toast } from "sonner";
+import useSWR from "swr";
 
 const fetcher = (url) => axiosInstance.get(url).then((res) => res.data);
 

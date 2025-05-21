@@ -2,27 +2,27 @@
 
 import {
   AdjustmentsHorizontalIcon,
-  MagnifyingGlassIcon,
-  ShoppingBagIcon,
-  StarIcon,
-  XMarkIcon,
-  PencilIcon,
-  TrashIcon,
-  PlusIcon,
   ExclamationTriangleIcon,
   InformationCircleIcon,
+  MagnifyingGlassIcon,
+  PencilIcon,
+  ShoppingBagIcon,
+  TrashIcon,
+  XMarkIcon
 } from "@heroicons/react/24/outline";
 import { StarIcon as StarIconSolid } from "@heroicons/react/24/solid";
 import { AnimatePresence, motion } from "framer-motion";
 import Image from "next/image";
-import { useState } from "react";
 import Link from "next/link";
+import { useState } from "react";
 
 import { useRouter } from "next/navigation";
 
+import LoadingScreen from "@/components/LoadingScreen";
 import axiosInstance from "@/lib/axiosInstance";
-import useSWR from "swr";
 import { toast } from "sonner";
+import useSWR from "swr";
+
 
 const fetcher = (url) => axiosInstance.get(url).then((res) => res.data);
 
@@ -61,6 +61,8 @@ const categories = [
 const StorePage = () => {
   const router = useRouter();
   const { data, error, isLoading, mutate } = useSWR("/supplier/store", fetcher);
+
+ 
 
   const [selectedCategory, setSelectedCategory] = useState("All Products");
   const [searchQuery, setSearchQuery] = useState("");
@@ -146,14 +148,12 @@ const StorePage = () => {
       ]
     : categories;
 
-  if (isLoading) {
-    return (
-      <div className="flex justify-center items-center min-h-screen">
-        <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-orange-500"></div>
-      </div>
-    );
-  }
+    if (isLoading) {
+      return <LoadingScreen />;
+    }
+  
 
+    
   if (error) {
     return (
       <div className="flex justify-center items-center min-h-screen">
@@ -312,9 +312,9 @@ const StorePage = () => {
               : "No products match your current filters."}
           </p>
           {data?.length === 0 && (
-            <Link href="/supplier/products/new">
+            <Link href="/supplier/products">
               <button className="px-6 py-3 bg-orange-500 hover:bg-orange-600 text-white rounded-lg transition-colors inline-flex items-center gap-2">
-                <PlusIcon className="h-5 w-5" />
+                
                 Add Your First Product
               </button>
             </Link>
@@ -410,7 +410,7 @@ const StorePage = () => {
                   </div>
                 </div>
 
-                <Link href={`/supplier/products/${product.id}`}>
+                <Link href={`/marketplace/products/${product.id}`}>
                   <button className="w-full mt-3 py-2 bg-gray-700/50 hover:bg-orange-500 text-gray-300 hover:text-white transition-colors rounded-lg text-sm font-medium">
                     View Details
                   </button>

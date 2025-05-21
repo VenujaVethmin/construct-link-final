@@ -1,29 +1,23 @@
 "use client";
 
-import { useState } from "react";
+import axiosInstance from "@/lib/axiosInstance";
 import {
-  StarIcon,
-  PhoneIcon,
+  BuildingOffice2Icon,
+  CalendarIcon,
   EnvelopeIcon,
   MapPinIcon,
-  BuildingOffice2Icon,
-  CheckBadgeIcon,
-  ClockIcon,
-  UserGroupIcon,
-  TruckIcon,
-  ShoppingCartIcon,
-  CalendarIcon,
-  TagIcon,
-  DocumentTextIcon,
+  PhoneIcon,
   ShieldCheckIcon,
+  ShoppingCartIcon,
+  TagIcon,
+  TruckIcon
 } from "@heroicons/react/24/outline";
-import { StarIcon as StarIconSolid } from "@heroicons/react/24/solid";
 import { motion } from "framer-motion";
 import Image from "next/image";
 import Link from "next/link";
 import { useParams } from "next/navigation";
+import { useState } from "react";
 import useSWR from "swr";
-import axiosInstance from "@/lib/axiosInstance";
 
 const fetcher = (url) => axiosInstance.get(url).then((res) => res.data);
 

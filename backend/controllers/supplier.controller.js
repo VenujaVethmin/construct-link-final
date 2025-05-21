@@ -84,6 +84,7 @@ export const dashboard = async (req , res) => {
           select: {
             name: true,
             description: true,
+            image:true
           },
         },
       },

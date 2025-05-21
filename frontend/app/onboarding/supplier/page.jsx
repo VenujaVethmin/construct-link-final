@@ -1,8 +1,5 @@
 "use client";
 
-import { useState } from "react";
-import Image from "next/image";
-import { useRouter } from "next/navigation";
 import axiosInstance from "@/lib/axiosInstance";
 import {
   ArrowRightIcon,
@@ -10,9 +7,11 @@ import {
   CloudArrowUpIcon,
   MapPinIcon,
   PencilIcon,
-  PlusCircleIcon,
-  XCircleIcon,
+  XCircleIcon
 } from "@heroicons/react/24/outline";
+import Image from "next/image";
+import { useRouter } from "next/navigation";
+import { useState } from "react";
 
 // Product categories (not used in this form, but kept for future use)
 const productCategories = [
@@ -41,7 +40,8 @@ const SupplierOnboardingPage = () => {
   const [step, setStep] = useState(1);
   const [loading, setLoading] = useState(false);
   const [logoImage, setLogoImage] = useState(null); // preview URL
-  const [imageUrl, setLogoFile] = useState(null); // actual file
+  const [imageUrl, setImageUrl] = useState(null); // actual file
+  console.log('url '+imageUrl)
 
   // Company info
   const [companyInfo, setCompanyInfo] = useState({
@@ -99,7 +99,7 @@ const SupplierOnboardingPage = () => {
 
         if (res.status === 200) {
           window.alert("Image uploaded successfully");
-          setLogoFile(res.data.secure_url);
+          setImageUrl(res.data.url);
         
         } else {
           toast.error("Failed to upload image");
@@ -113,7 +113,7 @@ const SupplierOnboardingPage = () => {
     }
    
       setLogoImage(URL.createObjectURL(e.target.files[0]));
-      setLogoFile(e.target.files[0]);
+     
     
   };
 

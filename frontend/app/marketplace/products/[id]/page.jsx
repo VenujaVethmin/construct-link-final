@@ -10,15 +10,11 @@ import {
   ChevronDownIcon,
   ChevronRightIcon,
   CurrencyDollarIcon,
-  DocumentTextIcon,
   HeartIcon,
   MapPinIcon,
-  PencilSquareIcon,
-  PhotoIcon,
   QuestionMarkCircleIcon,
   ShareIcon,
   ShieldCheckIcon,
-  StarIcon,
   TruckIcon,
   XMarkIcon
 } from "@heroicons/react/24/outline";
@@ -31,9 +27,10 @@ import Image from "next/image";
 import Link from "next/link";
 import { useRef, useState } from "react";
 
+import LoadingScreen from "@/components/LoadingScreen";
 import axiosInstance from "@/lib/axiosInstance";
-import useSWR from "swr";
 import { useParams } from "next/navigation";
+import useSWR from "swr";
 
 const fetcher = (url) => axiosInstance.get(url).then((res) => res.data);
 
@@ -126,6 +123,10 @@ const displaySrc = images[selectedImage] ?? "/noimage.webp";
       images: [],
     });
   };
+
+  if (isLoading) {
+    return <LoadingScreen />;
+  }
 
   return (
     <div className="min-h-screen bg-gray-900">
