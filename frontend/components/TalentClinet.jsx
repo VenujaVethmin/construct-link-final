@@ -462,7 +462,7 @@ const TalentSearchPage = () => {
                           <div className="flex flex-col md:flex-row gap-6">
                             <div className="relative h-24 w-24 md:h-32 md:w-32 rounded-xl overflow-hidden flex-shrink-0">
                               <Image
-                                src={talent.image || "/placeholder-avatar.png"}
+                                src={talent.image || "/noavatar.png"}
                                 alt={talent.name}
                                 fill
                                 className="object-cover"
