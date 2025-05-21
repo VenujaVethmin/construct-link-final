@@ -89,7 +89,7 @@ const SupplierProfile = () => {
         <div className="relative rounded-xl overflow-hidden">
           <div className="h-48 sm:h-64">
             <Image
-              src={supplierData.image || "/noimage.webp"}
+              src={supplierData.image || "/nosupplier.webp"}
               alt={supplierData.name}
               fill
               className="object-cover"
@@ -274,7 +274,7 @@ const SupplierProfile = () => {
                               src={
                                 product.images && product.images.length > 0
                                   ? product.images[0]
-                                  : "/noimage.webp"
+                                  : "/nosupplier.webp"
                               }
                               alt={product.name}
                               fill

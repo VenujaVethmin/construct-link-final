@@ -387,7 +387,6 @@ const TalentsPage = () => {
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-           
             {data?.map((professional, index) => (
               <motion.div
                 key={professional.id}
@@ -401,7 +400,7 @@ const TalentsPage = () => {
                 {/* Image & Name */}
                 <div className="relative h-48">
                   <Image
-                    src={professional.image || "/noimage.webp"}
+                    src={professional.image || "/noavatar.png"}
                     alt={professional.name}
                     fill
                     className="object-cover transition-transform duration-700 group-hover:scale-105"
@@ -462,7 +461,6 @@ const TalentsPage = () => {
                         Rs. {professional.talentProfile?.hourlyRate || 0}/hr
                       </span>
                     </div>
-                  
                   </div>
 
                   {/* About */}
@@ -512,7 +510,6 @@ const TalentsPage = () => {
                   </div>
 
                   {/* Completed Projects */}
-                 
                 </div>
 
                 {/* Actions */}
@@ -533,7 +530,6 @@ const TalentsPage = () => {
                 </div>
               </motion.div>
             ))}
-            
           </div>
         </div>
       </div>

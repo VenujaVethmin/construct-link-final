@@ -53,7 +53,17 @@ export default function Onboarding() {
 
         if (res.status === 200) {
          
-          router.push("/auth/redirect");
+          if (selectedType === "PROFFESIONAL") {
+            router.push("/onboarding/talent");
+          }
+
+          if (selectedType === "SUPPLIER") {
+            router.push("/onboarding/supplier");
+          }
+          if (selectedType === "CLIENT") {
+            router.push("/client/dashboard");
+          }
+         
         }
 
         setIsLoading(false); // Stop loader regardless of success

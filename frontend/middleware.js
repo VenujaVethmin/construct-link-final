@@ -195,5 +195,7 @@ export const config = {
     "/onboarding/:path*",
     "/auth/redirect",
     "/auth/onboarding",
+    "/marketplace/:path*",
+    "/talents/:path*",
   ],
 };

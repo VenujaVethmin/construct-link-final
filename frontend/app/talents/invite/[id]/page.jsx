@@ -114,8 +114,9 @@ const ProjectInvitationPage = () => {
               Invitation Sent Successfully!
             </h2>
             <p className="text-gray-300 mb-8">
-              Your invitation to {data?.talent.name} for the {selectedProject?.name}{" "}
-              project has been sent. You'll be notified when they respond.
+              Your invitation to {data?.talent.name} for the{" "}
+              {selectedProject?.name} project has been sent. You'll be notified
+              when they respond.
             </p>
             <div className="flex flex-col sm:flex-row gap-4 justify-center">
               <Link
@@ -144,7 +145,7 @@ const ProjectInvitationPage = () => {
                   <div className="flex items-center gap-4">
                     <div className="w-14 h-14 rounded-lg overflow-hidden flex-shrink-0">
                       <Image
-                        src={data?.talent.image || "/noimage.webp"}
+                        src={data?.talent.image || "/noavatar.png"}
                         alt={data?.talent.name || "talent"}
                         width={56}
                         height={56}
@@ -152,8 +153,12 @@ const ProjectInvitationPage = () => {
                       />
                     </div>
                     <div>
-                      <h2 className="text-white font-medium">{data?.talent.name}</h2>
-                      <p className="text-orange-400 text-sm">{data?.talent?.talentProfile.title}</p>
+                      <h2 className="text-white font-medium">
+                        {data?.talent.name}
+                      </h2>
+                      <p className="text-orange-400 text-sm">
+                        {data?.talent?.talentProfile.title}
+                      </p>
                       <div className="text-gray-400 text-xs mt-1">
                         {data?.talent?.specialization}
                       </div>
@@ -163,7 +168,7 @@ const ProjectInvitationPage = () => {
                     <div className="flex justify-between items-center">
                       <div className="text-gray-400 text-sm">Hourly Rate</div>
                       <div className="text-white font-medium">
-                       Rs. {data?.talent?.talentProfile?.hourlyRate}
+                        Rs. {data?.talent?.talentProfile?.hourlyRate}
                       </div>
                     </div>
                   </div>
@@ -196,9 +201,7 @@ const ProjectInvitationPage = () => {
                         >
                           {selectedProject ? (
                             <div className="flex items-center gap-2">
-                              <div className="w-6 h-6 rounded overflow-hidden bg-gray-600 flex-shrink-0">
-                               
-                              </div>
+                              <div className="w-6 h-6 rounded overflow-hidden bg-gray-600 flex-shrink-0"></div>
                               <span>{selectedProject.name}</span>
                             </div>
                           ) : (
@@ -216,7 +219,6 @@ const ProjectInvitationPage = () => {
                                 className="w-full px-4 py-3 flex items-center gap-3 hover:bg-gray-600/50 text-left border-b border-gray-600/30 last:border-0"
                                 onClick={() => handleProjectSelect(project)}
                               >
-                               
                                 <div>
                                   <div className="text-white font-medium">
                                     {project.name}
@@ -255,7 +257,8 @@ const ProjectInvitationPage = () => {
                           <div className="flex items-center gap-2 text-gray-300">
                             <CurrencyDollarIcon className="h-4 w-4 text-gray-400" />
                             <span>
-                              ${selectedProject?.budget?.toLocaleString()} budget
+                              ${selectedProject?.budget?.toLocaleString()}{" "}
+                              budget
                             </span>
                           </div>
                           <div className="flex items-center gap-2 text-gray-300">
@@ -272,10 +275,6 @@ const ProjectInvitationPage = () => {
                         </div>
                       </div>
                     )}
-
-                    
-
-
 
                     {/* Message */}
                     <div>
@@ -295,14 +294,9 @@ const ProjectInvitationPage = () => {
                     <div className="flex justify-end">
                       <button
                         type="submit"
-                        disabled={
-                          !selectedProject ||
-                          isSubmitting 
-                          
-                        }
+                        disabled={!selectedProject || isSubmitting}
                         className={`px-6 py-3 rounded-lg text-white font-medium flex items-center gap-2 ${
-                          !selectedProject ||
-                          isSubmitting 
+                          !selectedProject || isSubmitting
                             ? "bg-gray-600 cursor-not-allowed"
                             : "bg-orange-500 hover:bg-orange-600"
                         } transition-colors`}

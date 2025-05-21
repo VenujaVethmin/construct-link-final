@@ -413,7 +413,7 @@ const Marketplace = () => {
                 <Link href={`/marketplace/suppliers/${supplier.id}`}>
                   <div className="relative aspect-video">
                     <Image
-                      src={supplier.image || "/noimage.webp"}
+                      src={supplier.image || "/nosupplier.webp"}
                       alt={supplier.name}
                       fill
                       className="object-cover"

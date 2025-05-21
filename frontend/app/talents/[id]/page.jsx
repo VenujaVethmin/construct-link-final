@@ -203,7 +203,10 @@ const TalentProfilePage = () => {
       {/* Profile Header/Banner */}
       <div className="relative h-64 sm:h-80">
         <Image
-          src={talent?.coverImage || "https://images.unsplash.com/photo-1516937941344-00b4e0337589?q=80&w=1887&auto=format"}
+          src={
+            talent?.coverImage ||
+            "https://images.unsplash.com/photo-1516937941344-00b4e0337589?q=80&w=1887&auto=format"
+          }
           alt="Cover image"
           fill
           className="object-cover"
@@ -219,7 +222,7 @@ const TalentProfilePage = () => {
               {/* Profile Image */}
               <div className="w-32 h-32 rounded-xl border-4 border-gray-800 overflow-hidden flex-shrink-0 shadow-lg">
                 <Image
-                  src={talent?.image || "/noimage.webp"}
+                  src={talent?.image || "/noavatar.png"}
                   alt={talent?.name || "talent"}
                   width={128}
                   height={128}
@@ -259,7 +262,10 @@ const TalentProfilePage = () => {
                       </div>
                       <div className="flex items-center gap-1 text-gray-300">
                         <BriefcaseIcon className="h-5 w-5" />
-                        <span>{talent?.talentProfile?.yearsExperience} years experience</span>
+                        <span>
+                          {talent?.talentProfile?.yearsExperience} years
+                          experience
+                        </span>
                       </div>
                     </div>
                   </div>
@@ -268,26 +274,25 @@ const TalentProfilePage = () => {
                   <div className="bg-gray-700/50 rounded-lg p-4 text-center">
                     <p className="text-gray-300 text-sm mb-1">Hourly Rate /</p>
                     <p className="text-white text-2xl font-bold mb-1">
-                     Rs. {talent?.talentProfile?.hourlyRate}
+                      Rs. {talent?.talentProfile?.hourlyRate}
                     </p>
-                
                   </div>
                 </div>
 
                 {/* Quick Stats */}
                 <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4 mt-6">
-                  <div className="bg-gray-700/30 rounded-lg p-3 text-center">
+                  {/* <div className="bg-gray-700/30 rounded-lg p-3 text-center">
                     <p className="text-gray-300 text-xs mb-1">
                       Projects Completed
                     </p>
                     <p className="text-white text-xl font-bold">
                       {talent?.talentProfile.completedProjects}
                     </p>
-                  </div>
+                  </div> */}
                   <div className="bg-gray-700/30 rounded-lg p-3 text-center">
                     <p className="text-gray-300 text-xs mb-1">Specialization</p>
                     <p className="text-white text-md font-medium">
-                      {talent?.talentProfile.specialization}
+                      {talent?.talentProfile?.specialization}
                     </p>
                   </div>
                   <div className="bg-gray-700/30 rounded-lg p-3 text-center">
@@ -312,9 +317,9 @@ const TalentProfilePage = () => {
                 <ChatBubbleLeftRightIcon className="h-5 w-5" />
                 Message
               </button>
-              <Link href={`/talents/invite/${params.id}`}
+              <Link
+                href={`/talents/invite/${params.id}`}
                 className="px-6 py-2 bg-orange-500 hover:bg-orange-600 text-white rounded-lg transition-colors"
-                
               >
                 Invite to Project
               </Link>
@@ -346,7 +351,9 @@ const TalentProfilePage = () => {
               {activeTab === "about" && (
                 <div>
                   <h2 className="text-xl font-bold text-white mb-4">About</h2>
-                  <p className="text-gray-300 mb-8">{talent?.talentProfile.about}</p>
+                  <p className="text-gray-300 mb-8">
+                    {talent?.talentProfile?.about}
+                  </p>
 
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
                     {/* Skills */}
@@ -394,17 +401,19 @@ const TalentProfilePage = () => {
                       Certifications
                     </h3>
                     <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
-                      {talent?.talentProfile?.certifications?.map((cert, index) => (
-                        <div
-                          key={index}
-                          className="bg-gray-700/30 border border-gray-700/50 rounded-lg p-4 flex items-center gap-3"
-                        >
-                          <div className="w-10 h-10 rounded-full bg-orange-500/20 flex items-center justify-center flex-shrink-0">
-                            <ClipboardDocumentCheckIcon className="h-5 w-5 text-orange-400" />
+                      {talent?.talentProfile?.certifications?.map(
+                        (cert, index) => (
+                          <div
+                            key={index}
+                            className="bg-gray-700/30 border border-gray-700/50 rounded-lg p-4 flex items-center gap-3"
+                          >
+                            <div className="w-10 h-10 rounded-full bg-orange-500/20 flex items-center justify-center flex-shrink-0">
+                              <ClipboardDocumentCheckIcon className="h-5 w-5 text-orange-400" />
+                            </div>
+                            <span className="text-white">{cert}</span>
                           </div>
-                          <span className="text-white">{cert}</span>
-                        </div>
-                      ))}
+                        )
+                      )}
                     </div>
                   </div>
                 </div>
@@ -602,8 +611,6 @@ const TalentProfilePage = () => {
           </div>
         </div>
       </div>
-
-    
     </div>
   );
 };
